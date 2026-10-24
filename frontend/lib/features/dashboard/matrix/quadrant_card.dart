@@ -100,61 +100,116 @@ class QuadrantCard extends StatelessWidget {
               )
             else
               ...items.map(
-                (item) {
-                  final isSelected = selectedRecipe != null && item.recipe.id == selectedRecipe!.id;
-                  return InkWell(
-                    onTap: onRecipeTap != null ? () => onRecipeTap!(item.recipe) : null,
-                    borderRadius: BorderRadius.circular(6),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                      margin: const EdgeInsets.symmetric(vertical: 2),
-                      decoration: BoxDecoration(
-                        color: isSelected ? color.withValues(alpha: 0.12) : Colors.transparent,
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(
-                          color: isSelected ? color.withValues(alpha: 0.4) : Colors.transparent,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Row(
-                              children: [
-                                if (isSelected) ...[
-                                  Icon(Icons.arrow_right_rounded, size: 16, color: color),
-                                  const SizedBox(width: 2),
-                                ],
-                                Expanded(
-                                  child: Text(
-                                    item.recipe.name,
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                                      color: isSelected ? color : AppTheme.textPrimary,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Text(
-                            '${item.recipe.unitsSoldMonthly} จาน',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: isSelected ? color : AppTheme.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+                (item) => _QuadrantMenuItemTile(
+                  item: item,
+                  color: color,
+                  isSelected: selectedRecipe != null && item.recipe.id == selectedRecipe!.id,
+                  onTap: onRecipeTap != null ? () => onRecipeTap!(item.recipe) : null,
+                ),
               ),
           ],
         ),
       );
     }
+}
+
+class _QuadrantMenuItemTile extends StatefulWidget {
+  final MenuMatrixItem item;
+  final Color color;
+  final bool isSelected;
+  final VoidCallback? onTap;
+
+  const _QuadrantMenuItemTile({
+    required this.item,
+    required this.color,
+    required this.isSelected,
+    this.onTap,
+  });
+
+  @override
+  State<_QuadrantMenuItemTile> createState() => _QuadrantMenuItemTileState();
+}
+
+class _QuadrantMenuItemTileState extends State<_QuadrantMenuItemTile> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final active = widget.isSelected || _isHovered;
+
+    return MouseRegion(
+      cursor: widget.onTap != null ? SystemMouseCursors.click : MouseCursor.defer,
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 160),
+        curve: Curves.easeOutCubic,
+        transform: Matrix4.translationValues(0, _isHovered ? -2.0 : 0.0, 0),
+        margin: const EdgeInsets.symmetric(vertical: 2.5),
+        child: InkWell(
+          onTap: widget.onTap,
+          borderRadius: BorderRadius.circular(8),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 160),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            decoration: BoxDecoration(
+              color: widget.isSelected
+                  ? widget.color.withValues(alpha: 0.16)
+                  : (_isHovered ? widget.color.withValues(alpha: 0.10) : Colors.transparent),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: widget.isSelected
+                    ? widget.color.withValues(alpha: 0.6)
+                    : (_isHovered ? widget.color.withValues(alpha: 0.35) : Colors.transparent),
+                width: 1,
+              ),
+              boxShadow: _isHovered
+                  ? [
+                      BoxShadow(
+                        color: widget.color.withValues(alpha: 0.15),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      if (active) ...[
+                        Icon(Icons.arrow_right_rounded, size: 18, color: widget.color),
+                        const SizedBox(width: 2),
+                      ],
+                      Expanded(
+                        child: Text(
+                          widget.item.recipe.name,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: active ? FontWeight.bold : FontWeight.w500,
+                            color: active ? Colors.white : AppTheme.textPrimary,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Text(
+                  '${widget.item.recipe.unitsSoldMonthly} จาน',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: active ? widget.color : AppTheme.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

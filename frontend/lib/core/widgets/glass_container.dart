@@ -1,9 +1,10 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 
-/// Reusable Frosted Glass Card / Container with razor-sharp borders and subtle glow.
+/// Reusable Frosted Glass Card / Container with razor-sharp borders, subtle glow,
+/// and smooth interactive hover feedback (TranslateY -2px, brighter border, and enhanced glow).
 /// Styled according to modern dark dashboards (Vercel / React Bits / Linear aesthetics).
-class GlassContainer extends StatelessWidget {
+class GlassContainer extends StatefulWidget {
   final Widget child;
   final double? width;
   final double? height;
@@ -17,6 +18,7 @@ class GlassContainer extends StatelessWidget {
   final double glowOpacity;
   final double glowBlur;
   final VoidCallback? onTap;
+  final bool enableHover;
 
   const GlassContainer({
     super.key,
@@ -33,44 +35,72 @@ class GlassContainer extends StatelessWidget {
     this.glowOpacity = 0.15,
     this.glowBlur = 20.0,
     this.onTap,
+    this.enableHover = true,
   });
 
   @override
-  Widget build(BuildContext context) {
-    final effectiveBorderColor = borderColor ?? Colors.white.withValues(alpha: 0.08);
-    final effectiveBgColor = backgroundColor ?? Colors.white.withValues(alpha: 0.04);
+  State<GlassContainer> createState() => _GlassContainerState();
+}
 
-    Widget container = Container(
-      width: width,
-      height: height,
-      margin: margin,
+class _GlassContainerState extends State<GlassContainer> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final baseBorderColor = widget.borderColor ?? Colors.white.withValues(alpha: 0.08);
+    final hoveredBorderColor = widget.glowColor != null
+        ? widget.glowColor!.withValues(alpha: 0.45)
+        : Colors.white.withValues(alpha: 0.22);
+    final effectiveBorderColor = (_isHovered && widget.enableHover) ? hoveredBorderColor : baseBorderColor;
+
+    final effectiveBgColor = widget.backgroundColor ?? Colors.white.withValues(alpha: 0.04);
+    final effectiveGlowOpacity = (_isHovered && widget.enableHover)
+        ? (widget.glowOpacity * 1.6).clamp(0.0, 0.45)
+        : widget.glowOpacity;
+    final effectiveGlowBlur = (_isHovered && widget.enableHover)
+        ? widget.glowBlur + 8
+        : widget.glowBlur;
+
+    Widget container = AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOutCubic,
+      transform: Matrix4.translationValues(
+        0,
+        (_isHovered && widget.enableHover) ? -2.0 : 0.0,
+        0,
+      ),
+      width: widget.width,
+      height: widget.height,
+      margin: widget.margin,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(borderRadius),
+        borderRadius: BorderRadius.circular(widget.borderRadius),
         boxShadow: [
-          if (glowColor != null)
+          if (widget.glowColor != null)
             BoxShadow(
-              color: glowColor!.withValues(alpha: glowOpacity),
-              blurRadius: glowBlur,
-              spreadRadius: 0,
-              offset: const Offset(0, 4),
+              color: widget.glowColor!.withValues(alpha: effectiveGlowOpacity),
+              blurRadius: effectiveGlowBlur,
+              spreadRadius: (_isHovered && widget.enableHover) ? 1 : 0,
+              offset: Offset(0, (_isHovered && widget.enableHover) ? 6 : 4),
             )
           else
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.35),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
+              color: Colors.black.withValues(alpha: (_isHovered && widget.enableHover) ? 0.45 : 0.35),
+              blurRadius: (_isHovered && widget.enableHover) ? 22 : 16,
+              offset: Offset(0, (_isHovered && widget.enableHover) ? 6 : 4),
             ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(borderRadius),
+        borderRadius: BorderRadius.circular(widget.borderRadius),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-          child: Container(
-            padding: padding,
+          filter: ImageFilter.blur(sigmaX: widget.blur, sigmaY: widget.blur),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOutCubic,
+            padding: widget.padding,
             decoration: BoxDecoration(
               color: effectiveBgColor,
-              borderRadius: BorderRadius.circular(borderRadius),
+              borderRadius: BorderRadius.circular(widget.borderRadius),
               border: Border.all(
                 color: effectiveBorderColor,
                 width: 1.0,
@@ -79,25 +109,38 @@ class GlassContainer extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Colors.white.withValues(alpha: 0.06),
-                  Colors.white.withValues(alpha: 0.02),
+                  Colors.white.withValues(alpha: (_isHovered && widget.enableHover) ? 0.09 : 0.06),
+                  Colors.white.withValues(alpha: (_isHovered && widget.enableHover) ? 0.03 : 0.02),
                 ],
               ),
             ),
-            child: child,
+            child: widget.child,
           ),
         ),
       ),
     );
 
-    if (onTap != null) {
-      return InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(borderRadius),
+    if (widget.onTap != null) {
+      container = InkWell(
+        onTap: widget.onTap,
+        borderRadius: BorderRadius.circular(widget.borderRadius),
         child: container,
       );
     }
 
-    return container;
+    return MouseRegion(
+      cursor: widget.onTap != null ? SystemMouseCursors.click : MouseCursor.defer,
+      onEnter: (_) {
+        if (mounted && widget.enableHover) {
+          setState(() => _isHovered = true);
+        }
+      },
+      onExit: (_) {
+        if (mounted && widget.enableHover) {
+          setState(() => _isHovered = false);
+        }
+      },
+      child: container,
+    );
   }
 }

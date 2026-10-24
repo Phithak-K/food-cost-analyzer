@@ -148,14 +148,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       width: itemWidth,
                       title: 'ยอดขายรวม (Total Revenue)',
                       value: Formatters.currency(metrics.totalRevenue),
+                      numericValue: metrics.totalRevenue,
+                      formatter: (v) => Formatters.currency(v),
                       subtext: 'จากเมนูทั้งหมด ${metrics.classifiedItems.length} รายการ',
                       icon: Icons.payments_outlined,
                       iconColor: AppTheme.primary,
                     ),
                     _KpiCard(
                       width: itemWidth,
-                      title: 'Food Cost เฉลี่ยรวม',
+                      title: 'Food Cost เฉลี่ยรวม (Average Food Cost %)',
                       value: Formatters.percentage(metrics.overallFoodCostPct),
+                      numericValue: metrics.overallFoodCostPct,
+                      formatter: (v) => Formatters.percentage(v),
                       subtext: metrics.overallFoodCostPct <= AppConstants.targetFoodCostMax
                           ? 'อยู่ในเกณฑ์เป้าหมายมาตรฐาน'
                           : 'สูงกว่าเกณฑ์เป้าหมาย (35%)',
@@ -166,18 +170,22 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     ),
                     _KpiCard(
                       width: itemWidth,
-                      title: 'กำไรขั้นต้นรวม (Gross Profit)',
+                      title: 'กำไรขั้นต้นรวม (Overall Margin)',
                       value: Formatters.currency(metrics.totalProfit),
+                      numericValue: metrics.totalProfit,
+                      formatter: (v) => Formatters.currency(v),
                       subtext: 'ต้นทุนอาหารรวม ${Formatters.compactCurrency(metrics.totalFoodCost)}',
                       icon: Icons.trending_up_rounded,
                       iconColor: AppTheme.success,
                     ),
                     _KpiCard(
                       width: itemWidth,
-                      title: 'เมนูดาวเด่น (Stars)',
-                      value: '${metrics.stars.length} เมนู',
-                      subtext: 'คิดเป็น ${((metrics.stars.length / (metrics.classifiedItems.isEmpty ? 1 : metrics.classifiedItems.length)) * 100).toStringAsFixed(0)}% ของเมนูทั้งหมด',
-                      icon: Icons.star_rounded,
+                      title: 'สูตรเมนูที่ใช้งาน (Total Active Recipes)',
+                      value: '${metrics.classifiedItems.length} เมนู',
+                      numericValue: metrics.classifiedItems.length.toDouble(),
+                      formatter: (v) => '${v.toInt()} เมนู',
+                      subtext: 'เมนูดาวเด่น ${metrics.stars.length} รายการ (กำไรดี-ขายดี)',
+                      icon: Icons.restaurant_menu_rounded,
                       iconColor: const Color(0xFFF59E0B),
                     ),
                   ],
@@ -202,44 +210,42 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       // Matrix Quadrant Scatter Plot
                       Expanded(
                         flex: 6,
-                        child: Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(AppConstants.cardPadding),
-                            child: SizedBox(
-                              height: 480,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.grid_view_rounded, size: 20, color: AppTheme.primary),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          'Menu Engineering Matrix (Kasavana & Smith)',
-                                          style: Theme.of(context).textTheme.titleLarge,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
+                        child: GlassContainer(
+                          padding: const EdgeInsets.all(AppConstants.cardPadding),
+                          child: SizedBox(
+                            height: 480,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.grid_view_rounded, size: 20, color: AppTheme.primary),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'Menu Engineering Matrix (Kasavana & Smith)',
+                                        style: Theme.of(context).textTheme.titleLarge,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'แกน X = ยอดขาย (Volume) | แกน Y = กำไรส่วนเกิน (Margin) | คลิกจุดเพื่อดูสัดส่วนต้นทุน',
-                                    style: Theme.of(context).textTheme.bodySmall,
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Expanded(
-                                    child: MenuMatrixChart(
-                                      metrics: metrics,
-                                      selectedRecipe: currentSelected,
-                                      onRecipeSelected: (recipe) {
-                                        setState(() => _selectedRecipe = recipe);
-                                      },
                                     ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'แกน X = ยอดขาย (Volume) | แกน Y = กำไรส่วนเกิน (Margin) | คลิกจุดเพื่อดูสัดส่วนต้นทุน',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                                const SizedBox(height: 12),
+                                Expanded(
+                                  child: MenuMatrixChart(
+                                    metrics: metrics,
+                                    selectedRecipe: currentSelected,
+                                    onRecipeSelected: (recipe) {
+                                      setState(() => _selectedRecipe = recipe);
+                                    },
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -248,18 +254,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       // Recipe Breakdown Pie Chart
                       Expanded(
                         flex: 5,
-                        child: Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(AppConstants.cardPadding),
-                            child: SizedBox(
-                              height: 480,
-                              child: RecipeCostPieChart(
-                                recipe: currentSelected,
-                                availableRecipes: availableRecipes,
-                                onRecipeChanged: (recipe) {
-                                  setState(() => _selectedRecipe = recipe);
-                                },
-                              ),
+                        child: GlassContainer(
+                          padding: const EdgeInsets.all(AppConstants.cardPadding),
+                          child: SizedBox(
+                            height: 480,
+                            child: RecipeCostPieChart(
+                              recipe: currentSelected,
+                              availableRecipes: availableRecipes,
+                              onRecipeChanged: (recipe) {
+                                setState(() => _selectedRecipe = recipe);
+                              },
                             ),
                           ),
                         ),
@@ -269,34 +273,30 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 } else {
                   return Column(
                     children: [
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(AppConstants.cardPadding),
-                          child: SizedBox(
-                            height: 440,
-                            child: MenuMatrixChart(
-                              metrics: metrics,
-                              selectedRecipe: currentSelected,
-                              onRecipeSelected: (recipe) {
-                                setState(() => _selectedRecipe = recipe);
-                              },
-                            ),
+                      GlassContainer(
+                        padding: const EdgeInsets.all(AppConstants.cardPadding),
+                        child: SizedBox(
+                          height: 440,
+                          child: MenuMatrixChart(
+                            metrics: metrics,
+                            selectedRecipe: currentSelected,
+                            onRecipeSelected: (recipe) {
+                              setState(() => _selectedRecipe = recipe);
+                            },
                           ),
                         ),
                       ),
                       const SizedBox(height: 16),
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(AppConstants.cardPadding),
-                          child: SizedBox(
-                            height: 440,
-                            child: RecipeCostPieChart(
-                              recipe: currentSelected,
-                              availableRecipes: availableRecipes,
-                              onRecipeChanged: (recipe) {
-                                setState(() => _selectedRecipe = recipe);
-                              },
-                            ),
+                      GlassContainer(
+                        padding: const EdgeInsets.all(AppConstants.cardPadding),
+                        child: SizedBox(
+                          height: 440,
+                          child: RecipeCostPieChart(
+                            recipe: currentSelected,
+                            availableRecipes: availableRecipes,
+                            onRecipeChanged: (recipe) {
+                              setState(() => _selectedRecipe = recipe);
+                            },
                           ),
                         ),
                       ),
@@ -596,10 +596,39 @@ class _RecommendationItem extends StatelessWidget {
   }
 }
 
+class _AnimatedCounterText extends StatelessWidget {
+  final double endValue;
+  final String Function(double) formatter;
+  final TextStyle? style;
+
+  const _AnimatedCounterText({
+    required this.endValue,
+    required this.formatter,
+    this.style,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: 0.0, end: endValue),
+      duration: const Duration(milliseconds: 1400),
+      curve: Curves.easeOutCubic,
+      builder: (context, value, child) {
+        return Text(
+          formatter(value),
+          style: style,
+        );
+      },
+    );
+  }
+}
+
 class _KpiCard extends StatelessWidget {
   final double width;
   final String title;
   final String value;
+  final double? numericValue;
+  final String Function(double)? formatter;
   final String subtext;
   final IconData icon;
   final Color iconColor;
@@ -608,6 +637,8 @@ class _KpiCard extends StatelessWidget {
     required this.width,
     required this.title,
     required this.value,
+    this.numericValue,
+    this.formatter,
     required this.subtext,
     required this.icon,
     required this.iconColor,
@@ -650,15 +681,27 @@ class _KpiCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.w900,
-              color: AppTheme.textPrimary,
-              letterSpacing: -0.5,
+          if (numericValue != null && formatter != null)
+            _AnimatedCounterText(
+              endValue: numericValue!,
+              formatter: formatter!,
+              style: const TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.w900,
+                color: AppTheme.textPrimary,
+                letterSpacing: -0.5,
+              ),
+            )
+          else
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.w900,
+                color: AppTheme.textPrimary,
+                letterSpacing: -0.5,
+              ),
             ),
-          ),
           const SizedBox(height: 6),
           Text(
             subtext,

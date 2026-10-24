@@ -48,11 +48,13 @@ class MenuMatrixChart extends StatelessWidget {
       return ScatterSpot(
         item.recipe.unitsSoldMonthly.toDouble(),
         item.recipe.contributionMargin,
-        dotPainter: FlDotCirclePainter(
-          radius: isSelected ? 12 : 8,
+        dotPainter: _GlowDotPainter(
+          radius: isSelected ? 9.0 : 6.5,
           color: item.quadrant.color,
-          strokeColor: isSelected ? AppTheme.textPrimary : Colors.white,
-          strokeWidth: isSelected ? 3 : 2,
+          strokeColor: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.85),
+          strokeWidth: isSelected ? 2.5 : 1.5,
+          glowRadius: isSelected ? 20.0 : 13.0,
+          glowOpacity: isSelected ? 0.45 : 0.28,
         ),
       );
     }).toList();
@@ -80,6 +82,13 @@ class MenuMatrixChart extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: q.color,
                         shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: q.color.withValues(alpha: 0.5),
+                            blurRadius: 6,
+                            spreadRadius: 1,
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(width: 6),
@@ -96,21 +105,21 @@ class MenuMatrixChart extends StatelessWidget {
               }).toList(),
             ),
             Container(
-              constraints: const BoxConstraints(maxWidth: 360),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              constraints: const BoxConstraints(maxWidth: 380),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: AppTheme.surfaceMuted,
-                borderRadius: BorderRadius.circular(6),
+                color: Colors.white.withValues(alpha: 0.03),
+                borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: AppTheme.border),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.straighten_rounded, size: 14, color: AppTheme.textSecondary),
+                  const Icon(Icons.straighten_rounded, size: 14, color: AppTheme.primaryNeon),
                   const SizedBox(width: 6),
                   Flexible(
                     child: Text(
-                      'จุดตัดเส้นประ: กำไร ${Formatters.currency(avgMargin)} / ยอดขาย ${avgVolume.toStringAsFixed(0)} จาน',
+                      'เส้นประนีออน: จุดตัดกำไร ${Formatters.currency(avgMargin)} / ยอดขาย ${avgVolume.toStringAsFixed(0)} จาน',
                       style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.textSecondary),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -141,13 +150,13 @@ class MenuMatrixChart extends StatelessWidget {
                               child: Container(
                                 alignment: Alignment.topLeft,
                                 padding: const EdgeInsets.all(8),
-                                color: MenuQuadrant.puzzle.color.withValues(alpha: 0.03),
+                                color: MenuQuadrant.puzzle.color.withValues(alpha: 0.025),
                                 child: Text(
                                   'PUZZLE (กำไรสูง / ยอดขายน้อย)',
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.bold,
-                                    color: MenuQuadrant.puzzle.color.withValues(alpha: 0.7),
+                                    color: MenuQuadrant.puzzle.color.withValues(alpha: 0.6),
                                   ),
                                 ),
                               ),
@@ -157,13 +166,13 @@ class MenuMatrixChart extends StatelessWidget {
                               child: Container(
                                 alignment: Alignment.bottomLeft,
                                 padding: const EdgeInsets.all(8),
-                                color: MenuQuadrant.dog.color.withValues(alpha: 0.03),
+                                color: MenuQuadrant.dog.color.withValues(alpha: 0.025),
                                 child: Text(
                                   'DOG (กำไรต่ำ / ยอดขายน้อย)',
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.bold,
-                                    color: MenuQuadrant.dog.color.withValues(alpha: 0.7),
+                                    color: MenuQuadrant.dog.color.withValues(alpha: 0.6),
                                   ),
                                 ),
                               ),
@@ -180,13 +189,13 @@ class MenuMatrixChart extends StatelessWidget {
                               child: Container(
                                 alignment: Alignment.topRight,
                                 padding: const EdgeInsets.all(8),
-                                color: MenuQuadrant.star.color.withValues(alpha: 0.03),
+                                color: MenuQuadrant.star.color.withValues(alpha: 0.025),
                                 child: Text(
                                   'STAR (กำไรสูง / ยอดขายสูง)',
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.bold,
-                                    color: MenuQuadrant.star.color.withValues(alpha: 0.7),
+                                    color: MenuQuadrant.star.color.withValues(alpha: 0.6),
                                   ),
                                 ),
                               ),
@@ -196,13 +205,13 @@ class MenuMatrixChart extends StatelessWidget {
                               child: Container(
                                 alignment: Alignment.bottomRight,
                                 padding: const EdgeInsets.all(8),
-                                color: MenuQuadrant.plowhorse.color.withValues(alpha: 0.03),
+                                color: MenuQuadrant.plowhorse.color.withValues(alpha: 0.025),
                                 child: Text(
                                   'PLOWHORSE (กำไรต่ำ / ยอดขายสูง)',
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.bold,
-                                    color: MenuQuadrant.plowhorse.color.withValues(alpha: 0.7),
+                                    color: MenuQuadrant.plowhorse.color.withValues(alpha: 0.6),
                                   ),
                                 ),
                               ),
@@ -225,28 +234,28 @@ class MenuMatrixChart extends StatelessWidget {
                   maxY: maxMargin,
                   borderData: FlBorderData(
                     show: true,
-                    border: Border.all(color: AppTheme.border),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
                   ),
                   gridData: FlGridData(
                     show: true,
                     drawHorizontalLine: true,
                     drawVerticalLine: true,
                     checkToShowHorizontalLine: (val) {
-                      // Always draw line at average margin
                       return (val - avgMargin).abs() < 1.0 || val % (maxMargin / 4).round() == 0;
                     },
                     getDrawingHorizontalLine: (val) {
                       final isAvgLine = (val - avgMargin).abs() < 2.0;
                       if (isAvgLine) {
                         return FlLine(
-                          color: AppTheme.textPrimary.withValues(alpha: 0.8),
-                          strokeWidth: 2,
-                          dashArray: [6, 4], // Dashed line for Average Margin threshold!
+                          color: AppTheme.primaryNeon.withValues(alpha: 0.8),
+                          strokeWidth: 1.8,
+                          dashArray: [6, 4], // Dashed neon threshold line
                         );
                       }
                       return FlLine(
-                        color: AppTheme.borderSubtle,
+                        color: Colors.white.withValues(alpha: 0.05),
                         strokeWidth: 1,
+                        dashArray: [4, 6], // Minimal subtle grey gridlines
                       );
                     },
                     checkToShowVerticalLine: (val) {
@@ -256,14 +265,15 @@ class MenuMatrixChart extends StatelessWidget {
                       final isAvgLine = (val - avgVolume).abs() < 2.0;
                       if (isAvgLine) {
                         return FlLine(
-                          color: AppTheme.textPrimary.withValues(alpha: 0.8),
-                          strokeWidth: 2,
-                          dashArray: [6, 4], // Dashed line for Average Volume threshold!
+                          color: AppTheme.primaryNeon.withValues(alpha: 0.8),
+                          strokeWidth: 1.8,
+                          dashArray: [6, 4], // Dashed neon threshold line
                         );
                       }
                       return FlLine(
-                        color: AppTheme.borderSubtle,
+                        color: Colors.white.withValues(alpha: 0.05),
                         strokeWidth: 1,
+                        dashArray: [4, 6], // Minimal subtle grey gridlines
                       );
                     },
                   ),
@@ -325,7 +335,11 @@ class MenuMatrixChart extends StatelessWidget {
                       }
                     },
                     touchTooltipData: ScatterTouchTooltipData(
-                      getTooltipColor: (spot) => const Color(0xFF1E293B),
+                      getTooltipColor: (spot) => const Color(0xE60F172A), // Dark Glassmorphism
+                      tooltipBorder: const BorderSide(color: Color(0x33FFFFFF), width: 1.0),
+                      tooltipPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      fitInsideHorizontally: true,
+                      fitInsideVertically: true,
                       getTooltipItems: (ScatterSpot touchedSpot) {
                         final matched = items.firstWhere(
                           (item) =>
@@ -335,15 +349,35 @@ class MenuMatrixChart extends StatelessWidget {
                         );
 
                         return ScatterTooltipItem(
-                          '${matched.recipe.name}\n'
-                          'หมวดหมู่: ${matched.quadrant.displayName}\n'
-                          'ยอดขาย: ${matched.recipe.unitsSoldMonthly} จาน | กำไร: ${Formatters.currency(matched.recipe.contributionMargin)}\n'
-                          'Food Cost: ${Formatters.percentage(matched.recipe.foodCostPercentage)} (คลิกเพื่อดูสัดส่วนวัตถุดิบ)',
+                          '${matched.recipe.name}\n',
                           textStyle: const TextStyle(
                             color: Color(0xFFF8FAFC),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            height: 1.4,
                           ),
+                          children: [
+                            TextSpan(
+                              text: 'สถานะ: [ ${matched.quadrant.displayName} ]\n',
+                              style: TextStyle(
+                                color: matched.quadrant.color,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                height: 1.5,
+                              ),
+                            ),
+                            TextSpan(
+                              text: 'ราคาขาย: ${Formatters.currency(matched.recipe.sellingPrice)} | ต้นทุน: ${Formatters.currency(matched.recipe.totalFoodCost)}\n'
+                                  'กำไร (Margin): ${Formatters.currency(matched.recipe.contributionMargin)} (${Formatters.percentage(matched.recipe.foodCostPercentage)})\n'
+                                  'ยอดขาย: ${matched.recipe.unitsSoldMonthly} จาน/เดือน (คลิกดูส่วนประกอบ)',
+                              style: const TextStyle(
+                                color: Color(0xFFCBD5E1),
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                                height: 1.4,
+                              ),
+                            ),
+                          ],
                         );
                       },
                     ),
@@ -355,5 +389,36 @@ class MenuMatrixChart extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+/// Custom Dot Painter that draws radiant glowing halo aura around scatter points
+class _GlowDotPainter extends FlDotCirclePainter {
+  final double glowRadius;
+  final double glowOpacity;
+
+  _GlowDotPainter({
+    required super.radius,
+    required super.color,
+    super.strokeWidth = 1.5,
+    super.strokeColor = Colors.white,
+    this.glowRadius = 13.0,
+    this.glowOpacity = 0.28,
+  });
+
+  @override
+  void draw(Canvas canvas, FlSpot spot, Offset offsetInCanvas) {
+    // 1. Radiant Glowing Halo
+    final glowPaint = Paint()
+      ..color = color.withValues(alpha: glowOpacity)
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, glowRadius * 0.5);
+    canvas.drawCircle(offsetInCanvas, glowRadius, glowPaint);
+
+    // 2. Secondary soft aura
+    final auraPaint = Paint()..color = color.withValues(alpha: glowOpacity * 0.7);
+    canvas.drawCircle(offsetInCanvas, radius + 2.5, auraPaint);
+
+    // 3. Central Dot & Stroke
+    super.draw(canvas, spot, offsetInCanvas);
   }
 }
