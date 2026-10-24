@@ -22,7 +22,9 @@ class MenuEngineeringApp extends StatelessWidget {
     return MaterialApp.router(
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
+      theme: AppTheme.darkTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.dark,
       routerConfig: appRouter,
       scrollBehavior: const AppScrollBehavior(),
     );

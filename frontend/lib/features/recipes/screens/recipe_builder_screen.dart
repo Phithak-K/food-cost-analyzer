@@ -283,7 +283,13 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
               children: [
                 const Icon(Icons.restaurant_rounded, color: AppTheme.primary, size: 20),
                 const SizedBox(width: 8),
-                Text('ข้อมูลเมนูอาหาร (General Information)', style: Theme.of(context).textTheme.titleLarge),
+                Expanded(
+                  child: Text(
+                    'ข้อมูลเมนูอาหาร (General Information)',
+                    style: Theme.of(context).textTheme.titleLarge,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 16),

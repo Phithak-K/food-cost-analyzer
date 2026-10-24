@@ -325,7 +325,7 @@ class MenuMatrixChart extends StatelessWidget {
                       }
                     },
                     touchTooltipData: ScatterTouchTooltipData(
-                      getTooltipColor: (spot) => AppTheme.textPrimary,
+                      getTooltipColor: (spot) => const Color(0xFF1E293B),
                       getTooltipItems: (ScatterSpot touchedSpot) {
                         final matched = items.firstWhere(
                           (item) =>
@@ -340,7 +340,7 @@ class MenuMatrixChart extends StatelessWidget {
                           'ยอดขาย: ${matched.recipe.unitsSoldMonthly} จาน | กำไร: ${Formatters.currency(matched.recipe.contributionMargin)}\n'
                           'Food Cost: ${Formatters.percentage(matched.recipe.foodCostPercentage)} (คลิกเพื่อดูสัดส่วนวัตถุดิบ)',
                           textStyle: const TextStyle(
-                            color: Colors.white,
+                            color: Color(0xFFF8FAFC),
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),

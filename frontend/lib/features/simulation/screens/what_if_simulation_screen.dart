@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/widgets/glass_container.dart';
 import '../../ingredients/providers/ingredients_provider.dart';
 import '../models/simulation_models.dart';
 import '../providers/simulation_provider.dart';
@@ -104,22 +105,16 @@ class _WhatIfSimulationScreenState extends ConsumerState<WhatIfSimulationScreen>
   Widget _buildHeader(
       BuildContext context, SimulationState state, SimulationNotifier notifier) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppTheme.primaryDark,
-            AppTheme.primary.withValues(alpha: 0.95),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: const Color(0xFF0F172A),
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.border),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primary.withValues(alpha: 0.2),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
+            color: AppTheme.primary.withValues(alpha: 0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -129,12 +124,19 @@ class _WhatIfSimulationScreenState extends ConsumerState<WhatIfSimulationScreen>
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.15),
+              color: AppTheme.primary.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppTheme.primary.withValues(alpha: 0.25)),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.primary.withValues(alpha: 0.2),
+                  blurRadius: 10,
+                ),
+              ],
             ),
             child: const Icon(
               Icons.tune_rounded,
-              color: Colors.white,
+              color: AppTheme.primaryNeon,
               size: 28,
             ),
           ),
@@ -453,25 +455,12 @@ class _WhatIfSimulationScreenState extends ConsumerState<WhatIfSimulationScreen>
     required Color accentColor,
     bool highlight = false,
   }) {
-    return Container(
+    return GlassContainer(
+      glowColor: highlight ? accentColor : null,
+      glowOpacity: highlight ? 0.16 : 0.08,
+      glowBlur: 20,
       padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: highlight ? accentColor.withValues(alpha: 0.5) : AppTheme.border,
-          width: highlight ? 1.5 : 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: highlight
-                ? accentColor.withValues(alpha: 0.08)
-                : Colors.black.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+      borderColor: highlight ? accentColor.withValues(alpha: 0.4) : null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

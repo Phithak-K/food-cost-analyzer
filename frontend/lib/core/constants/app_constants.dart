@@ -72,13 +72,13 @@ enum MenuQuadrant {
   Color get color {
     switch (this) {
       case MenuQuadrant.star:
-        return const Color(0xFF10B981); // Emerald Green
+        return const Color(0xFF10B981); // Emerald Neon Green
       case MenuQuadrant.plowhorse:
-        return const Color(0xFF3B82F6); // Royal Blue
+        return const Color(0xFFF59E0B); // Amber Orange
       case MenuQuadrant.puzzle:
-        return const Color(0xFFF59E0B); // Amber / Warm Orange
+        return const Color(0xFF8B5CF6); // Neon Purple / Indigo
       case MenuQuadrant.dog:
-        return const Color(0xFFEF4444); // Crimson Red
+        return const Color(0xFFF43F5E); // Rose Red
     }
   }
 

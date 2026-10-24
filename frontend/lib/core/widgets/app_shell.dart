@@ -67,7 +67,7 @@ class AppShell extends StatelessWidget {
     return Container(
       width: 260,
       decoration: const BoxDecoration(
-        color: AppTheme.surface,
+        color: AppTheme.backgroundElevated,
         border: Border(right: BorderSide(color: AppTheme.border, width: 1)),
       ),
       child: Column(
@@ -79,30 +79,31 @@ class AppShell extends StatelessWidget {
             child: Row(
               children: [
                 Container(
-                  width: 40,
-                  height: 40,
+                  width: 42,
+                  height: 42,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [AppTheme.primary, AppTheme.accent],
+                      colors: [AppTheme.primary, AppTheme.primaryNeon],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.primary.withValues(alpha: 0.3),
-                        blurRadius: 8,
+                        color: AppTheme.primary.withValues(alpha: 0.35),
+                        blurRadius: 14,
+                        spreadRadius: 1,
                         offset: const Offset(0, 3),
                       ),
                     ],
                   ),
                   child: const Icon(
                     Icons.restaurant_menu_rounded,
-                    color: Colors.white,
-                    size: 22,
+                    color: Color(0xFF0B0F19),
+                    size: 24,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,7 +112,7 @@ class AppShell extends StatelessWidget {
                         'MenuEng Pro',
                         style: TextStyle(
                           fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w800,
                           color: AppTheme.textPrimary,
                           letterSpacing: -0.3,
                         ),
@@ -201,8 +202,8 @@ class AppShell extends StatelessWidget {
             margin: const EdgeInsets.all(16),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppTheme.surfaceMuted,
-              borderRadius: BorderRadius.circular(10),
+              color: Colors.white.withValues(alpha: 0.03),
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(color: AppTheme.border),
             ),
             child: Row(
@@ -210,7 +211,7 @@ class AppShell extends StatelessWidget {
                 CircleAvatar(
                   radius: 16,
                   backgroundColor: AppTheme.primary.withValues(alpha: 0.15),
-                  child: const Icon(Icons.storefront_rounded, size: 18, color: AppTheme.primary),
+                  child: const Icon(Icons.storefront_rounded, size: 18, color: AppTheme.primaryNeon),
                 ),
                 const SizedBox(width: 10),
                 const Expanded(
@@ -242,7 +243,7 @@ class AppShell extends StatelessWidget {
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 24),
       decoration: const BoxDecoration(
-        color: AppTheme.surface,
+        color: AppTheme.backgroundElevated,
         border: Border(bottom: BorderSide(color: AppTheme.border, width: 1)),
       ),
       child: Row(
@@ -258,20 +259,24 @@ class AppShell extends StatelessWidget {
           Expanded(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 400),
-              height: 38,
+              height: 40,
               child: TextField(
                 decoration: InputDecoration(
                   hintText: 'ค้นหาเมนู, วัตถุดิบ, หรือสูตรอาหาร...',
-                  prefixIcon: const Icon(Icons.search_rounded, size: 18),
+                  prefixIcon: const Icon(Icons.search_rounded, size: 18, color: AppTheme.textMuted),
                   contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
-                  fillColor: AppTheme.surfaceMuted,
+                  fillColor: Colors.white.withValues(alpha: 0.03),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: AppTheme.border),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: AppTheme.border),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: AppTheme.primary, width: 1.5),
                   ),
                 ),
               ),
@@ -280,10 +285,18 @@ class AppShell extends StatelessWidget {
           const Spacer(),
           // System Status & User Action
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: AppTheme.success.withValues(alpha: 0.1),
+              color: AppTheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppTheme.primary.withValues(alpha: 0.25)),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.primary.withValues(alpha: 0.15),
+                  blurRadius: 10,
+                  spreadRadius: 0,
+                ),
+              ],
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -291,12 +304,22 @@ class AppShell extends StatelessWidget {
                 Container(
                   width: 8,
                   height: 8,
-                  decoration: const BoxDecoration(color: AppTheme.success, shape: BoxShape.circle),
+                  decoration: const BoxDecoration(
+                    color: AppTheme.primaryNeon,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.primaryNeon,
+                        blurRadius: 6,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(width: 6),
+                const SizedBox(width: 8),
                 const Text(
                   'Web/Desktop Online',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.success),
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppTheme.primaryNeon),
                 ),
               ],
             ),
@@ -307,12 +330,24 @@ class AppShell extends StatelessWidget {
             onPressed: () {},
           ),
           const SizedBox(width: 8),
-          const CircleAvatar(
-            radius: 16,
-            backgroundColor: AppTheme.primary,
-            child: Text(
-              'C',
-              style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+          Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.primary.withValues(alpha: 0.3),
+                  blurRadius: 10,
+                  spreadRadius: 1,
+                ),
+              ],
+            ),
+            child: const CircleAvatar(
+              radius: 17,
+              backgroundColor: AppTheme.primary,
+              child: Text(
+                'C',
+                style: TextStyle(color: Color(0xFF0B0F19), fontSize: 13, fontWeight: FontWeight.w800),
+              ),
             ),
           ),
         ],
@@ -361,28 +396,68 @@ class _SidebarItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-      child: Material(
-        color: isSelected ? AppTheme.primary.withValues(alpha: 0.1) : Colors.transparent,
-        borderRadius: BorderRadius.circular(8),
-        clipBehavior: Clip.antiAlias,
-        child: ListTile(
-          onTap: onTap,
-          dense: true,
-          leading: Icon(
-            icon,
-            size: 20,
-            color: isSelected ? AppTheme.primary : AppTheme.textSecondary,
-          ),
-          title: Text(
-            title,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-              color: isSelected ? AppTheme.primary : AppTheme.textPrimary,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppTheme.primary.withValues(alpha: 0.2),
+                    blurRadius: 12,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
+        ),
+        child: Material(
+          color: isSelected ? AppTheme.primary.withValues(alpha: 0.12) : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          clipBehavior: Clip.antiAlias,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: isSelected ? AppTheme.primary.withValues(alpha: 0.35) : Colors.transparent,
+                width: 1,
+              ),
+            ),
+            child: ListTile(
+              onTap: onTap,
+              dense: true,
+              leading: Icon(
+                icon,
+                size: 20,
+                color: isSelected ? AppTheme.primaryNeon : AppTheme.textSecondary,
+              ),
+              title: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: isSelected ? Colors.white : AppTheme.textSecondary,
+                ),
+              ),
+              trailing: isSelected
+                  ? Container(
+                      width: 6,
+                      height: 6,
+                      decoration: const BoxDecoration(
+                        color: AppTheme.primaryNeon,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.primaryNeon,
+                            blurRadius: 6,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                      ),
+                    )
+                  : null,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
           ),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       ),
     );

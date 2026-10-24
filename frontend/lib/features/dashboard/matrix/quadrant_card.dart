@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/glass_container.dart';
 import '../../recipes/models/recipe.dart';
 import '../models/menu_matrix_item.dart';
 
@@ -22,14 +23,16 @@ class QuadrantCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = quadrant.color;
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppConstants.cardPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
+    return GlassContainer(
+      glowColor: color,
+      glowOpacity: 0.1,
+      glowBlur: 20,
+      padding: const EdgeInsets.all(AppConstants.cardPadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
@@ -152,7 +155,6 @@ class QuadrantCard extends StatelessWidget {
               ),
           ],
         ),
-      ),
-    );
-  }
+      );
+    }
 }
