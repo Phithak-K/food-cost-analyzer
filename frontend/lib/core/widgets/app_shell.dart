@@ -45,6 +45,11 @@ class AppShell extends StatelessWidget {
                   label: 'แดชบอร์ด',
                 ),
                 NavigationDestination(
+                  icon: Icon(Icons.point_of_sale_outlined),
+                  selectedIcon: Icon(Icons.point_of_sale_rounded),
+                  label: 'POS ขาย',
+                ),
+                NavigationDestination(
                   icon: Icon(Icons.menu_book_outlined),
                   selectedIcon: Icon(Icons.menu_book_rounded),
                   label: 'สูตรอาหาร',
@@ -157,6 +162,15 @@ class AppShell extends StatelessWidget {
             onTap: () {
               if (isDrawer) Navigator.pop(context);
               context.go('/dashboard');
+            },
+          ),
+          _SidebarItem(
+            icon: Icons.point_of_sale_rounded,
+            title: 'รับออเดอร์ (Quick POS)',
+            isSelected: location.startsWith('/pos'),
+            onTap: () {
+              if (isDrawer) Navigator.pop(context);
+              context.go('/pos');
             },
           ),
           _SidebarItem(
@@ -376,9 +390,10 @@ class AppShell extends StatelessWidget {
   }
 
   int _getIndexFromLocation(String location) {
-    if (location.startsWith('/recipes')) return 1;
-    if (location.startsWith('/ingredients')) return 2;
-    if (location.startsWith('/simulation')) return 3;
+    if (location.startsWith('/pos')) return 1;
+    if (location.startsWith('/recipes')) return 2;
+    if (location.startsWith('/ingredients')) return 3;
+    if (location.startsWith('/simulation')) return 4;
     return 0;
   }
 
@@ -388,12 +403,15 @@ class AppShell extends StatelessWidget {
         context.go('/dashboard');
         break;
       case 1:
-        context.go('/recipes');
+        context.go('/pos');
         break;
       case 2:
-        context.go('/ingredients');
+        context.go('/recipes');
         break;
       case 3:
+        context.go('/ingredients');
+        break;
+      case 4:
         context.go('/simulation');
         break;
     }

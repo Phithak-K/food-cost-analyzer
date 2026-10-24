@@ -241,6 +241,26 @@ class RecipesNotifier extends Notifier<List<Recipe>> {
   void deleteRecipe(String id) {
     state = state.where((r) => r.id != id).toList();
   }
+
+  void recordSale(String recipeId, int quantity) {
+    state = [
+      for (final r in state)
+        if (r.id == recipeId)
+          r.copyWith(unitsSoldMonthly: r.unitsSoldMonthly + quantity)
+        else
+          r,
+    ];
+  }
+
+  void recordSales(Map<String, int> sales) {
+    state = [
+      for (final r in state)
+        if (sales.containsKey(r.id))
+          r.copyWith(unitsSoldMonthly: r.unitsSoldMonthly + sales[r.id]!)
+        else
+          r,
+    ];
+  }
 }
 
 final recipesProvider = NotifierProvider<RecipesNotifier, List<Recipe>>(

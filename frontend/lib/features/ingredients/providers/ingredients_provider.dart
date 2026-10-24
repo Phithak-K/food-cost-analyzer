@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/utils/unit_converter.dart';
+import '../../recipes/models/recipe.dart';
 import '../models/ingredient.dart';
 
 class IngredientsNotifier extends Notifier<List<Ingredient>> {
@@ -20,6 +22,102 @@ class IngredientsNotifier extends Notifier<List<Ingredient>> {
 
   void deleteIngredient(String id) {
     state = state.where((item) => item.id != id).toList();
+  }
+
+  /// Check if an ingredient has enough stock for a single recipe portion
+  bool canCookRecipe(Recipe recipe, {int quantity = 1}) {
+    for (final item in recipe.items) {
+      final currentIng = state.firstWhere(
+        (i) => i.id == item.ingredient.id,
+        orElse: () => item.ingredient,
+      );
+      final totalBaseNeeded = UnitConverter.toBaseUnit(item.quantityUsed * quantity, item.unitUsed);
+      final basePerStockUnit = UnitConverter.toBaseUnit(1.0, currentIng.purchaseUnit);
+      final stockNeeded = basePerStockUnit > 0 ? (totalBaseNeeded / basePerStockUnit) : 0.0;
+      if (currentIng.currentStock < stockNeeded) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /// Get list of missing ingredient descriptions if stock is not sufficient
+  List<String> getMissingIngredients(Recipe recipe, {int quantity = 1}) {
+    final List<String> missing = [];
+    for (final item in recipe.items) {
+      final currentIng = state.firstWhere(
+        (i) => i.id == item.ingredient.id,
+        orElse: () => item.ingredient,
+      );
+      final totalBaseNeeded = UnitConverter.toBaseUnit(item.quantityUsed * quantity, item.unitUsed);
+      final basePerStockUnit = UnitConverter.toBaseUnit(1.0, currentIng.purchaseUnit);
+      final stockNeeded = basePerStockUnit > 0 ? (totalBaseNeeded / basePerStockUnit) : 0.0;
+      if (currentIng.currentStock < stockNeeded) {
+        missing.add(
+          '${currentIng.name} (เหลือ ${currentIng.currentStock.toStringAsFixed(1)} ${currentIng.purchaseUnit}, ต้องการ ${stockNeeded.toStringAsFixed(1)} ${currentIng.purchaseUnit})',
+        );
+      }
+    }
+    return missing;
+  }
+
+  /// Deducts stock for a list of recipes and quantities.
+  /// Returns empty list if successful, or list of insufficient items if failed.
+  List<String> deductStockForOrder(List<({Recipe recipe, int quantity})> orderItems) {
+    // 1. Calculate required quantities per ingredient
+    final Map<String, double> requiredStockMap = {};
+    for (final orderItem in orderItems) {
+      for (final item in orderItem.recipe.items) {
+        final currentIng = state.firstWhere(
+          (i) => i.id == item.ingredient.id,
+          orElse: () => item.ingredient,
+        );
+        final totalBaseNeeded = UnitConverter.toBaseUnit(item.quantityUsed * orderItem.quantity, item.unitUsed);
+        final basePerStockUnit = UnitConverter.toBaseUnit(1.0, currentIng.purchaseUnit);
+        final stockNeeded = basePerStockUnit > 0 ? (totalBaseNeeded / basePerStockUnit) : 0.0;
+        requiredStockMap[currentIng.id] = (requiredStockMap[currentIng.id] ?? 0.0) + stockNeeded;
+      }
+    }
+
+    // 2. Validate all stock
+    final List<String> insufficient = [];
+    for (final entry in requiredStockMap.entries) {
+      final ing = state.firstWhere((i) => i.id == entry.key);
+      if (ing.currentStock < entry.value) {
+        insufficient.add(
+          '${ing.name} (คงเหลือ ${ing.currentStock.toStringAsFixed(1)} ${ing.purchaseUnit}, ต้องการ ${entry.value.toStringAsFixed(1)} ${ing.purchaseUnit})',
+        );
+      }
+    }
+
+    if (insufficient.isNotEmpty) {
+      return insufficient;
+    }
+
+    // 3. Deduct stock atomically
+    state = [
+      for (final ing in state)
+        if (requiredStockMap.containsKey(ing.id))
+          ing.copyWith(
+            currentStock: double.parse(
+              (ing.currentStock - requiredStockMap[ing.id]!).clamp(0.0, double.infinity).toStringAsFixed(2),
+            ),
+          )
+        else
+          ing,
+    ];
+
+    return [];
+  }
+
+  void restock(String ingredientId, double amount) {
+    state = [
+      for (final item in state)
+        if (item.id == ingredientId)
+          item.copyWith(currentStock: item.currentStock + amount)
+        else
+          item,
+    ];
   }
 
   static final List<Ingredient> _initialIngredients = [

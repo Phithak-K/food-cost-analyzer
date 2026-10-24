@@ -54,3 +54,7 @@ final dashboardMetricsProvider = Provider<DashboardMetrics>((ref) {
   final recipes = ref.watch(recipesProvider);
   return DashboardMetrics.fromRecipes(recipes);
 });
+
+/// Alias for dashboardMetricsProvider
+final dashboardProvider = dashboardMetricsProvider;
+
