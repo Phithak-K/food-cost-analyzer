@@ -114,6 +114,13 @@ class SimulationNotifier extends Notifier<SimulationState> {
     final newMap = <String, double>{};
 
     switch (presetName) {
+      case 'inflation_5': // +5% Inflation
+        for (final ing in ingredients) {
+          newMap[ing.id] = 5.0;
+        }
+        break;
+
+      case 'ingredient_shock_10': // +10% Ingredient Shock
       case 'general_inflation': // +10% all ingredients
         for (final ing in ingredients) {
           newMap[ing.id] = 10.0;
