@@ -1,30 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../features/dashboard/widgets/business_glossary_dialog.dart';
+import '../providers/user_role_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/responsive.dart';
-import '../../features/dashboard/widgets/business_glossary_dialog.dart';
+import 'role_switcher_pill.dart';
 
-class AppShell extends StatelessWidget {
+class AppShell extends ConsumerWidget {
   final Widget child;
 
   const AppShell({super.key, required this.child});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final location = GoRouterState.of(context).matchedLocation;
     final isDesktop = Responsive.isDesktop(context);
+    final currentRole = ref.watch(userRoleProvider);
+
+    // Auto-redirect if route is restricted for current role
+    if (!currentRole.canAccessRoute(location)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) {
+          context.go(currentRole.defaultRoute);
+        }
+      });
+    }
 
     return Scaffold(
       body: Row(
         children: [
           // Desktop / Large Screen Sidebar
-          if (isDesktop) _buildSidebar(context, location),
+          if (isDesktop) _buildSidebar(context, location, currentRole),
 
           // Main Content Area
           Expanded(
             child: Column(
               children: [
-                _buildTopAppBar(context, isDesktop),
+                _buildTopAppBar(context, isDesktop, currentRole),
                 Expanded(child: child),
               ],
             ),
@@ -32,44 +45,23 @@ class AppShell extends StatelessWidget {
         ],
       ),
       // Drawer on smaller screens
-      drawer: isDesktop ? null : Drawer(child: _buildSidebar(context, location, isDrawer: true)),
+      drawer: isDesktop
+          ? null
+          : Drawer(child: _buildSidebar(context, location, currentRole, isDrawer: true)),
       bottomNavigationBar: isDesktop
           ? null
-          : NavigationBar(
-              selectedIndex: _getIndexFromLocation(location),
-              onDestinationSelected: (idx) => _onNavigate(context, idx),
-              destinations: const [
-                NavigationDestination(
-                  icon: Icon(Icons.dashboard_outlined),
-                  selectedIcon: Icon(Icons.dashboard_rounded),
-                  label: 'แดชบอร์ด',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.point_of_sale_outlined),
-                  selectedIcon: Icon(Icons.point_of_sale_rounded),
-                  label: 'POS ขาย',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.menu_book_outlined),
-                  selectedIcon: Icon(Icons.menu_book_rounded),
-                  label: 'สูตรอาหาร',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.inventory_2_outlined),
-                  selectedIcon: Icon(Icons.inventory_2_rounded),
-                  label: 'วัตถุดิบ',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.tune_outlined),
-                  selectedIcon: Icon(Icons.tune_rounded),
-                  label: 'จำลองต้นทุน',
-                ),
-              ],
-            ),
+          : _buildBottomNavigationBar(context, location, currentRole),
     );
   }
 
-  Widget _buildSidebar(BuildContext context, String location, {bool isDrawer = false}) {
+  Widget _buildSidebar(
+    BuildContext context,
+    String location,
+    UserRole currentRole, {
+    bool isDrawer = false,
+  }) {
+    final menuItems = _buildRoleFilteredMenuItems(context, location, currentRole, isDrawer: isDrawer);
+
     return Container(
       width: 260,
       decoration: const BoxDecoration(
@@ -140,120 +132,87 @@ class AppShell extends StatelessWidget {
           const Divider(),
           const SizedBox(height: 12),
 
-          // Navigation Links
+          // Role-Aware Section Header
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14),
-            child: Text(
-              'MAIN MENU',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.textMuted,
-                letterSpacing: 0.8,
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'MAIN MENU',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textMuted,
+                    letterSpacing: 0.8,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: currentRole.color.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: currentRole.color.withValues(alpha: 0.3)),
+                  ),
+                  child: Text(
+                    currentRole.shortLabel.toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w800,
+                      color: currentRole.color,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 8),
 
-          _SidebarItem(
-            icon: Icons.dashboard_rounded,
-            title: 'ภาพรวม & Matrix',
-            isSelected: location.startsWith('/dashboard'),
-            onTap: () {
-              if (isDrawer) Navigator.pop(context);
-              context.go('/dashboard');
-            },
-          ),
-          _SidebarItem(
-            icon: Icons.point_of_sale_rounded,
-            title: 'รับออเดอร์ (Quick POS)',
-            isSelected: location.startsWith('/pos'),
-            onTap: () {
-              if (isDrawer) Navigator.pop(context);
-              context.go('/pos');
-            },
-          ),
-          _SidebarItem(
-            icon: Icons.menu_book_rounded,
-            title: 'สูตรอาหาร (Recipes)',
-            isSelected: location == '/recipes',
-            onTap: () {
-              if (isDrawer) Navigator.pop(context);
-              context.go('/recipes');
-            },
-          ),
-          _SidebarItem(
-            icon: Icons.add_circle_outline_rounded,
-            title: 'สร้างสูตร (Recipe Builder)',
-            isSelected: location.startsWith('/recipes/builder'),
-            onTap: () {
-              if (isDrawer) Navigator.pop(context);
-              context.go('/recipes/builder');
-            },
-          ),
-          _SidebarItem(
-            icon: Icons.inventory_2_rounded,
-            title: 'วัตถุดิบ & คลัง (Ingredients)',
-            isSelected: location.startsWith('/ingredients'),
-            onTap: () {
-              if (isDrawer) Navigator.pop(context);
-              context.go('/ingredients');
-            },
-          ),
-          _SidebarItem(
-            icon: Icons.tune_rounded,
-            title: 'จำลองต้นทุน (What-If)',
-            isSelected: location.startsWith('/simulation'),
-            onTap: () {
-              if (isDrawer) Navigator.pop(context);
-              context.go('/simulation');
-            },
-          ),
-          const SizedBox(height: 6),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 14),
-            child: Divider(color: AppTheme.border, height: 16),
-          ),
-          _SidebarItem(
-            icon: Icons.menu_book_rounded,
-            title: 'คู่มือคำศัพท์ธุรกิจ',
-            isSelected: false,
-            onTap: () {
-              if (isDrawer) Navigator.pop(context);
-              showBusinessGlossaryDialog(context);
-            },
+          // Navigation Links
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: menuItems,
+            ),
           ),
 
-          const Spacer(),
-
-          // Restaurant info footer
+          // User Persona Info Footer
           Container(
             margin: const EdgeInsets.all(16),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.03),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.border),
+              border: Border.all(color: currentRole.color.withValues(alpha: 0.25)),
             ),
             child: Row(
               children: [
-                CircleAvatar(
-                  radius: 16,
-                  backgroundColor: AppTheme.primary.withValues(alpha: 0.15),
-                  child: const Icon(Icons.storefront_rounded, size: 18, color: AppTheme.primaryNeon),
+                Container(
+                  width: 34,
+                  height: 34,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: currentRole.color.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: currentRole.color.withValues(alpha: 0.3)),
+                  ),
+                  child: Text(
+                    currentRole.emoji,
+                    style: const TextStyle(fontSize: 16),
+                  ),
                 ),
                 const SizedBox(width: 10),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Grand Bistro & Grill',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+                        currentRole.label,
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        'สาขาหลัก (Main Kitchen)',
+                        'Grand Bistro & Grill',
                         style: TextStyle(fontSize: 10, color: AppTheme.textMuted),
                       ),
                     ],
@@ -267,7 +226,153 @@ class AppShell extends StatelessWidget {
     );
   }
 
-  Widget _buildTopAppBar(BuildContext context, bool isDesktop) {
+  List<Widget> _buildRoleFilteredMenuItems(
+    BuildContext context,
+    String location,
+    UserRole currentRole, {
+    required bool isDrawer,
+  }) {
+    if (currentRole == UserRole.cashier) {
+      return [
+        _SidebarItem(
+          key: const Key('sidebar_pos'),
+          icon: Icons.point_of_sale_rounded,
+          title: 'รับออเดอร์ (POS)',
+          isSelected: location.startsWith('/pos'),
+          onTap: () {
+            if (isDrawer) Navigator.pop(context);
+            context.go('/pos');
+          },
+        ),
+        _SidebarItem(
+          key: const Key('sidebar_orders'),
+          icon: Icons.receipt_long_rounded,
+          title: 'ประวัติการขาย',
+          isSelected: location.startsWith('/orders'),
+          onTap: () {
+            if (isDrawer) Navigator.pop(context);
+            context.go('/orders');
+          },
+        ),
+      ];
+    }
+
+    if (currentRole == UserRole.kitchen) {
+      return [
+        _SidebarItem(
+          key: const Key('sidebar_kds'),
+          icon: Icons.restaurant_rounded,
+          title: 'จอคิวอาหาร (KDS)',
+          isSelected: location.startsWith('/kds'),
+          onTap: () {
+            if (isDrawer) Navigator.pop(context);
+            context.go('/kds');
+          },
+        ),
+      ];
+    }
+
+    // Default: UserRole.manager (Sees all screens)
+    return [
+      _SidebarItem(
+        key: const Key('sidebar_dashboard'),
+        icon: Icons.dashboard_rounded,
+        title: 'ภาพรวม & Matrix',
+        isSelected: location.startsWith('/dashboard'),
+        onTap: () {
+          if (isDrawer) Navigator.pop(context);
+          context.go('/dashboard');
+        },
+      ),
+      _SidebarItem(
+        key: const Key('sidebar_pos'),
+        icon: Icons.point_of_sale_rounded,
+        title: 'รับออเดอร์ (Quick POS)',
+        isSelected: location.startsWith('/pos'),
+        onTap: () {
+          if (isDrawer) Navigator.pop(context);
+          context.go('/pos');
+        },
+      ),
+      _SidebarItem(
+        key: const Key('sidebar_kds'),
+        icon: Icons.restaurant_rounded,
+        title: 'จอคิวอาหาร (KDS)',
+        isSelected: location.startsWith('/kds'),
+        onTap: () {
+          if (isDrawer) Navigator.pop(context);
+          context.go('/kds');
+        },
+      ),
+      _SidebarItem(
+        key: const Key('sidebar_orders'),
+        icon: Icons.receipt_long_rounded,
+        title: 'ประวัติการขาย',
+        isSelected: location.startsWith('/orders'),
+        onTap: () {
+          if (isDrawer) Navigator.pop(context);
+          context.go('/orders');
+        },
+      ),
+      _SidebarItem(
+        key: const Key('sidebar_recipes'),
+        icon: Icons.menu_book_rounded,
+        title: 'สูตรอาหาร (Recipes)',
+        isSelected: location == '/recipes',
+        onTap: () {
+          if (isDrawer) Navigator.pop(context);
+          context.go('/recipes');
+        },
+      ),
+      _SidebarItem(
+        key: const Key('sidebar_recipe_builder'),
+        icon: Icons.add_circle_outline_rounded,
+        title: 'สร้างสูตร (Recipe Builder)',
+        isSelected: location.startsWith('/recipes/builder'),
+        onTap: () {
+          if (isDrawer) Navigator.pop(context);
+          context.go('/recipes/builder');
+        },
+      ),
+      _SidebarItem(
+        key: const Key('sidebar_ingredients'),
+        icon: Icons.inventory_2_rounded,
+        title: 'วัตถุดิบ & คลัง (Ingredients)',
+        isSelected: location.startsWith('/ingredients'),
+        onTap: () {
+          if (isDrawer) Navigator.pop(context);
+          context.go('/ingredients');
+        },
+      ),
+      _SidebarItem(
+        key: const Key('sidebar_simulation'),
+        icon: Icons.tune_rounded,
+        title: 'จำลองต้นทุน (What-If)',
+        isSelected: location.startsWith('/simulation'),
+        onTap: () {
+          if (isDrawer) Navigator.pop(context);
+          context.go('/simulation');
+        },
+      ),
+      const SizedBox(height: 6),
+      const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 14),
+        child: Divider(color: AppTheme.border, height: 16),
+      ),
+      _SidebarItem(
+        key: const Key('sidebar_glossary'),
+        icon: Icons.menu_book_rounded,
+        title: 'คู่มือคำศัพท์ธุรกิจ',
+        isSelected: false,
+        onTap: () {
+          if (isDrawer) Navigator.pop(context);
+          showBusinessGlossaryDialog(context);
+        },
+      ),
+    ];
+  }
+
+  Widget _buildTopAppBar(BuildContext context, bool isDesktop, UserRole currentRole) {
     return Container(
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -287,7 +392,7 @@ class AppShell extends StatelessWidget {
           // Search quick bar
           Expanded(
             child: Container(
-              constraints: const BoxConstraints(maxWidth: 400),
+              constraints: const BoxConstraints(maxWidth: 380),
               height: 40,
               child: TextField(
                 decoration: InputDecoration(
@@ -312,48 +417,48 @@ class AppShell extends StatelessWidget {
             ),
           ),
           const Spacer(),
+
+          // Persona / Role Switcher Pill Widget
+          const RoleSwitcherPill(),
+          const SizedBox(width: 12),
+
           // System Status & User Action
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppTheme.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppTheme.primary.withValues(alpha: 0.25)),
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.primary.withValues(alpha: 0.15),
-                  blurRadius: 10,
-                  spreadRadius: 0,
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: AppTheme.primaryNeon,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.primaryNeon,
-                        blurRadius: 6,
-                        spreadRadius: 1,
-                      ),
-                    ],
+          if (isDesktop) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppTheme.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: AppTheme.primary.withValues(alpha: 0.25)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryNeon,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.primaryNeon,
+                          blurRadius: 6,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  'Web/Desktop Online',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppTheme.primaryNeon),
-                ),
-              ],
+                  SizedBox(width: 8),
+                  Text(
+                    'Online',
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppTheme.primaryNeon),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 8),
+            const SizedBox(width: 8),
+          ],
           IconButton(
             icon: const Icon(Icons.menu_book_rounded, color: AppTheme.primaryNeon, size: 20),
             tooltip: 'คู่มือคำศัพท์ธุรกิจ & เมทริกซ์ (เปิดดู / ดาวน์โหลด)',
@@ -369,18 +474,18 @@ class AppShell extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primary.withValues(alpha: 0.3),
+                  color: currentRole.color.withValues(alpha: 0.3),
                   blurRadius: 10,
                   spreadRadius: 1,
                 ),
               ],
             ),
-            child: const CircleAvatar(
+            child: CircleAvatar(
               radius: 17,
-              backgroundColor: AppTheme.primary,
+              backgroundColor: currentRole.color,
               child: Text(
-                'C',
-                style: TextStyle(color: Color(0xFF0B0F19), fontSize: 13, fontWeight: FontWeight.w800),
+                currentRole.shortLabel.substring(0, 1),
+                style: const TextStyle(color: Color(0xFF0B0F19), fontSize: 13, fontWeight: FontWeight.w800),
               ),
             ),
           ),
@@ -389,15 +494,87 @@ class AppShell extends StatelessWidget {
     );
   }
 
-  int _getIndexFromLocation(String location) {
+  Widget _buildBottomNavigationBar(BuildContext context, String location, UserRole currentRole) {
+    if (currentRole == UserRole.cashier) {
+      final selectedIdx = location.startsWith('/orders') ? 1 : 0;
+      return NavigationBar(
+        selectedIndex: selectedIdx,
+        onDestinationSelected: (idx) {
+          if (idx == 0) context.go('/pos');
+          if (idx == 1) context.go('/orders');
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.point_of_sale_outlined),
+            selectedIcon: Icon(Icons.point_of_sale_rounded),
+            label: 'รับออเดอร์',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.receipt_long_outlined),
+            selectedIcon: Icon(Icons.receipt_long_rounded),
+            label: 'ประวัติการขาย',
+          ),
+        ],
+      );
+    }
+
+    if (currentRole == UserRole.kitchen) {
+      return NavigationBar(
+        selectedIndex: 0,
+        onDestinationSelected: (idx) => context.go('/kds'),
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.restaurant_outlined),
+            selectedIcon: Icon(Icons.restaurant_rounded),
+            label: 'จอคิวอาหาร',
+          ),
+        ],
+      );
+    }
+
+    // Default: Manager
+    return NavigationBar(
+      selectedIndex: _getManagerIndexFromLocation(location),
+      onDestinationSelected: (idx) => _onManagerNavigate(context, idx),
+      destinations: const [
+        NavigationDestination(
+          icon: Icon(Icons.dashboard_outlined),
+          selectedIcon: Icon(Icons.dashboard_rounded),
+          label: 'แดชบอร์ด',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.point_of_sale_outlined),
+          selectedIcon: Icon(Icons.point_of_sale_rounded),
+          label: 'POS ขาย',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.restaurant_outlined),
+          selectedIcon: Icon(Icons.restaurant_rounded),
+          label: 'จอครัว',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.inventory_2_outlined),
+          selectedIcon: Icon(Icons.inventory_2_rounded),
+          label: 'วัตถุดิบ',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.tune_outlined),
+          selectedIcon: Icon(Icons.tune_rounded),
+          label: 'จำลองต้นทุน',
+        ),
+      ],
+    );
+  }
+
+  int _getManagerIndexFromLocation(String location) {
     if (location.startsWith('/pos')) return 1;
-    if (location.startsWith('/recipes')) return 2;
+    if (location.startsWith('/kds')) return 2;
     if (location.startsWith('/ingredients')) return 3;
     if (location.startsWith('/simulation')) return 4;
     return 0;
   }
 
-  void _onNavigate(BuildContext context, int index) {
+  void _onManagerNavigate(BuildContext context, int index) {
     switch (index) {
       case 0:
         context.go('/dashboard');
@@ -406,7 +583,7 @@ class AppShell extends StatelessWidget {
         context.go('/pos');
         break;
       case 2:
-        context.go('/recipes');
+        context.go('/kds');
         break;
       case 3:
         context.go('/ingredients');
@@ -425,6 +602,7 @@ class _SidebarItem extends StatelessWidget {
   final VoidCallback onTap;
 
   const _SidebarItem({
+    super.key,
     required this.icon,
     required this.title,
     required this.isSelected,

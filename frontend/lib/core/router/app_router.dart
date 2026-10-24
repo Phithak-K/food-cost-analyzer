@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/dashboard/screens/dashboard_screen.dart';
 import '../../features/ingredients/screens/ingredients_screen.dart';
+import '../../features/pos/screens/kds_screen.dart';
 import '../../features/pos/screens/quick_pos_screen.dart';
+import '../../features/pos/screens/sales_history_screen.dart';
 import '../../features/recipes/models/recipe.dart';
 import '../../features/recipes/screens/recipe_builder_screen.dart';
 import '../../features/recipes/screens/recipes_screen.dart';
@@ -34,6 +36,18 @@ final GoRouter appRouter = GoRouter(
           path: '/pos',
           pageBuilder: (context, state) => const NoTransitionPage(
             child: QuickPosScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/kds',
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: KdsScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/orders',
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: SalesHistoryScreen(),
           ),
         ),
         GoRoute(

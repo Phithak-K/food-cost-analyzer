@@ -7,7 +7,10 @@ import '../../ingredients/providers/ingredients_provider.dart';
 import '../../recipes/models/recipe.dart';
 import '../../recipes/providers/recipes_provider.dart';
 import '../models/cart_item.dart';
+import '../models/order_history.dart';
 import '../widgets/insufficient_stock_dialog.dart';
+import 'kds_provider.dart';
+import 'orders_history_provider.dart';
 
 class OrderState {
   final List<CartItem> items;
@@ -207,8 +210,32 @@ class OrdersNotifier extends Notifier<OrderState> {
     // 5. Invalidate / Trigger Refresh
     ref.invalidate(dashboardProvider);
 
-    // 6. Generate order code and notify
+    // 6. Generate order code, push ticket to Kitchen KDS queue, push to history, and notify
     final orderNum = 'ORD-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}';
+    ref.read(kdsProvider.notifier).addTicketFromCart(orderNum, state.items);
+
+    ref.read(ordersHistoryProvider.notifier).addCompletedOrder(
+      OrderHistoryRecord(
+        id: orderNum,
+        totalAmount: state.totalAmount,
+        totalCost: state.totalCost,
+        status: 'COMPLETED',
+        createdAt: DateTime.now(),
+        items: state.items
+            .map(
+              (i) => OrderHistoryItem(
+                id: i.recipe.id,
+                recipeName: i.recipe.name,
+                category: i.recipe.category,
+                quantity: i.quantity,
+                pricePerUnit: i.recipe.sellingPrice,
+                costPerUnit: i.recipe.totalCost,
+              ),
+            )
+            .toList(),
+      ),
+    );
+
     state = state.copyWith(
       isSubmitting: false,
       lastOrderNumber: orderNum,
