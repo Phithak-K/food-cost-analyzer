@@ -13,6 +13,7 @@ import '../providers/dashboard_provider.dart';
 import '../../recipes/models/recipe.dart';
 import '../../reports/widgets/export_report_dialog.dart';
 import '../chart_widgets/recipe_cost_pie_chart.dart';
+import '../widgets/business_glossary_dialog.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -101,6 +102,23 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       icon: const Icon(Icons.download_rounded, size: 18),
                       label: const Text(
                         'Export รายงาน (PDF / Excel)',
+                        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                      ),
+                    ),
+                    // Business Glossary & Guide Button
+                    OutlinedButton.icon(
+                      onPressed: () => showBusinessGlossaryDialog(context),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppTheme.primaryNeon,
+                        side: BorderSide(color: AppTheme.primaryNeon.withValues(alpha: 0.6)),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      icon: const Icon(Icons.menu_book_rounded, size: 18),
+                      label: const Text(
+                        'คู่มือคำศัพท์ธุรกิจ',
                         style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
                       ),
                     ),
@@ -213,7 +231,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         child: GlassContainer(
                           padding: const EdgeInsets.all(AppConstants.cardPadding),
                           child: SizedBox(
-                            height: 480,
+                            height: 520,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -226,6 +244,29 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                         'Menu Engineering Matrix (Kasavana & Smith)',
                                         style: Theme.of(context).textTheme.titleLarge,
                                         overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    InkWell(
+                                      onTap: () => showBusinessGlossaryDialog(context),
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                        decoration: BoxDecoration(
+                                          color: AppTheme.primary.withValues(alpha: 0.1),
+                                          borderRadius: BorderRadius.circular(8),
+                                          border: Border.all(color: AppTheme.primary.withValues(alpha: 0.3)),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: const [
+                                            Icon(Icons.help_outline_rounded, size: 14, color: AppTheme.primaryNeon),
+                                            SizedBox(width: 6),
+                                            Text(
+                                              'คู่มือความหมาย 4 กลุ่ม',
+                                              style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: AppTheme.primaryNeon),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -257,7 +298,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         child: GlassContainer(
                           padding: const EdgeInsets.all(AppConstants.cardPadding),
                           child: SizedBox(
-                            height: 480,
+                            height: 520,
                             child: RecipeCostPieChart(
                               recipe: currentSelected,
                               availableRecipes: availableRecipes,
@@ -276,7 +317,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       GlassContainer(
                         padding: const EdgeInsets.all(AppConstants.cardPadding),
                         child: SizedBox(
-                          height: 440,
+                          height: 460,
                           child: MenuMatrixChart(
                             metrics: metrics,
                             selectedRecipe: currentSelected,
@@ -290,7 +331,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       GlassContainer(
                         padding: const EdgeInsets.all(AppConstants.cardPadding),
                         child: SizedBox(
-                          height: 440,
+                          height: 460,
                           child: RecipeCostPieChart(
                             recipe: currentSelected,
                             availableRecipes: availableRecipes,

@@ -1035,27 +1035,45 @@ class _WhatIfSimulationScreenState extends ConsumerState<WhatIfSimulationScreen>
               icon: const Icon(Icons.remove_circle_outline, size: 16),
               tooltip: '-5%',
               visualDensity: VisualDensity.compact,
-              onPressed: () => notifier.adjustByStep(ing.id, -5.0),
+              onPressed: currentPercent <= -30.0
+                  ? null
+                  : () => notifier.adjustByStep(ing.id, -5.0),
             ),
             IconButton(
               icon: const Icon(Icons.add_circle_outline, size: 16),
               tooltip: '+5%',
               visualDensity: VisualDensity.compact,
-              onPressed: () => notifier.adjustByStep(ing.id, 5.0),
+              onPressed: currentPercent >= 50.0
+                  ? null
+                  : () => notifier.adjustByStep(ing.id, 5.0),
             ),
             IconButton(
-              icon: const Icon(Icons.flash_on_rounded, size: 16, color: AppTheme.warning),
-              tooltip: '+10%',
+              icon: Icon(
+                Icons.flash_on_rounded,
+                size: 16,
+                color: currentPercent >= 50.0 ? AppTheme.textMuted : AppTheme.warning,
+              ),
+              tooltip: currentPercent >= 50.0 ? 'สูงสุด +50% แล้ว' : '+10%',
               visualDensity: VisualDensity.compact,
-              onPressed: () => notifier.adjustByStep(ing.id, 10.0),
+              onPressed: currentPercent >= 50.0
+                  ? null
+                  : () => notifier.adjustByStep(ing.id, 10.0),
             ),
-            if (isChanged)
+            if (isChanged) ...[
+              const SizedBox(width: 4),
+              Container(
+                width: 1,
+                height: 16,
+                color: Colors.white.withValues(alpha: 0.15),
+              ),
+              const SizedBox(width: 2),
               IconButton(
                 icon: const Icon(Icons.close_rounded, size: 16, color: AppTheme.textMuted),
                 tooltip: 'รีเซ็ตรายการนี้',
                 visualDensity: VisualDensity.compact,
                 onPressed: () => notifier.setPercentAdjustment(ing.id, 0.0),
               ),
+            ],
           ],
         ),
       ],

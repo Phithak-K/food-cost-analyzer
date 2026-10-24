@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../theme/app_theme.dart';
 import '../utils/responsive.dart';
+import '../../features/dashboard/widgets/business_glossary_dialog.dart';
 
 class AppShell extends StatelessWidget {
   final Widget child;
@@ -194,6 +195,20 @@ class AppShell extends StatelessWidget {
               context.go('/simulation');
             },
           ),
+          const SizedBox(height: 6),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 14),
+            child: Divider(color: AppTheme.border, height: 16),
+          ),
+          _SidebarItem(
+            icon: Icons.menu_book_rounded,
+            title: 'คู่มือคำศัพท์ธุรกิจ',
+            isSelected: false,
+            onTap: () {
+              if (isDrawer) Navigator.pop(context);
+              showBusinessGlossaryDialog(context);
+            },
+          ),
 
           const Spacer(),
 
@@ -324,7 +339,12 @@ class AppShell extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 8),
+          IconButton(
+            icon: const Icon(Icons.menu_book_rounded, color: AppTheme.primaryNeon, size: 20),
+            tooltip: 'คู่มือคำศัพท์ธุรกิจ & เมทริกซ์ (เปิดดู / ดาวน์โหลด)',
+            onPressed: () => showBusinessGlossaryDialog(context),
+          ),
           IconButton(
             icon: const Icon(Icons.notifications_none_rounded, color: AppTheme.textSecondary),
             onPressed: () {},

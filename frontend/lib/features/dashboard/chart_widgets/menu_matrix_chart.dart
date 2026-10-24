@@ -59,6 +59,14 @@ class MenuMatrixChart extends StatelessWidget {
       );
     }).toList();
 
+    final xRatio = (avgVolume / (maxVolume > 0 ? maxVolume : 1.0)).clamp(0.12, 0.88);
+    final yRatio = (avgMargin / (maxMargin > 0 ? maxMargin : 1.0)).clamp(0.12, 0.88);
+
+    final leftFlex = (xRatio * 1000).round();
+    final rightFlex = ((1.0 - xRatio) * 1000).round();
+    final topFlex = ((1.0 - yRatio) * 1000).round();
+    final bottomFlex = (yRatio * 1000).round();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -135,44 +143,85 @@ class MenuMatrixChart extends StatelessWidget {
         Expanded(
           child: Stack(
             children: [
-              // Quadrant background labels
+              // Quadrant background labels aligned proportionally with chart axes
               Positioned.fill(
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 45, bottom: 30, right: 15, top: 15),
+                  padding: const EdgeInsets.only(left: 74, bottom: 54, right: 0, top: 0),
                   child: Row(
                     children: [
-                      // Left (Low Volume)
+                      // Left Column (Low Volume: Puzzles & Dogs)
                       Expanded(
+                        flex: leftFlex,
                         child: Column(
                           children: [
-                            // Top-Left: Puzzle
+                            // Top-Left: Puzzle (High Margin, Low Volume)
                             Expanded(
+                              flex: topFlex,
                               child: Container(
                                 alignment: Alignment.topLeft,
                                 padding: const EdgeInsets.all(8),
                                 color: MenuQuadrant.puzzle.color.withValues(alpha: 0.025),
-                                child: Text(
-                                  'PUZZLE (กำไรสูง / ยอดขายน้อย)',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: MenuQuadrant.puzzle.color.withValues(alpha: 0.6),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: MenuQuadrant.puzzle.color.withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(color: MenuQuadrant.puzzle.color.withValues(alpha: 0.3)),
+                                  ),
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    alignment: Alignment.centerLeft,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.extension_rounded, size: 11, color: MenuQuadrant.puzzle.color),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          'PUZZLE (กำไรสูง / ขายน้อย)',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: MenuQuadrant.puzzle.color,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                            // Bottom-Left: Dog
+                            // Bottom-Left: Dog (Low Margin, Low Volume)
                             Expanded(
+                              flex: bottomFlex,
                               child: Container(
                                 alignment: Alignment.bottomLeft,
                                 padding: const EdgeInsets.all(8),
                                 color: MenuQuadrant.dog.color.withValues(alpha: 0.025),
-                                child: Text(
-                                  'DOG (กำไรต่ำ / ยอดขายน้อย)',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: MenuQuadrant.dog.color.withValues(alpha: 0.6),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: MenuQuadrant.dog.color.withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(color: MenuQuadrant.dog.color.withValues(alpha: 0.3)),
+                                  ),
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    alignment: Alignment.centerLeft,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.pets_rounded, size: 11, color: MenuQuadrant.dog.color),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          'DOG (กำไรต่ำ / ขายน้อย)',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: MenuQuadrant.dog.color,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -180,38 +229,79 @@ class MenuMatrixChart extends StatelessWidget {
                           ],
                         ),
                       ),
-                      // Right (High Volume)
+                      // Right Column (High Volume: Stars & Plowhorses)
                       Expanded(
+                        flex: rightFlex,
                         child: Column(
                           children: [
-                            // Top-Right: Star
+                            // Top-Right: Star (High Margin, High Volume)
                             Expanded(
+                              flex: topFlex,
                               child: Container(
                                 alignment: Alignment.topRight,
                                 padding: const EdgeInsets.all(8),
                                 color: MenuQuadrant.star.color.withValues(alpha: 0.025),
-                                child: Text(
-                                  'STAR (กำไรสูง / ยอดขายสูง)',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: MenuQuadrant.star.color.withValues(alpha: 0.6),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: MenuQuadrant.star.color.withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(color: MenuQuadrant.star.color.withValues(alpha: 0.3)),
+                                  ),
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    alignment: Alignment.centerRight,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.star_rounded, size: 11, color: MenuQuadrant.star.color),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          'STAR (กำไรสูง / ขายดี)',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: MenuQuadrant.star.color,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                            // Bottom-Right: Plowhorse
+                            // Bottom-Right: Plowhorse (Low Margin, High Volume)
                             Expanded(
+                              flex: bottomFlex,
                               child: Container(
                                 alignment: Alignment.bottomRight,
                                 padding: const EdgeInsets.all(8),
                                 color: MenuQuadrant.plowhorse.color.withValues(alpha: 0.025),
-                                child: Text(
-                                  'PLOWHORSE (กำไรต่ำ / ยอดขายสูง)',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: MenuQuadrant.plowhorse.color.withValues(alpha: 0.6),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: MenuQuadrant.plowhorse.color.withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(color: MenuQuadrant.plowhorse.color.withValues(alpha: 0.3)),
+                                  ),
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    alignment: Alignment.centerRight,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.bolt_rounded, size: 11, color: MenuQuadrant.plowhorse.color),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          'PLOWHORSE (กำไรต่ำ / ขายดี)',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: MenuQuadrant.plowhorse.color,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),

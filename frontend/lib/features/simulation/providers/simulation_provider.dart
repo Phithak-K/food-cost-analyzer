@@ -73,11 +73,12 @@ class SimulationNotifier extends Notifier<SimulationState> {
   }
 
   void setPercentAdjustment(String ingredientId, double percent) {
+    final clamped = percent.clamp(-30.0, 50.0);
     final newMap = Map<String, double>.from(state.percentAdjustments);
-    if (percent == 0.0) {
+    if (clamped == 0.0) {
       newMap.remove(ingredientId);
     } else {
-      newMap[ingredientId] = double.parse(percent.toStringAsFixed(1));
+      newMap[ingredientId] = double.parse(clamped.toStringAsFixed(1));
     }
     state = state.copyWith(
       percentAdjustments: newMap,
@@ -88,7 +89,8 @@ class SimulationNotifier extends Notifier<SimulationState> {
 
   void adjustByStep(String ingredientId, double deltaPercent) {
     final current = state.percentAdjustments[ingredientId] ?? 0.0;
-    setPercentAdjustment(ingredientId, current + deltaPercent);
+    final next = (current + deltaPercent).clamp(-30.0, 50.0);
+    setPercentAdjustment(ingredientId, next);
   }
 
   void setThreshold(double threshold) {
