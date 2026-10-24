@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: foodcost_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: foodcost_db
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - foodcost_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dev_user -d foodcost_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  foodcost_pgdata:
+    name: foodcost_pgdata

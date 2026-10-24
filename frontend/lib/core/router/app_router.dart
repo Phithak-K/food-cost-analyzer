@@ -1,0 +1,63 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import '../../features/dashboard/screens/dashboard_screen.dart';
+import '../../features/ingredients/screens/ingredients_screen.dart';
+import '../../features/recipes/models/recipe.dart';
+import '../../features/recipes/screens/recipe_builder_screen.dart';
+import '../../features/recipes/screens/recipes_screen.dart';
+import '../../features/simulation/screens/what_if_simulation_screen.dart';
+import '../widgets/app_shell.dart';
+
+final GlobalKey<NavigatorState> _rootNavigatorKey =
+    GlobalKey<NavigatorState>(debugLabel: 'root');
+final GlobalKey<NavigatorState> _shellNavigatorKey =
+    GlobalKey<NavigatorState>(debugLabel: 'shell');
+
+final GoRouter appRouter = GoRouter(
+  navigatorKey: _rootNavigatorKey,
+  initialLocation: '/dashboard',
+  routes: [
+    ShellRoute(
+      navigatorKey: _shellNavigatorKey,
+      builder: (context, state, child) {
+        return AppShell(child: child);
+      },
+      routes: [
+        GoRoute(
+          path: '/dashboard',
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: DashboardScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/recipes',
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: RecipesScreen(),
+          ),
+          routes: [
+            GoRoute(
+              path: 'builder',
+              pageBuilder: (context, state) => NoTransitionPage(
+                child: RecipeBuilderScreen(
+                  initialRecipe: state.extra as Recipe?,
+                ),
+              ),
+            ),
+          ],
+        ),
+        GoRoute(
+          path: '/ingredients',
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: IngredientsScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/simulation',
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: WhatIfSimulationScreen(),
+          ),
+        ),
+      ],
+    ),
+  ],
+);

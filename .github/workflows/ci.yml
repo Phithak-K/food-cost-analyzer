@@ -1,0 +1,79 @@
+name: CI — Build, Lint & Test
+
+on:
+  push:
+    branches: [ main, master, dev ]
+  pull_request:
+    branches: [ main, master, dev ]
+
+jobs:
+  # -------------------------------------------------------------
+  # Job 1: Backend CI (TypeScript, Prisma, Lint & Tests)
+  # Displays as: CI — Build, Lint & Test / Backend (push)
+  # -------------------------------------------------------------
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: 📦 Install Node Dependencies
+        run: npm ci
+
+      - name: 🗄️ Generate Prisma Client
+        run: npx prisma generate
+
+      - name: 🔍 TypeScript Lint & Typecheck
+        run: npm run lint
+
+      - name: 🧪 Run Backend Unit Tests
+        run: npm test
+
+  # -------------------------------------------------------------
+  # Job 2: Frontend CI (Flutter Web, Analyzer, Tests & Web Build)
+  # Displays as: CI — Build, Lint & Test / Frontend (push)
+  # -------------------------------------------------------------
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ☕ Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 💙 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: 📦 Install Flutter Dependencies
+        run: flutter pub get
+
+      - name: 🔍 Lint & Static Analysis (dart analyze)
+        run: flutter analyze
+
+      - name: 🧪 Run Flutter Unit & Widget Tests (18 Tests)
+        run: flutter test
+
+      - name: 🌐 Build Flutter Web Bundle
+        run: flutter build web --no-tree-shake-icons
