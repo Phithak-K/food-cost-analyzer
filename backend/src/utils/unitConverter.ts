@@ -93,6 +93,18 @@ export class UnitConverter {
     return quantity;
   }
 
+  static convert(quantity: number, fromUnit: string, toUnit: string): number {
+    if (fromUnit.trim().toLowerCase() === toUnit.trim().toLowerCase()) {
+      return quantity;
+    }
+    const fromBase = this.toBaseUnit(quantity, fromUnit);
+    const oneToBase = this.toBaseUnit(1.0, toUnit);
+    if (oneToBase > 0) {
+      return fromBase / oneToBase;
+    }
+    return quantity;
+  }
+
   static calculateItemCost(costPerBaseUnit: number, quantityUsed: number, unitUsed: string, yieldPercent = 100.0): number {
     const baseQuantity = this.toBaseUnit(quantityUsed, unitUsed);
     const nominalCost = baseQuantity * costPerBaseUnit;

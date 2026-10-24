@@ -1,0 +1,87 @@
+import { Router, Request, Response } from 'express';
+import { OrdersService, InsufficientStockError } from '../services/orders.service';
+
+const router = Router();
+
+// GET /api/orders - Fetch order history
+router.get('/', async (req: Request, res: Response) => {
+  try {
+    const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 50;
+    const orders = await OrdersService.getOrders(isNaN(limit) ? 50 : limit);
+    return res.json({
+      success: true,
+      count: orders.length,
+      data: orders,
+    });
+  } catch (error: any) {
+    console.error('Error fetching orders:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch orders',
+    });
+  }
+});
+
+// GET /api/orders/:id - Fetch single order details
+router.get('/:id', async (req: Request, res: Response) => {
+  try {
+    const id = String(req.params.id);
+    const order = await OrdersService.getOrderById(id);
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        error: 'Order not found',
+      });
+    }
+    return res.json({
+      success: true,
+      data: order,
+    });
+  } catch (error: any) {
+    console.error('Error fetching order by ID:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch order',
+    });
+  }
+});
+
+// POST /api/orders - Create new order and deduct stock atomically
+router.post('/', async (req: Request, res: Response) => {
+  try {
+    const { items } = req.body;
+
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing or invalid "items" array in request body',
+      });
+    }
+
+    const createdOrder = await OrdersService.createOrder({ items });
+
+    return res.status(201).json({
+      success: true,
+      message: 'Order created and inventory deducted successfully',
+      data: createdOrder,
+    });
+  } catch (error: any) {
+    console.error('Error creating order:', error);
+
+    if (error instanceof InsufficientStockError) {
+      return res.status(400).json({
+        success: false,
+        code: 'INSUFFICIENT_STOCK',
+        error: error.message,
+        insufficientItems: error.insufficientItems,
+      });
+    }
+
+    return res.status(400).json({
+      success: false,
+      error: error.message || 'Failed to process order',
+    });
+  }
+});
+
+export default router;

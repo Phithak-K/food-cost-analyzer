@@ -7,6 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
 model Ingredient {
   id               String             @id @default(uuid())
   name             String
@@ -16,6 +22,8 @@ model Ingredient {
   purchaseUnit     String             @map("purchase_unit") // เช่น kg, l, pack
   costPerBaseUnit  Decimal            @map("cost_per_base_unit") @db.Decimal(12, 4) // เช่น ราคาต่อ g หรือ ml
   yieldPercent     Decimal            @default(100.0) @map("yield_percent") @db.Decimal(5, 2)
+  currentStock     Decimal            @default(0.0) @map("current_stock") @db.Decimal(10, 2)
+  minStockAlert    Decimal            @default(5.0) @map("min_stock_alert") @db.Decimal(10, 2)
   recipeItems      RecipeIngredient[]
   createdAt        DateTime           @default(now()) @map("created_at")
   updatedAt        DateTime           @updatedAt @map("updated_at")
@@ -31,6 +39,7 @@ model Recipe {
   targetCostPercent Decimal            @default(30.0) @map("target_cost_percent") @db.Decimal(5, 2)
   ingredients       RecipeIngredient[]
   salesLogs         SalesLog[]
+  orderItems        OrderItem[]
   createdAt         DateTime           @default(now()) @map("created_at")
   updatedAt         DateTime           @updatedAt @map("updated_at")
 
@@ -48,6 +57,8 @@ model RecipeIngredient {
   createdAt    DateTime   @default(now()) @map("created_at")
 
   @@unique([recipeId, ingredientId])
+  @@index([recipeId])
+  @@index([ingredientId])
   @@map("recipe_ingredients")
 }
 
@@ -59,5 +70,35 @@ model SalesLog {
   recipe       Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   createdAt    DateTime @default(now()) @map("created_at")
 
+  @@index([recipeId])
   @@map("sales_logs")
+}
+
+model Order {
+  id          String      @id @default(uuid())
+  totalAmount Decimal     @map("total_amount") @db.Decimal(10, 2)
+  totalCost   Decimal     @map("total_cost") @db.Decimal(10, 2)
+  status      OrderStatus @default(COMPLETED)
+  items       OrderItem[]
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  @@index([createdAt])
+  @@map("orders")
+}
+
+model OrderItem {
+  id           String   @id @default(uuid())
+  orderId      String   @map("order_id")
+  recipeId     String   @map("recipe_id")
+  quantity     Int
+  pricePerUnit Decimal  @map("price_per_unit") @db.Decimal(10, 2)
+  costPerUnit  Decimal  @map("cost_per_unit") @db.Decimal(10, 2)
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  recipe       Recipe   @relation(fields: [recipeId], references: [id], onDelete: Restrict)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([orderId])
+  @@index([recipeId])
+  @@map("order_items")
 }

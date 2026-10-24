@@ -24,4 +24,12 @@ const itemCost = UnitConverter.calculateItemCost(0.5, 200, 'g', 90);
 assert(Math.abs(itemCost - 111.11) < 0.05, `Expected ~111.11, got ${itemCost}`);
 console.log('  [OK] Item cost calculation with yield (90%) passed');
 
+// 4. Unit-to-Stock Conversion Test
+const gToKg = UnitConverter.convert(250, 'g', 'kg');
+assert(Math.abs(gToKg - 0.25) < 0.0001, `Expected 0.25kg, got ${gToKg}`);
+const mlToL = UnitConverter.convert(1500, 'ml', 'l');
+assert(Math.abs(mlToL - 1.5) < 0.0001, `Expected 1.5L, got ${mlToL}`);
+console.log('  [OK] Unit-to-Stock conversion passed');
+
 console.log('[SUCCESS] All Backend Unit Tests Passed Successfully!');
+

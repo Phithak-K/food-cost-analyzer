@@ -3,6 +3,7 @@ import cors from 'cors';
 import ingredientsRouter from './routes/ingredients.routes';
 import recipesRouter from './routes/recipes.routes';
 import analyticsRouter from './routes/analytics.routes';
+import ordersRouter from './routes/orders.routes';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -47,6 +48,7 @@ app.get('/api/health', (_req: Request, res: Response) => {
 app.use('/api/ingredients', ingredientsRouter);
 app.use('/api/recipes', recipesRouter);
 app.use('/api/analytics', analyticsRouter);
+app.use('/api/orders', ordersRouter);
 
 // 404 Handler
 app.use((_req: Request, res: Response) => {

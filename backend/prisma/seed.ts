@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, OrderStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -6,6 +6,8 @@ async function main() {
   console.log('🌱 Starting database seed for Food Costing & Menu Engineering...');
 
   // 1. Clear existing records to ensure clean state
+  await prisma.orderItem.deleteMany();
+  await prisma.order.deleteMany();
   await prisma.salesLog.deleteMany();
   await prisma.recipeIngredient.deleteMany();
   await prisma.recipe.deleteMany();
@@ -13,7 +15,7 @@ async function main() {
 
   console.log('🧹 Cleaned existing tables.');
 
-  // 2. Insert Realistic Ingredients
+  // 2. Insert Realistic Ingredients with initial stock and alert thresholds
   const matcha = await prisma.ingredient.create({
     data: {
       name: 'ผงมัทฉะเกรดพิธีการ (Ceremonial Uji Matcha)',
@@ -23,6 +25,8 @@ async function main() {
       purchaseUnit: 'g',
       costPerBaseUnit: 9.5, // 9.50 บาท/g
       yieldPercent: 100.0,
+      currentStock: 500.0, // 500 g
+      minStockAlert: 50.0,
     },
   });
 
@@ -35,6 +39,8 @@ async function main() {
       purchaseUnit: 'l',
       costPerBaseUnit: 0.049, // 0.049 บาท/ml
       yieldPercent: 100.0,
+      currentStock: 25.0, // 25 ลิตร
+      minStockAlert: 5.0,
     },
   });
 
@@ -47,6 +53,8 @@ async function main() {
       purchaseUnit: 'l',
       costPerBaseUnit: 0.075, // 0.075 บาท/ml
       yieldPercent: 100.0,
+      currentStock: 15.0, // 15 ลิตร
+      minStockAlert: 3.0,
     },
   });
 
@@ -59,6 +67,8 @@ async function main() {
       purchaseUnit: 'kg',
       costPerBaseUnit: 0.18, // 0.18 บาท/g
       yieldPercent: 95.0,
+      currentStock: 30.0, // 30 kg
+      minStockAlert: 5.0,
     },
   });
 
@@ -71,6 +81,8 @@ async function main() {
       purchaseUnit: 'pack',
       costPerBaseUnit: 4.67, // 4.67 บาท/ฟอง
       yieldPercent: 100.0,
+      currentStock: 150.0, // 150 ฟอง
+      minStockAlert: 30.0,
     },
   });
 
@@ -83,6 +95,8 @@ async function main() {
       purchaseUnit: 'l',
       costPerBaseUnit: 0.12, // 0.12 บาท/ml
       yieldPercent: 100.0,
+      currentStock: 12.0, // 12 ลิตร
+      minStockAlert: 2.0,
     },
   });
 
@@ -95,6 +109,8 @@ async function main() {
       purchaseUnit: 'kg',
       costPerBaseUnit: 0.044, // 0.044 บาท/g
       yieldPercent: 100.0,
+      currentStock: 60.0, // 60 kg
+      minStockAlert: 10.0,
     },
   });
 
@@ -107,6 +123,8 @@ async function main() {
       purchaseUnit: 'kg',
       costPerBaseUnit: 3.2, // 3.20 บาท/g
       yieldPercent: 90.0,
+      currentStock: 15.0, // 15 kg
+      minStockAlert: 3.0,
     },
   });
 
@@ -119,6 +137,8 @@ async function main() {
       purchaseUnit: 'pack',
       costPerBaseUnit: 0.859, // 0.859 บาท/g
       yieldPercent: 100.0,
+      currentStock: 25.0, // 25 pack
+      minStockAlert: 5.0,
     },
   });
 
@@ -131,6 +151,8 @@ async function main() {
       purchaseUnit: 'l',
       costPerBaseUnit: 0.165, // 0.165 บาท/ml
       yieldPercent: 100.0,
+      currentStock: 10.0, // 10 ลิตร
+      minStockAlert: 2.0,
     },
   });
 
@@ -143,10 +165,12 @@ async function main() {
       purchaseUnit: 'pack',
       costPerBaseUnit: 0.19, // 0.19 บาท/g
       yieldPercent: 100.0,
+      currentStock: 35.0, // 35 pack
+      minStockAlert: 5.0,
     },
   });
 
-  console.log('✅ Created 11 realistic ingredients.');
+  console.log('✅ Created 11 realistic ingredients with stock values.');
 
   // 3. Create Sample Recipes & Linked Ingredients
   // --- RECIPE 1: Star (Matcha Latte - กำไรสูง ขายดีมาก) ---
@@ -245,40 +269,66 @@ async function main() {
 
   await prisma.salesLog.createMany({
     data: [
-      // Star: High Volume (430 จาน)
-      {
-        recipeId: recipeMatcha.id,
-        quantitySold: 430,
-        period: currentDate,
-      },
-      // Plowhorse: High Volume (510 จาน)
-      {
-        recipeId: recipeKraPao.id,
-        quantitySold: 510,
-        period: currentDate,
-      },
-      // Puzzle: Low Volume (65 จาน)
-      {
-        recipeId: recipeWagyu.id,
-        quantitySold: 65,
-        period: currentDate,
-      },
-      // Dog: Low Volume (45 จาน)
-      {
-        recipeId: recipeDogPasta.id,
-        quantitySold: 45,
-        period: currentDate,
-      },
-      // Star: High Volume (380 จาน)
-      {
-        recipeId: recipeEggPork.id,
-        quantitySold: 380,
-        period: currentDate,
-      },
+      { recipeId: recipeMatcha.id, quantitySold: 430, period: currentDate },
+      { recipeId: recipeKraPao.id, quantitySold: 510, period: currentDate },
+      { recipeId: recipeWagyu.id, quantitySold: 65, period: currentDate },
+      { recipeId: recipeDogPasta.id, quantitySold: 45, period: currentDate },
+      { recipeId: recipeEggPork.id, quantitySold: 380, period: currentDate },
     ],
   });
 
   console.log('✅ Created monthly SalesLog records for Menu Matrix plotting.');
+
+  // 5. Seed Initial Sample Orders (Simulated POS Transactions)
+  const sampleOrder1 = await prisma.order.create({
+    data: {
+      totalAmount: 379.0, // 145 + 145 + 89
+      totalCost: 139.21,
+      status: OrderStatus.COMPLETED,
+      items: {
+        create: [
+          {
+            recipeId: recipeMatcha.id,
+            quantity: 2,
+            pricePerUnit: 145.0,
+            costPerUnit: 46.48,
+          },
+          {
+            recipeId: recipeKraPao.id,
+            quantity: 1,
+            pricePerUnit: 89.0,
+            costPerUnit: 46.25,
+          },
+        ],
+      },
+    },
+  });
+
+  const sampleOrder2 = await prisma.order.create({
+    data: {
+      totalAmount: 1789.0, // 1650 + 139
+      totalCost: 706.78,
+      status: OrderStatus.COMPLETED,
+      items: {
+        create: [
+          {
+            recipeId: recipeWagyu.id,
+            quantity: 1,
+            pricePerUnit: 1650.0,
+            costPerUnit: 664.78,
+          },
+          {
+            recipeId: recipeEggPork.id,
+            quantity: 1,
+            pricePerUnit: 139.0,
+            costPerUnit: 42.0,
+          },
+        ],
+      },
+    },
+  });
+
+  console.log('✅ Seeded 2 sample POS orders with completed transactions.');
   console.log('🎉 Seed completed successfully!');
 }
 

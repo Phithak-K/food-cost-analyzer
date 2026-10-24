@@ -20,7 +20,7 @@ router.get('/', async (_req: Request, res: Response) => {
 // POST /api/ingredients - Create new ingredient
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { name, category, purchasePrice, purchaseQuantity, purchaseUnit, yieldPercent } = req.body;
+    const { name, category, purchasePrice, purchaseQuantity, purchaseUnit, yieldPercent, currentStock, minStockAlert } = req.body;
 
     if (!name || !purchasePrice || !purchaseQuantity || !purchaseUnit) {
       return res.status(400).json({
@@ -32,6 +32,8 @@ router.post('/', async (req: Request, res: Response) => {
     const price = parseFloat(purchasePrice);
     const qty = parseFloat(purchaseQuantity);
     const yPct = yieldPercent ? parseFloat(yieldPercent) : 100.0;
+    const stock = currentStock !== undefined ? parseFloat(currentStock) : 0.0;
+    const minAlert = minStockAlert !== undefined ? parseFloat(minStockAlert) : 5.0;
 
     const baseQty = UnitConverter.toBaseUnit(qty, purchaseUnit);
     const costPerBaseUnit = baseQty > 0 ? price / baseQty : 0;
@@ -45,6 +47,8 @@ router.post('/', async (req: Request, res: Response) => {
         purchaseUnit,
         costPerBaseUnit: parseFloat(costPerBaseUnit.toFixed(4)),
         yieldPercent: yPct,
+        currentStock: stock,
+        minStockAlert: minAlert,
       },
     });
 
@@ -59,7 +63,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.put('/:id', async (req: Request, res: Response) => {
   try {
     const id = String(req.params.id);
-    const { name, category, purchasePrice, purchaseQuantity, purchaseUnit, yieldPercent } = req.body;
+    const { name, category, purchasePrice, purchaseQuantity, purchaseUnit, yieldPercent, currentStock, minStockAlert } = req.body;
 
     const existing = await prisma.ingredient.findUnique({ where: { id } });
     if (!existing) {
@@ -70,6 +74,8 @@ router.put('/:id', async (req: Request, res: Response) => {
     const qty = purchaseQuantity !== undefined ? parseFloat(purchaseQuantity) : Number(existing.purchaseQuantity);
     const unit = purchaseUnit || existing.purchaseUnit;
     const yPct = yieldPercent !== undefined ? parseFloat(yieldPercent) : Number(existing.yieldPercent);
+    const stock = currentStock !== undefined ? parseFloat(currentStock) : Number(existing.currentStock);
+    const minAlert = minStockAlert !== undefined ? parseFloat(minStockAlert) : Number(existing.minStockAlert);
 
     const baseQty = UnitConverter.toBaseUnit(qty, unit);
     const costPerBaseUnit = baseQty > 0 ? price / baseQty : 0;
@@ -84,6 +90,8 @@ router.put('/:id', async (req: Request, res: Response) => {
         purchaseUnit: unit,
         costPerBaseUnit: parseFloat(costPerBaseUnit.toFixed(4)),
         yieldPercent: yPct,
+        currentStock: stock,
+        minStockAlert: minAlert,
       },
     });
 
@@ -91,6 +99,40 @@ router.put('/:id', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error updating ingredient:', error);
     return res.status(500).json({ success: false, error: 'Failed to update ingredient' });
+  }
+});
+
+// PATCH /api/ingredients/:id/stock - Quick stock restock or adjustment
+router.patch('/:id/stock', async (req: Request, res: Response) => {
+  try {
+    const id = String(req.params.id);
+    const { currentStock, adjustment } = req.body;
+
+    const existing = await prisma.ingredient.findUnique({ where: { id } });
+    if (!existing) {
+      return res.status(404).json({ success: false, error: 'Ingredient not found' });
+    }
+
+    let newStock = Number(existing.currentStock);
+    if (currentStock !== undefined) {
+      newStock = parseFloat(currentStock);
+    } else if (adjustment !== undefined) {
+      newStock += parseFloat(adjustment);
+    } else {
+      return res.status(400).json({ success: false, error: 'Either currentStock or adjustment is required' });
+    }
+
+    newStock = Math.max(0, newStock);
+
+    const updated = await prisma.ingredient.update({
+      where: { id },
+      data: { currentStock: newStock },
+    });
+
+    return res.json({ success: true, data: updated });
+  } catch (error) {
+    console.error('Error patching ingredient stock:', error);
+    return res.status(500).json({ success: false, error: 'Failed to update ingredient stock' });
   }
 });
 
