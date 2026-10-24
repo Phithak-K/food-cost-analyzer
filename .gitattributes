@@ -1,0 +1,12 @@
+# -------------------------------------------------------------
+# GitHub Linguist Overrides
+# Tells GitHub to ignore auto-generated native platform boilerplate
+# so the Language statistics only count our real code: Dart & TypeScript
+# -------------------------------------------------------------
+
+frontend/windows/** linguist-vendored
+frontend/linux/** linguist-vendored
+frontend/macos/** linguist-vendored
+frontend/ios/** linguist-vendored
+frontend/android/** linguist-vendored
+frontend/web/** linguist-vendored
