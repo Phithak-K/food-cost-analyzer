@@ -156,8 +156,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       title: 'Food Cost เฉลี่ยรวม',
                       value: Formatters.percentage(metrics.overallFoodCostPct),
                       subtext: metrics.overallFoodCostPct <= AppConstants.targetFoodCostMax
-                          ? '✓ อยู่ในเกณฑ์เป้าหมายมาตรฐาน'
-                          : '⚠️ สูงกว่าเกณฑ์เป้าหมาย (35%)',
+                          ? 'อยู่ในเกณฑ์เป้าหมายมาตรฐาน'
+                          : 'สูงกว่าเกณฑ์เป้าหมาย (35%)',
                       icon: Icons.pie_chart_outline_rounded,
                       iconColor: metrics.overallFoodCostPct <= AppConstants.targetFoodCostMax
                           ? AppTheme.success

@@ -243,17 +243,17 @@ class _WhatIfSimulationScreenState extends ConsumerState<WhatIfSimulationScreen>
             runSpacing: 6,
             children: [
               _buildPresetChip(
-                label: '📈 ค่าครองชีพขึ้นทั้งระบบ (+10%)',
+                label: 'ค่าครองชีพขึ้นทั้งระบบ (+10%)',
                 isSelected: state.activePreset == 'general_inflation',
                 onTap: () => notifier.applyPreset('general_inflation'),
               ),
               _buildPresetChip(
-                label: '🥛 วิกฤตนม & แดรี่ (+20%)',
+                label: 'วิกฤตนม & แดรี่ (+20%)',
                 isSelected: state.activePreset == 'dairy_spike',
                 onTap: () => notifier.applyPreset('dairy_spike'),
               ),
               _buildPresetChip(
-                label: '🥩 เนื้อสัตว์ & ซีฟู้ด (+15%)',
+                label: 'เนื้อสัตว์ & ซีฟู้ด (+15%)',
                 isSelected: state.activePreset == 'meat_seafood_spike',
                 onTap: () => notifier.applyPreset('meat_seafood_spike'),
               ),
@@ -363,7 +363,7 @@ class _WhatIfSimulationScreenState extends ConsumerState<WhatIfSimulationScreen>
                       title: 'เมนูที่ต้นทุนทะลุเกณฑ์ (>35%)',
                       value: '${summary.totalCriticalRecipesCount} เมนู',
                       subtitle: summary.newlyCriticalRecipesCount > 0
-                          ? '⚠️ ทะลุเกณฑ์เพิ่ม ${summary.newlyCriticalRecipesCount} เมนู!'
+                          ? 'ทะลุเกณฑ์เพิ่ม ${summary.newlyCriticalRecipesCount} เมนู!'
                           : 'ไม่มีเมนูใหม่ที่เกินเกณฑ์',
                       icon: Icons.warning_amber_rounded,
                       accentColor: summary.newlyCriticalRecipesCount > 0
@@ -420,7 +420,7 @@ class _WhatIfSimulationScreenState extends ConsumerState<WhatIfSimulationScreen>
                 title: 'เมนูต้นทุนเกินเกณฑ์ (>35%)',
                 value: '${summary.totalCriticalRecipesCount} เมนู',
                 subtitle: summary.newlyCriticalRecipesCount > 0
-                    ? '⚠️ พุ่งเกินเกณฑ์เพิ่ม ${summary.newlyCriticalRecipesCount} เมนู!'
+                    ? 'พุ่งเกินเกณฑ์เพิ่ม ${summary.newlyCriticalRecipesCount} เมนู!'
                     : 'สถานะปลอดภัย',
                 icon: Icons.warning_amber_rounded,
                 accentColor: summary.newlyCriticalRecipesCount > 0
@@ -515,7 +515,7 @@ class _WhatIfSimulationScreenState extends ConsumerState<WhatIfSimulationScreen>
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w500,
-              color: subtitle.contains('⚠️') ? AppTheme.danger : AppTheme.textSecondary,
+              color: (subtitle.contains('เพิ่ม') || subtitle.contains('ลดลง')) ? AppTheme.danger : AppTheme.textSecondary,
             ),
           ),
         ],

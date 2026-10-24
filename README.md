@@ -4,14 +4,14 @@
 
 ---
 
-## 📁 โครงสร้างโปรเจกต์ (Monorepo Architecture)
+## โครงสร้างโปรเจกต์ (Monorepo Architecture)
 
 โปรเจกต์นี้แยกโครงสร้างออกเป็น 2 ส่วนหลักอย่างชัดเจน:
 
 ```
 my_first_app/
 │
-├── 🎨 frontend/                     # [หน้าบ้าน] Flutter Web Application
+├── frontend/                        # [หน้าบ้าน] Flutter Web Application
 │   ├── lib/
 │   │   ├── core/                    # Theme, Router (GoRouter), Utils, Layout Shell
 │   │   └── features/                # ฟังก์ชันทางธุรกิจ (Feature-First Clean Architecture)
@@ -24,7 +24,7 @@ my_first_app/
 │   ├── web/                         # เว็บ Assets, index.html, Favicon
 │   └── pubspec.yaml                 # Flutter Dependencies
 │
-├── ⚙️ backend/                      # [หลังบ้าน] REST API & Database Service
+├── backend/                         # [หลังบ้าน] REST API & Database Service
 │   ├── src/
 │   │   ├── routes/                  # REST Endpoints (ingredients, recipes, analytics)
 │   │   ├── services/                # Calculator Service & Simulation Service
@@ -38,14 +38,14 @@ my_first_app/
 │   ├── docker-compose.yml           # PostgreSQL 16 (Port 5433:5432)
 │   ├── package.json                 # Node.js Dependencies & Scripts
 │   ├── tsconfig.json                # TypeScript Configuration
-│   └── .env                         # Database Connection URL
+│   └── .env.example                 # แม่แบบการตั้งค่า Database Connection
 │
-└── 📖 README.md                     # เอกสารแนะนำและคู่มือการรันโปรเจกต์
+└── README.md                        # เอกสารแนะนำและคู่มือการรันโปรเจกต์
 ```
 
 ---
 
-## 🚀 วิธีการติดตั้งและรันโปรเจกต์
+## วิธีการติดตั้งและรันโปรเจกต์
 
 ### 1. รันส่วนหลังบ้าน (Backend & Database)
 ```bash
@@ -86,7 +86,7 @@ flutter run -d chrome
 
 ---
 
-## 🔌 API Endpoints สรุป
+## สรุป API Endpoints
 
 | หมวด | Method | Endpoint | หน้าที่ |
 |---|---|---|---|

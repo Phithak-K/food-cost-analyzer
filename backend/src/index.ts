@@ -67,8 +67,8 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 
 // Start listening
 app.listen(PORT, () => {
-  console.log(`🚀 Food Costing & Menu Engineering API running on http://localhost:${PORT}`);
-  console.log(`📊 Connected to PostgreSQL via Prisma (Port 5433)`);
+  console.log(`Food Costing & Menu Engineering API running on http://localhost:${PORT}`);
+  console.log(`Connected to PostgreSQL via Prisma (Port 5433)`);
 });
 
 export default app;
