@@ -134,12 +134,17 @@ class SimulationNotifier extends Notifier<SimulationState> {
           final cat = ing.category.toLowerCase();
           final name = ing.name.toLowerCase();
           if (cat.contains('dairy') ||
+              cat.contains('egg') ||
               cat.contains('นม') ||
+              cat.contains('ไข่') ||
               name.contains('cream') ||
               name.contains('นม') ||
               name.contains('ชีส') ||
+              name.contains('cheese') ||
               name.contains('butter') ||
-              name.contains('เนย')) {
+              name.contains('เนย') ||
+              name.contains('egg') ||
+              name.contains('ไข่')) {
             newMap[ing.id] = 20.0;
           }
         }
@@ -151,13 +156,20 @@ class SimulationNotifier extends Notifier<SimulationState> {
           final name = ing.name.toLowerCase();
           if (cat.contains('meat') ||
               cat.contains('seafood') ||
+              cat.contains('poultry') ||
               name.contains('เนื้อ') ||
+              name.contains('หมู') ||
+              name.contains('ไก่') ||
               name.contains('กุ้ง') ||
               name.contains('ปลา') ||
               name.contains('แซลมอน') ||
               name.contains('salmon') ||
               name.contains('wagyu') ||
-              name.contains('beef')) {
+              name.contains('beef') ||
+              name.contains('pork') ||
+              name.contains('chicken') ||
+              name.contains('bacon') ||
+              name.contains('เบคอน')) {
             newMap[ing.id] = 15.0;
           }
         }
