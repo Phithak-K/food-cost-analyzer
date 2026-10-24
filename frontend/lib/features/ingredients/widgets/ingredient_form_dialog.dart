@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/utils/unit_converter.dart';
+import '../../../core/widgets/capsule_toast.dart';
 import '../models/ingredient.dart';
 import '../providers/ingredients_provider.dart';
 
@@ -449,15 +450,12 @@ class _IngredientFormDialogState extends ConsumerState<IngredientFormDialog> {
     }
 
     Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          widget.initialIngredient != null
-              ? 'อัปเดตข้อมูล ${ingredient.name} เรียบร้อยแล้ว'
-              : 'เพิ่มวัตถุดิบ ${ingredient.name} เข้าสู่ระบบสำเร็จ',
-        ),
-        backgroundColor: AppTheme.success,
-      ),
+    CapsuleToast.showSuccess(
+      context,
+      widget.initialIngredient != null
+          ? 'อัปเดตข้อมูล ${ingredient.name} เรียบร้อยแล้ว'
+          : 'เพิ่มวัตถุดิบ ${ingredient.name} เข้าสู่ระบบสำเร็จ',
+      title: 'บันทึกข้อมูลสำเร็จ',
     );
   }
 }

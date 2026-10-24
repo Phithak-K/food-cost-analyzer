@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../core/widgets/capsule_toast.dart';
+import '../../../core/widgets/glass_container.dart';
 import '../models/ingredient.dart';
 import '../providers/ingredients_provider.dart';
 import '../widgets/ingredient_form_dialog.dart';
@@ -71,10 +73,9 @@ class _IngredientsScreenState extends ConsumerState<IngredientsScreen> {
             const SizedBox(height: 20),
 
             // Search, Category Filter & View Toggle Bar
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Wrap(
+            GlassContainer(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Wrap(
                   alignment: WrapAlignment.spaceBetween,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   spacing: 16,
@@ -167,7 +168,6 @@ class _IngredientsScreenState extends ConsumerState<IngredientsScreen> {
                     ),
                   ],
                 ),
-              ),
             ),
             const SizedBox(height: 16),
 
@@ -328,10 +328,9 @@ class _IngredientsScreenState extends ConsumerState<IngredientsScreen> {
           itemCount: items.length,
           itemBuilder: (context, index) {
             final item = items[index];
-            return Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
+            return GlassContainer(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
@@ -415,7 +414,6 @@ class _IngredientsScreenState extends ConsumerState<IngredientsScreen> {
                     ),
                   ],
                 ),
-              ),
             );
           },
         );
@@ -436,8 +434,10 @@ class _IngredientsScreenState extends ConsumerState<IngredientsScreen> {
             onPressed: () {
               ref.read(ingredientsProvider.notifier).deleteIngredient(item.id);
               Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('ลบ ${item.name} สำเร็จแล้ว')),
+              CapsuleToast.showSuccess(
+                context,
+                'ลบ ${item.name} สำเร็จแล้ว',
+                title: 'ลบวัตถุดิบเรียบร้อย',
               );
             },
             child: const Text('ลบวัตถุดิบ'),
