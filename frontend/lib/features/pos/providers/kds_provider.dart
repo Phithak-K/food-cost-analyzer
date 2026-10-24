@@ -81,6 +81,16 @@ class KdsNotifier extends Notifier<List<KitchenTicket>> {
     ];
   }
 
+  void updateTicketStatus(String ticketId, KitchenOrderStatus status) {
+    state = [
+      for (final ticket in state)
+        if (ticket.id == ticketId)
+          ticket.copyWith(status: status)
+        else
+          ticket,
+    ];
+  }
+
   void removeTicket(String ticketId) {
     state = state.where((t) => t.id != ticketId).toList();
   }

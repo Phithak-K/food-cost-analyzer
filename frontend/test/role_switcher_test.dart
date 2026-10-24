@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_first_app/core/providers/user_role_provider.dart';
 import 'package:my_first_app/core/widgets/app_shell.dart';
-import 'package:my_first_app/core/widgets/role_switcher_pill.dart';
 
 void main() {
   group('UserRole Unit Tests', () {

@@ -49,6 +49,7 @@ class KitchenTicket {
   });
 
   int get minutesElapsed => DateTime.now().difference(createdAt).inMinutes;
+  DateTime get orderedAt => createdAt;
 
   KitchenTicket copyWith({
     String? id,
