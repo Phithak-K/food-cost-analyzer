@@ -5,6 +5,7 @@ import '../../features/dashboard/widgets/business_glossary_dialog.dart';
 import '../providers/user_role_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/responsive.dart';
+import 'manager_pin_dialog.dart';
 import 'role_switcher_pill.dart';
 
 class AppShell extends ConsumerWidget {
@@ -31,7 +32,7 @@ class AppShell extends ConsumerWidget {
       body: Row(
         children: [
           // Desktop / Large Screen Sidebar
-          if (isDesktop) _buildSidebar(context, location, currentRole),
+          if (isDesktop) _buildSidebar(context, ref, location, currentRole),
 
           // Main Content Area
           Expanded(
@@ -47,7 +48,7 @@ class AppShell extends ConsumerWidget {
       // Drawer on smaller screens
       drawer: isDesktop
           ? null
-          : Drawer(child: _buildSidebar(context, location, currentRole, isDrawer: true)),
+          : Drawer(child: _buildSidebar(context, ref, location, currentRole, isDrawer: true)),
       bottomNavigationBar: isDesktop
           ? null
           : _buildBottomNavigationBar(context, location, currentRole),
@@ -56,11 +57,18 @@ class AppShell extends ConsumerWidget {
 
   Widget _buildSidebar(
     BuildContext context,
+    WidgetRef ref,
     String location,
     UserRole currentRole, {
     bool isDrawer = false,
   }) {
-    final menuItems = _buildRoleFilteredMenuItems(context, location, currentRole, isDrawer: isDrawer);
+    final menuItems = _buildRoleFilteredMenuItems(
+      context,
+      ref,
+      location,
+      currentRole,
+      isDrawer: isDrawer,
+    );
 
     return Container(
       width: 260,
@@ -212,7 +220,9 @@ class AppShell extends ConsumerWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        'Grand Bistro & Grill',
+                        currentRole == UserRole.manager
+                            ? 'สิทธิ์เต็ม (Full Access)'
+                            : 'คลิกเมนู 🔒 เพื่อใส่รหัส 1234',
                         style: TextStyle(fontSize: 10, color: AppTheme.textMuted),
                       ),
                     ],
@@ -228,131 +238,95 @@ class AppShell extends ConsumerWidget {
 
   List<Widget> _buildRoleFilteredMenuItems(
     BuildContext context,
+    WidgetRef ref,
     String location,
     UserRole currentRole, {
     required bool isDrawer,
   }) {
-    if (currentRole == UserRole.cashier) {
-      return [
-        _SidebarItem(
-          key: const Key('sidebar_pos'),
-          icon: Icons.point_of_sale_rounded,
-          title: 'รับออเดอร์ (POS)',
-          isSelected: location.startsWith('/pos'),
-          onTap: () {
-            if (isDrawer) Navigator.pop(context);
-            context.go('/pos');
-          },
-        ),
-        _SidebarItem(
-          key: const Key('sidebar_orders'),
-          icon: Icons.receipt_long_rounded,
-          title: 'ประวัติการขาย',
-          isSelected: location.startsWith('/orders'),
-          onTap: () {
-            if (isDrawer) Navigator.pop(context);
-            context.go('/orders');
-          },
-        ),
-      ];
+    Widget buildItem({
+      required Key key,
+      required IconData icon,
+      required String title,
+      required String targetRoute,
+      bool exactMatch = false,
+    }) {
+      final isAccessible = currentRole.canAccessRoute(targetRoute);
+      final isSelected = exactMatch ? location == targetRoute : location.startsWith(targetRoute);
+
+      return _SidebarItem(
+        key: key,
+        icon: icon,
+        title: title,
+        isSelected: isSelected,
+        isLocked: !isAccessible,
+        onTap: () async {
+          if (isDrawer) Navigator.pop(context);
+          if (isAccessible) {
+            context.go(targetRoute);
+          } else {
+            // Require Manager PIN verification to enter locked sections
+            final ok = await showManagerPinDialog(
+              context,
+              ref: ref,
+              targetTitle: title,
+            );
+            if (ok && context.mounted) {
+              context.go(targetRoute);
+            }
+          }
+        },
+      );
     }
 
-    if (currentRole == UserRole.kitchen) {
-      return [
-        _SidebarItem(
-          key: const Key('sidebar_kds'),
-          icon: Icons.restaurant_rounded,
-          title: 'จอคิวอาหาร (KDS)',
-          isSelected: location.startsWith('/kds'),
-          onTap: () {
-            if (isDrawer) Navigator.pop(context);
-            context.go('/kds');
-          },
-        ),
-      ];
-    }
-
-    // Default: UserRole.manager (Sees all screens)
     return [
-      _SidebarItem(
+      buildItem(
         key: const Key('sidebar_dashboard'),
         icon: Icons.dashboard_rounded,
         title: 'ภาพรวม & Matrix',
-        isSelected: location.startsWith('/dashboard'),
-        onTap: () {
-          if (isDrawer) Navigator.pop(context);
-          context.go('/dashboard');
-        },
+        targetRoute: '/dashboard',
       ),
-      _SidebarItem(
+      buildItem(
         key: const Key('sidebar_pos'),
         icon: Icons.point_of_sale_rounded,
         title: 'รับออเดอร์ (Quick POS)',
-        isSelected: location.startsWith('/pos'),
-        onTap: () {
-          if (isDrawer) Navigator.pop(context);
-          context.go('/pos');
-        },
+        targetRoute: '/pos',
       ),
-      _SidebarItem(
+      buildItem(
         key: const Key('sidebar_kds'),
         icon: Icons.restaurant_rounded,
         title: 'จอคิวอาหาร (KDS)',
-        isSelected: location.startsWith('/kds'),
-        onTap: () {
-          if (isDrawer) Navigator.pop(context);
-          context.go('/kds');
-        },
+        targetRoute: '/kds',
       ),
-      _SidebarItem(
+      buildItem(
         key: const Key('sidebar_orders'),
         icon: Icons.receipt_long_rounded,
         title: 'ประวัติการขาย',
-        isSelected: location.startsWith('/orders'),
-        onTap: () {
-          if (isDrawer) Navigator.pop(context);
-          context.go('/orders');
-        },
+        targetRoute: '/orders',
       ),
-      _SidebarItem(
+      buildItem(
         key: const Key('sidebar_recipes'),
         icon: Icons.menu_book_rounded,
         title: 'สูตรอาหาร (Recipes)',
-        isSelected: location == '/recipes',
-        onTap: () {
-          if (isDrawer) Navigator.pop(context);
-          context.go('/recipes');
-        },
+        targetRoute: '/recipes',
+        exactMatch: true,
       ),
-      _SidebarItem(
+      buildItem(
         key: const Key('sidebar_recipe_builder'),
         icon: Icons.add_circle_outline_rounded,
         title: 'สร้างสูตร (Recipe Builder)',
-        isSelected: location.startsWith('/recipes/builder'),
-        onTap: () {
-          if (isDrawer) Navigator.pop(context);
-          context.go('/recipes/builder');
-        },
+        targetRoute: '/recipes/builder',
       ),
-      _SidebarItem(
+      buildItem(
         key: const Key('sidebar_ingredients'),
         icon: Icons.inventory_2_rounded,
         title: 'วัตถุดิบ & คลัง (Ingredients)',
-        isSelected: location.startsWith('/ingredients'),
-        onTap: () {
-          if (isDrawer) Navigator.pop(context);
-          context.go('/ingredients');
-        },
+        targetRoute: '/ingredients',
       ),
-      _SidebarItem(
+      buildItem(
         key: const Key('sidebar_simulation'),
         icon: Icons.tune_rounded,
         title: 'จำลองต้นทุน (What-If)',
-        isSelected: location.startsWith('/simulation'),
-        onTap: () {
-          if (isDrawer) Navigator.pop(context);
-          context.go('/simulation');
-        },
+        targetRoute: '/simulation',
       ),
       const SizedBox(height: 6),
       const Padding(
@@ -364,6 +338,7 @@ class AppShell extends ConsumerWidget {
         icon: Icons.menu_book_rounded,
         title: 'คู่มือคำศัพท์ธุรกิจ',
         isSelected: false,
+        isLocked: false,
         onTap: () {
           if (isDrawer) Navigator.pop(context);
           showBusinessGlossaryDialog(context);
@@ -437,7 +412,7 @@ class AppShell extends ConsumerWidget {
                   Container(
                     width: 8,
                     height: 8,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: AppTheme.primaryNeon,
                       shape: BoxShape.circle,
                       boxShadow: [
@@ -449,8 +424,8 @@ class AppShell extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  SizedBox(width: 8),
-                  Text(
+                  const SizedBox(width: 8),
+                  const Text(
                     'Online',
                     style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppTheme.primaryNeon),
                   ),
@@ -599,6 +574,7 @@ class _SidebarItem extends StatelessWidget {
   final IconData icon;
   final String title;
   final bool isSelected;
+  final bool isLocked;
   final VoidCallback onTap;
 
   const _SidebarItem({
@@ -606,6 +582,7 @@ class _SidebarItem extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.isSelected,
+    this.isLocked = false,
     required this.onTap,
   });
 
@@ -644,33 +621,43 @@ class _SidebarItem extends StatelessWidget {
               leading: Icon(
                 icon,
                 size: 20,
-                color: isSelected ? AppTheme.primaryNeon : AppTheme.textSecondary,
+                color: isSelected
+                    ? AppTheme.primaryNeon
+                    : (isLocked ? AppTheme.textMuted : AppTheme.textSecondary),
               ),
               title: Text(
                 title,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                  color: isSelected ? Colors.white : AppTheme.textSecondary,
+                  color: isSelected
+                      ? Colors.white
+                      : (isLocked ? AppTheme.textMuted : AppTheme.textSecondary),
                 ),
               ),
-              trailing: isSelected
-                  ? Container(
-                      width: 6,
-                      height: 6,
-                      decoration: const BoxDecoration(
-                        color: AppTheme.primaryNeon,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppTheme.primaryNeon,
-                            blurRadius: 6,
-                            spreadRadius: 1,
-                          ),
-                        ],
-                      ),
+              trailing: isLocked
+                  ? const Icon(
+                      Icons.lock_rounded,
+                      size: 14,
+                      color: AppTheme.textMuted,
                     )
-                  : null,
+                  : (isSelected
+                      ? Container(
+                          width: 6,
+                          height: 6,
+                          decoration: const BoxDecoration(
+                            color: AppTheme.primaryNeon,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppTheme.primaryNeon,
+                                blurRadius: 6,
+                                spreadRadius: 1,
+                              ),
+                            ],
+                          ),
+                        )
+                      : null),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
           ),

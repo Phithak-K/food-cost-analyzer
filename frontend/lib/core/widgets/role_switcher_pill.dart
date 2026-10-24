@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../providers/user_role_provider.dart';
 import '../theme/app_theme.dart';
 import 'capsule_toast.dart';
+import 'manager_pin_dialog.dart';
 
 class RoleSwitcherPill extends ConsumerWidget {
   const RoleSwitcherPill({super.key});
@@ -23,8 +24,24 @@ class RoleSwitcherPill extends ConsumerWidget {
         side: const BorderSide(color: AppTheme.border, width: 1),
       ),
       elevation: 12,
-      onSelected: (selectedRole) {
+      onSelected: (selectedRole) async {
         if (selectedRole == currentRole) return;
+
+        // If switching to manager from another role, require manager PIN verification
+        if (selectedRole == UserRole.manager && currentRole != UserRole.manager) {
+          final isAuthorized = await showManagerPinDialog(
+            context,
+            ref: ref,
+            targetTitle: 'ผู้จัดการ (Manager)',
+          );
+          if (!isAuthorized) return;
+          if (!context.mounted) return;
+          final location = GoRouterState.of(context).matchedLocation;
+          if (!UserRole.manager.canAccessRoute(location)) {
+            context.go(UserRole.manager.defaultRoute);
+          }
+          return;
+        }
 
         // 1. Update Riverpod State
         ref.read(userRoleProvider.notifier).setRole(selectedRole);

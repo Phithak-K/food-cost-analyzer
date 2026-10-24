@@ -149,7 +149,7 @@ void main() {
       expect(find.byKey(const Key('sidebar_glossary')), findsOneWidget);
     });
 
-    testWidgets('Cashier role shows only POS and Sales History in sidebar', (tester) async {
+    testWidgets('Cashier role shows POS and Orders unlocked, and management items locked with PIN', (tester) async {
       tester.view.physicalSize = const Size(1440, 900);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -168,21 +168,17 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Cashier must see ONLY POS and Orders (Sales History)
+      // Cashier sees POS and Orders
       expect(find.byKey(const Key('sidebar_pos')), findsOneWidget);
       expect(find.byKey(const Key('sidebar_orders')), findsOneWidget);
 
-      // Must NOT see manager-only tools
-      expect(find.byKey(const Key('sidebar_dashboard')), findsNothing);
-      expect(find.byKey(const Key('sidebar_kds')), findsNothing);
-      expect(find.byKey(const Key('sidebar_recipes')), findsNothing);
-      expect(find.byKey(const Key('sidebar_recipe_builder')), findsNothing);
-      expect(find.byKey(const Key('sidebar_ingredients')), findsNothing);
-      expect(find.byKey(const Key('sidebar_simulation')), findsNothing);
-      expect(find.byKey(const Key('sidebar_glossary')), findsNothing);
+      // Manager-only items are present but locked with 🔒 icons
+      expect(find.byKey(const Key('sidebar_dashboard')), findsOneWidget);
+      expect(find.byKey(const Key('sidebar_recipes')), findsOneWidget);
+      expect(find.byIcon(Icons.lock_rounded), findsWidgets);
     });
 
-    testWidgets('Kitchen role shows only KDS in sidebar', (tester) async {
+    testWidgets('Kitchen role shows KDS unlocked, and other menus locked with PIN', (tester) async {
       tester.view.physicalSize = const Size(1440, 900);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -201,16 +197,12 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Kitchen must see ONLY KDS
+      // Kitchen sees KDS
       expect(find.byKey(const Key('sidebar_kds')), findsOneWidget);
 
-      // Must NOT see POS, Orders, or Management
-      expect(find.byKey(const Key('sidebar_pos')), findsNothing);
-      expect(find.byKey(const Key('sidebar_orders')), findsNothing);
-      expect(find.byKey(const Key('sidebar_dashboard')), findsNothing);
-      expect(find.byKey(const Key('sidebar_recipes')), findsNothing);
-      expect(find.byKey(const Key('sidebar_ingredients')), findsNothing);
-      expect(find.byKey(const Key('sidebar_simulation')), findsNothing);
+      // Other menus have 🔒 lock icons
+      expect(find.byKey(const Key('sidebar_pos')), findsOneWidget);
+      expect(find.byIcon(Icons.lock_rounded), findsWidgets);
     });
 
     testWidgets('RoleSwitcherPill interacts and switches roles smoothly', (tester) async {
@@ -254,7 +246,6 @@ void main() {
       // Cashier is not allowed on /dashboard, so auto-redirects to /pos
       expect(find.text('POS Content'), findsOneWidget);
       expect(find.byKey(const Key('sidebar_pos')), findsOneWidget);
-      expect(find.byKey(const Key('sidebar_dashboard')), findsNothing);
     });
   });
 }
