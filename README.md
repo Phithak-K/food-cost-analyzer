@@ -25,7 +25,7 @@
 - **BOM (Bill of Materials) Recipe Costing**: คำนวณต้นทุนต่อจานอย่างแม่นยำ รองรับหน่วยชั่งตวงวัด (g, kg, ml, L, ฟอง) และ Yield Loss %
 - **What-If Cost Impact Simulation**: แซนด์บ็อกซ์จำลองผลกระทบเมื่อราคาวัตถุดิบผันผวน ปรับเปลี่ยนสัดส่วนสูตร หรือเปลี่ยนราคาขายแบบ Real-Time
 - **Point of Sale (POS) & Automated Inventory Deduction**: แคชเชียร์รับออเดอร์หน้าร้าน และระบบตัดสต็อกวัตถุดิบย่อยระดับกรัม/มิลลิลิตรทันที
-- **Kitchen Display System (KDS)**: หน้าจอคิวออเดอร์สำหรับห้องครัว อัปเดตสถานะการปรุงแบบ Real-Time
+- **Kitchen Display System (KDS) & Real-Time WebSockets**: หน้าจอคิวออเดอร์สำหรับห้องครัว เมื่อแคชเชียร์กดยืนยันออเดอร์ที่ POS บิลจะเด้งขึ้นหน้าจอครัวทันทีผ่าน WebSocket (`ws://localhost:5000/ws`) พร้อมเสียงกระดิ่งเตือนเชฟ (Bell Chime "Ding!") โดยไม่ต้องกดรีเฟรชหน้าจอ
 - **Role-Based Access Control (RBAC) & 4-Digit PIN Security**: แถบสลับบทบาทรวดเร็ว พร้อมระบบล็อกหน้าจอที่มีความสำคัญสูงด้วยรหัสผ่าน PIN 4 หลัก
 - **Financial & BOM Export**: ส่งออกรายงานทั้งในรูปแบบไฟล์ PDF และ CSV/Excel
 

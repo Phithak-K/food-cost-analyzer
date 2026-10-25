@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/utils/audio_chime.dart';
 import '../../recipes/providers/recipes_provider.dart';
 import '../models/cart_item.dart';
 import '../models/kitchen_ticket.dart';
@@ -64,7 +65,19 @@ class KdsNotifier extends Notifier<List<KitchenTicket>> {
       status: KitchenOrderStatus.cooking,
     );
 
-    state = [newTicket, ...state];
+    addTicket(newTicket);
+  }
+
+  void addTicket(KitchenTicket ticket) {
+    if (state.any((t) => t.id == ticket.id || t.orderNumber == ticket.orderNumber)) {
+      return;
+    }
+    state = [ticket, ...state];
+  }
+
+  void addTicketFromWebSocket(KitchenTicket ticket) {
+    addTicket(ticket);
+    AudioChime.play();
   }
 
   void toggleStatus(String ticketId) {

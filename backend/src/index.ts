@@ -1,9 +1,11 @@
+import http from 'http';
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import ingredientsRouter from './routes/ingredients.routes';
 import recipesRouter from './routes/recipes.routes';
 import analyticsRouter from './routes/analytics.routes';
 import ordersRouter from './routes/orders.routes';
+import { WebSocketService } from './services/websocket.service';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -68,9 +70,14 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 });
 
 // Start listening
-app.listen(PORT, () => {
+const server = http.createServer(app);
+WebSocketService.init(server);
+
+server.listen(PORT, () => {
   console.log(`Food Costing & Menu Engineering API running on http://localhost:${PORT}`);
+  console.log(`WebSocket Server active on ws://localhost:${PORT}/ws`);
   console.log(`Connected to PostgreSQL via Prisma (Port 5433)`);
 });
 
 export default app;
+export { server };

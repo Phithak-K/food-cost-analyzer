@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { OrdersService, InsufficientStockError } from '../services/orders.service';
+import { WebSocketService } from '../services/websocket.service';
 
 const router = Router();
 
@@ -60,6 +61,13 @@ router.post('/', async (req: Request, res: Response) => {
 
     const createdOrder = await OrdersService.createOrder({ items });
 
+    // Real-Time broadcast to Kitchen Display System (KDS) & other listeners
+    try {
+      WebSocketService.broadcast('NEW_ORDER', createdOrder);
+    } catch (wsErr) {
+      console.error('Failed to broadcast NEW_ORDER via WebSocket:', wsErr);
+    }
+
     return res.status(201).json({
       success: true,
       message: 'Order created and inventory deducted successfully',
@@ -80,6 +88,42 @@ router.post('/', async (req: Request, res: Response) => {
     return res.status(400).json({
       success: false,
       error: error.message || 'Failed to process order',
+    });
+  }
+});
+
+// PATCH /api/orders/:id/status - Update order status and broadcast via WebSocket
+router.patch('/:id/status', async (req: Request, res: Response) => {
+  try {
+    const id = String(req.params.id);
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing "status" in request body',
+      });
+    }
+
+    const updatedOrder = await OrdersService.updateOrderStatus(id, status);
+
+    // Broadcast status change to KDS and POS
+    try {
+      WebSocketService.broadcast('ORDER_STATUS_CHANGED', updatedOrder);
+    } catch (wsErr) {
+      console.error('Failed to broadcast ORDER_STATUS_CHANGED via WebSocket:', wsErr);
+    }
+
+    return res.json({
+      success: true,
+      message: `Order status updated to ${status}`,
+      data: updatedOrder,
+    });
+  } catch (error: any) {
+    console.error('Error updating order status:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to update order status',
     });
   }
 });

@@ -267,4 +267,28 @@ export class OrdersService {
       },
     });
   }
+
+  /**
+   * Updates an order's status and returns the updated record.
+   */
+  static async updateOrderStatus(id: string, status: OrderStatus) {
+    return await prisma.order.update({
+      where: { id },
+      data: { status },
+      include: {
+        items: {
+          include: {
+            recipe: {
+              select: {
+                id: true,
+                name: true,
+                category: true,
+                sellingPrice: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
 }

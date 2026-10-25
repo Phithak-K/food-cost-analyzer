@@ -7,6 +7,7 @@ import 'package:my_first_app/features/pos/providers/kds_provider.dart';
 import 'package:my_first_app/features/recipes/models/recipe.dart';
 import 'package:my_first_app/features/recipes/models/recipe_item.dart';
 import 'package:my_first_app/features/ingredients/models/ingredient.dart';
+import 'package:my_first_app/core/services/kds_websocket_service.dart';
 
 void main() {
   group('Kitchen Display System (KDS) & Portion Guide Tests', () {
@@ -83,6 +84,7 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           kdsProvider.overrideWith(() => _CustomKdsNotifier([sampleTicket])),
+          kdsWebSocketProvider.overrideWith(() => KdsWebSocketNotifier(autoConnect: false)),
         ],
       );
       addTearDown(container.dispose);
@@ -116,6 +118,7 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           kdsProvider.overrideWith(() => _CustomKdsNotifier([sampleTicket])),
+          kdsWebSocketProvider.overrideWith(() => KdsWebSocketNotifier(autoConnect: false)),
         ],
       );
       addTearDown(container.dispose);
@@ -163,6 +166,7 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           kdsProvider.overrideWith(() => _CustomKdsNotifier([sampleTicket])),
+          kdsWebSocketProvider.overrideWith(() => KdsWebSocketNotifier(autoConnect: false)),
         ],
       );
       addTearDown(container.dispose);
@@ -179,6 +183,56 @@ void main() {
       final tickets = container.read(kdsProvider);
       expect(tickets.first.status, equals(KitchenOrderStatus.ready));
       expect(find.text('ปรุงเสร็จแล้ว'), findsOneWidget);
+    });
+
+    testWidgets('KitchenScreen renders Live Sync indicator and bell chime test button', (tester) async {
+      tester.view.physicalSize = const Size(1440, 900);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      final container = ProviderContainer(
+        overrides: [
+          kdsProvider.overrideWith(() => _CustomKdsNotifier([sampleTicket])),
+          kdsWebSocketProvider.overrideWith(() => KdsWebSocketNotifier(autoConnect: false)),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      await tester.pumpWidget(createTestApp(container));
+      await tester.pumpAndSettle();
+
+      // Check Live Sync indicator or connection status text
+      expect(find.textContaining('Sync'), findsOneWidget);
+
+      // Check bell chime test icon button
+      final bellButton = find.byIcon(Icons.notifications_active_rounded);
+      expect(bellButton, findsOneWidget);
+
+      // Tap test chime
+      await tester.tap(bellButton);
+      await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 4)); // drain toast
+
+      expect(find.textContaining('ทดสอบเสียงกระดิ่งครัว'), findsOneWidget);
+    });
+
+    test('KdsNotifier addTicketFromWebSocket adds ticket correctly', () {
+      final container = ProviderContainer(
+        overrides: [
+          kdsProvider.overrideWith(() => _CustomKdsNotifier([])),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final notifier = container.read(kdsProvider.notifier);
+      notifier.addTicketFromWebSocket(sampleTicket);
+
+      final updatedTickets = container.read(kdsProvider);
+      expect(updatedTickets.length, equals(1));
+      expect(updatedTickets.first.orderNumber, equals('ORD-9901'));
     });
   });
 }

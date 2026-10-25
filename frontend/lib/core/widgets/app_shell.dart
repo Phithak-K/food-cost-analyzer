@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/dashboard/widgets/business_glossary_dialog.dart';
 import '../providers/user_role_provider.dart';
+import '../services/kds_websocket_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/responsive.dart';
 import 'manager_pin_dialog.dart';
@@ -15,6 +16,8 @@ class AppShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Keep real-time KDS WebSocket listener active throughout the application
+    ref.watch(kdsWebSocketProvider);
     final location = GoRouterState.of(context).matchedLocation;
     final isDesktop = Responsive.isDesktop(context);
     final currentRole = ref.watch(userRoleProvider);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/capsule_toast.dart';
+import '../../../core/services/kds_websocket_service.dart';
 import '../pos/models/kitchen_ticket.dart';
 import '../pos/providers/kds_provider.dart';
 import 'widgets/portion_guide_modal.dart';
@@ -113,6 +114,64 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
                 ),
               ],
             ),
+          ),
+
+          // Live WebSocket Sync Indicator & Chime Test
+          Builder(
+            builder: (context) {
+              final wsState = ref.watch(kdsWebSocketProvider);
+              final isConnected = wsState.status == WebSocketConnectionStatus.connected;
+              final isConnecting = wsState.status == WebSocketConnectionStatus.connecting;
+
+              final color = isConnected
+                  ? const Color(0xFF10B981)
+                  : (isConnecting ? const Color(0xFFF59E0B) : const Color(0xFFEF4444));
+
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: color.withValues(alpha: 0.3)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          isConnected
+                              ? 'Live Sync (เปิดรับออเดอร์)'
+                              : (isConnecting ? 'Live Sync (กำลังต่อ WebSocket...)' : 'Live Sync (ออฟไลน์)'),
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: color,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    tooltip: 'ทดสอบเสียงกระดิ่งครัว (Bell Chime)',
+                    icon: const Icon(Icons.notifications_active_rounded, color: Color(0xFFF59E0B), size: 20),
+                    onPressed: () {
+                      ref.read(kdsWebSocketProvider.notifier).testChime();
+                      CapsuleToast.showInfo(context, '🔔 ทดสอบเสียงกระดิ่งครัว (Ding!)');
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                ],
+              );
+            },
           ),
 
           // Filter Segment Tabs
