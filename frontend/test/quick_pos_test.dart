@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:my_first_app/core/providers/user_role_provider.dart';
 import 'package:my_first_app/features/ingredients/models/ingredient.dart';
 import 'package:my_first_app/features/ingredients/providers/ingredients_provider.dart';
 import 'package:my_first_app/features/pos/models/cart_item.dart';
@@ -181,14 +182,16 @@ void main() {
       expect(find.text('ยังไม่มีรายการอาหาร'), findsOneWidget);
     });
 
-    testWidgets('InsufficientStockDialog renders correctly with shortage details', (tester) async {
+    testWidgets('InsufficientStockDialog renders correctly with shortage details for Manager', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: InsufficientStockDialog(
-              insufficientItems: [
-                'Wagyu Beef (คงเหลือ 0.1 kg, ต้องการ 0.5 kg)',
-              ],
+        const ProviderScope(
+          child: MaterialApp(
+            home: Scaffold(
+              body: InsufficientStockDialog(
+                insufficientItems: [
+                  'Wagyu Beef (คงเหลือ 0.1 kg, ต้องการ 0.5 kg)',
+                ],
+              ),
             ),
           ),
         ),
@@ -200,6 +203,35 @@ void main() {
       expect(find.textContaining('Wagyu Beef'), findsOneWidget);
       expect(find.text('ปิดหน้าต่าง'), findsOneWidget);
       expect(find.text('ไปที่คลังเพื่อเติมสต็อก'), findsOneWidget);
+    });
+
+    testWidgets('InsufficientStockDialog in Cashier role shows advice and hides direct restock button', (tester) async {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      container.read(userRoleProvider.notifier).setRole(UserRole.cashier);
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(
+            home: Scaffold(
+              body: InsufficientStockDialog(
+                insufficientItems: [
+                  'Fresh Heavy Cream 35% (คงเหลือ 30.0 L, ต้องการ 170.0 L)',
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('วัตถุดิบไม่เพียงพอ (Out of Stock)'), findsOneWidget);
+      expect(find.textContaining('Fresh Heavy Cream'), findsOneWidget);
+      expect(find.text('รับทราบ (ปิดหน้าต่าง)'), findsOneWidget);
+      expect(find.text('ผู้จัดการเติมของ'), findsOneWidget);
+      expect(find.text('ไปที่คลังเพื่อเติมสต็อก'), findsNothing);
     });
   });
 }

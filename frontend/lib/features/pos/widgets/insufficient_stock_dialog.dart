@@ -1,7 +1,10 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/providers/user_role_provider.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/manager_pin_dialog.dart';
 
 /// Shows a sleek, high-visibility red alert modal when stock is insufficient for an order.
 Future<void> showInsufficientStockDialog(
@@ -15,7 +18,7 @@ Future<void> showInsufficientStockDialog(
   );
 }
 
-class InsufficientStockDialog extends StatelessWidget {
+class InsufficientStockDialog extends ConsumerWidget {
   final List<String> insufficientItems;
 
   const InsufficientStockDialog({
@@ -24,7 +27,9 @@ class InsufficientStockDialog extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentRole = ref.watch(userRoleProvider);
+    final isManager = currentRole == UserRole.manager;
     return Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -191,53 +196,138 @@ class InsufficientStockDialog extends StatelessWidget {
                 ),
               ),
 
+              // Cashier Guidance Banner
+              if (!isManager)
+                Container(
+                  margin: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF59E0B).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: const Color(0xFFF59E0B).withValues(alpha: 0.35),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Text('💡', style: TextStyle(fontSize: 16)),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'โปรดแจ้งลูกค้าเพื่อเปลี่ยนเมนู หรือแจ้งผู้จัดการร้าน (Manager) เพื่อตรวจรับวัตถุดิบเข้าคลัง',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: const Color(0xFFFBBF24),
+                            height: 1.35,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
               const Divider(color: AppTheme.border, height: 1),
 
               // Action Buttons
               Padding(
                 padding: const EdgeInsets.all(20),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppTheme.textSecondary,
-                          side: const BorderSide(color: AppTheme.border),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                child: isManager
+                    ? Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: AppTheme.textSecondary,
+                                side: const BorderSide(color: AppTheme.border),
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              child: const Text('ปิดหน้าต่าง'),
+                            ),
                           ),
-                        ),
-                        child: const Text('ปิดหน้าต่าง'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      flex: 2,
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          context.go('/ingredients');
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.danger,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            flex: 2,
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                context.go('/ingredients');
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.danger,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              icon: const Icon(Icons.inventory_2_rounded, size: 18),
+                              label: const Text(
+                                'ไปที่คลังเพื่อเติมสต็อก',
+                                style: TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                            ),
                           ),
-                        ),
-                        icon: const Icon(Icons.inventory_2_rounded, size: 18),
-                        label: const Text(
-                          'ไปที่คลังเพื่อเติมสต็อก',
-                          style: TextStyle(fontWeight: FontWeight.w600),
-                        ),
+                        ],
+                      )
+                    : Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              key: const Key('btn_cashier_acknowledge'),
+                              onPressed: () => Navigator.of(context).pop(),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF1E293B),
+                                foregroundColor: AppTheme.textPrimary,
+                                side: const BorderSide(color: AppTheme.border),
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              child: const Text(
+                                'รับทราบ (ปิดหน้าต่าง)',
+                                style: TextStyle(fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          OutlinedButton.icon(
+                            key: const Key('btn_manager_restock_override'),
+                            onPressed: () async {
+                              final ok = await showManagerPinDialog(
+                                context,
+                                ref: ref,
+                                targetTitle: 'คลังวัตถุดิบ (เติมสต็อก)',
+                              );
+                              if (ok && context.mounted) {
+                                Navigator.of(context).pop();
+                                context.go('/ingredients');
+                              }
+                            },
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppTheme.primaryNeon,
+                              side: BorderSide(color: AppTheme.primaryNeon.withValues(alpha: 0.4)),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            icon: const Icon(Icons.admin_panel_settings_rounded, size: 16),
+                            label: const Text(
+                              'ผู้จัดการเติมของ',
+                              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
               ),
             ],
           ),
