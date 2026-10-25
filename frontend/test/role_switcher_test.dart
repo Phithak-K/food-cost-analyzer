@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_first_app/core/providers/user_role_provider.dart';
 import 'package:my_first_app/core/widgets/app_shell.dart';
+import 'package:my_first_app/core/widgets/manager_pin_dialog.dart';
 
 void main() {
   group('UserRole Unit Tests', () {
@@ -66,6 +67,12 @@ void main() {
 
       expect(UserRole.kitchen.emoji, equals('👨‍🍳'));
       expect(UserRole.kitchen.label, contains('ครัว'));
+    });
+
+    test('UserRole pinCode is correct for all roles', () {
+      expect(UserRole.manager.pinCode, equals('1234'));
+      expect(UserRole.cashier.pinCode, equals('2222'));
+      expect(UserRole.kitchen.pinCode, equals('3333'));
     });
   });
 
@@ -239,7 +246,15 @@ void main() {
       // Tap Cashier
       await tester.tap(find.byKey(const Key('role_cashier')));
       await tester.pumpAndSettle();
-      await tester.pump(const Duration(seconds: 4));
+
+      // PIN dialog for Cashier should appear with PIN 2222 indicator
+      expect(find.byType(ManagerPinDialog), findsOneWidget);
+      expect(find.textContaining('2222'), findsWidgets);
+
+      // Tap Demo Bypass button (or enter 2222)
+      await tester.tap(find.byKey(const Key('pin_bypass_button')));
+      await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 4)); // drain toast timer
 
       // Role state should now be Cashier
       expect(container.read(userRoleProvider), equals(UserRole.cashier));

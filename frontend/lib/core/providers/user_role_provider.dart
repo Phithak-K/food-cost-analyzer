@@ -72,6 +72,17 @@ enum UserRole {
     }
   }
 
+  String get pinCode {
+    switch (this) {
+      case UserRole.manager:
+        return '1234';
+      case UserRole.cashier:
+        return '2222';
+      case UserRole.kitchen:
+        return '3333';
+    }
+  }
+
   IconData get icon {
     switch (this) {
       case UserRole.manager:

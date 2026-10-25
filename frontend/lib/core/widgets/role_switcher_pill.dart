@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/user_role_provider.dart';
 import '../theme/app_theme.dart';
-import 'capsule_toast.dart';
 import 'manager_pin_dialog.dart';
 
 class RoleSwitcherPill extends ConsumerWidget {
@@ -27,37 +26,21 @@ class RoleSwitcherPill extends ConsumerWidget {
       onSelected: (selectedRole) async {
         if (selectedRole == currentRole) return;
 
-        // If switching to manager from another role, require manager PIN verification
-        if (selectedRole == UserRole.manager && currentRole != UserRole.manager) {
-          final isAuthorized = await showManagerPinDialog(
-            context,
-            ref: ref,
-            targetTitle: 'ผู้จัดการ (Manager)',
-          );
-          if (!isAuthorized) return;
-          if (!context.mounted) return;
-          final location = GoRouterState.of(context).matchedLocation;
-          if (!UserRole.manager.canAccessRoute(location)) {
-            context.go(UserRole.manager.defaultRoute);
-          }
-          return;
-        }
+        // Prompt for the target role's PIN (Manager 1234, Cashier 2222, Kitchen 3333)
+        final isAuthorized = await showStaffPinDialog(
+          context,
+          targetRole: selectedRole,
+          ref: ref,
+          targetTitle: selectedRole.label,
+        );
+        if (!isAuthorized) return;
+        if (!context.mounted) return;
 
-        // 1. Update Riverpod State
-        ref.read(userRoleProvider.notifier).setRole(selectedRole);
-
-        // 2. Check route permission and auto-redirect if necessary
+        // Auto-redirect if current route is unauthorized for the newly active role
         final location = GoRouterState.of(context).matchedLocation;
         if (!selectedRole.canAccessRoute(location)) {
           context.go(selectedRole.defaultRoute);
         }
-
-        // 3. User feedback toast
-        CapsuleToast.showInfo(
-          context,
-          'สลับบทบาทเป็น "${selectedRole.label}" เรียบร้อยแล้ว',
-          title: 'เปลี่ยนมุมมองผู้ใช้งาน',
-        );
       },
       itemBuilder: (context) {
         return UserRole.values.map((role) {
@@ -105,18 +88,35 @@ class RoleSwitcherPill extends ConsumerWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                            decoration: BoxDecoration(
+                              color: role.color.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(5),
+                              border: Border.all(color: role.color.withValues(alpha: 0.3), width: 0.8),
+                            ),
+                            child: Text(
+                              'PIN: ${role.pinCode}',
+                              style: TextStyle(
+                                fontSize: 9,
+                                fontWeight: FontWeight.w700,
+                                color: role.color,
+                              ),
+                            ),
+                          ),
                           if (isSelected) ...[
-                            const SizedBox(width: 6),
+                            const SizedBox(width: 4),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
                               decoration: BoxDecoration(
                                 color: role.color.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(6),
+                                borderRadius: BorderRadius.circular(5),
                               ),
                               child: Text(
                                 'ACTIVE',
                                 style: TextStyle(
-                                  fontSize: 9,
+                                  fontSize: 8.5,
                                   fontWeight: FontWeight.w900,
                                   color: role.color,
                                   letterSpacing: 0.5,

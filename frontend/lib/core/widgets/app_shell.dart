@@ -222,7 +222,7 @@ class AppShell extends ConsumerWidget {
                       Text(
                         currentRole == UserRole.manager
                             ? 'สิทธิ์เต็ม (Full Access)'
-                            : 'คลิกเมนู 🔒 เพื่อใส่รหัส 1234',
+                            : 'คลิกเมนู 🔒 เพื่อใส่รหัสประจำตำแหน่ง',
                         style: TextStyle(fontSize: 10, color: AppTheme.textMuted),
                       ),
                     ],
@@ -234,6 +234,16 @@ class AppShell extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  UserRole _getRequiredRoleForRoute(String route) {
+    if (route.startsWith('/kds')) {
+      return UserRole.kitchen;
+    }
+    if (route.startsWith('/pos') || route.startsWith('/orders')) {
+      return UserRole.cashier;
+    }
+    return UserRole.manager;
   }
 
   List<Widget> _buildRoleFilteredMenuItems(
@@ -264,9 +274,11 @@ class AppShell extends ConsumerWidget {
           if (isAccessible) {
             context.go(targetRoute);
           } else {
-            // Require Manager PIN verification to enter locked sections
-            final ok = await showManagerPinDialog(
+            // Require role PIN verification to enter locked section
+            final targetRole = _getRequiredRoleForRoute(targetRoute);
+            final ok = await showStaffPinDialog(
               context,
+              targetRole: targetRole,
               ref: ref,
               targetTitle: title,
             );

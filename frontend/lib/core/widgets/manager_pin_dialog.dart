@@ -5,24 +5,28 @@ import '../providers/user_role_provider.dart';
 import '../theme/app_theme.dart';
 import 'capsule_toast.dart';
 
-/// Opens the Quick PIN Pad Modal to verify manager access
-Future<bool> showManagerPinDialog(
+/// Opens the Quick Staff PIN Pad Modal to verify access for a specific role
+Future<bool> showStaffPinDialog(
   BuildContext context, {
+  required UserRole targetRole,
   WidgetRef? ref,
   String? targetTitle,
 }) async {
   final result = await showDialog<bool>(
     context: context,
     barrierDismissible: true,
-    builder: (ctx) => ManagerPinDialog(targetTitle: targetTitle),
+    builder: (ctx) => ManagerPinDialog(
+      targetRole: targetRole,
+      targetTitle: targetTitle,
+    ),
   );
 
   final isAuthorized = result == true;
   if (isAuthorized && ref != null && context.mounted) {
-    ref.read(userRoleProvider.notifier).setRole(UserRole.manager);
+    ref.read(userRoleProvider.notifier).setRole(targetRole);
     CapsuleToast.showSuccess(
       context,
-      'ปลดล็อกสิทธิ์ผู้จัดการ (Manager) เรียบร้อยแล้ว',
+      'ปลดล็อกสิทธิ์ ${targetRole.label} เรียบร้อยแล้ว',
       title: 'ยืนยันรหัสผ่านสำเร็จ',
     );
   }
@@ -30,15 +34,44 @@ Future<bool> showManagerPinDialog(
   return isAuthorized;
 }
 
+/// Backward compatibility for existing showManagerPinDialog calls
+Future<bool> showManagerPinDialog(
+  BuildContext context, {
+  WidgetRef? ref,
+  String? targetTitle,
+}) {
+  return showStaffPinDialog(
+    context,
+    targetRole: UserRole.manager,
+    ref: ref,
+    targetTitle: targetTitle,
+  );
+}
+
+typedef StaffPinDialog = ManagerPinDialog;
+
 class ManagerPinDialog extends StatefulWidget {
   final String? targetTitle;
-  final String correctPin;
+  final UserRole? targetRole;
+  final String? correctPin;
 
   const ManagerPinDialog({
     super.key,
     this.targetTitle,
-    this.correctPin = '1234',
+    this.targetRole,
+    this.correctPin,
   });
+
+  String get effectivePin => correctPin ?? targetRole?.pinCode ?? '1234';
+  Color get themeColor => targetRole?.color ?? AppTheme.primary;
+  Color get neonColor => targetRole == UserRole.kitchen
+      ? const Color(0xFFFBBF24)
+      : (targetRole == UserRole.cashier ? const Color(0xFF38BDF8) : AppTheme.primaryNeon);
+  String get roleEmoji => targetRole?.emoji ?? '🔒';
+  String get roleLabel => targetRole?.label ?? 'ผู้จัดการ (Manager)';
+  String get roleTitle => targetRole != null
+      ? 'ยืนยันรหัสผ่าน ${targetRole!.label}'
+      : 'ยืนยันรหัสผ่านผู้จัดการ';
 
   @override
   State<ManagerPinDialog> createState() => _ManagerPinDialogState();
@@ -99,13 +132,15 @@ class _ManagerPinDialogState extends State<ManagerPinDialog>
   void _onQuickBypassPressed() {
     setState(() {
       _isError = false;
-      _enteredPin = widget.correctPin;
+      _enteredPin = widget.effectivePin;
     });
     _verifyPin();
   }
 
   void _verifyPin() {
-    if (_enteredPin == widget.correctPin) {
+    // Both target role PIN and master manager PIN (1234) can authorize
+    final validPins = [widget.effectivePin, '1234'];
+    if (validPins.contains(_enteredPin)) {
       Navigator.of(context).pop(true);
     } else {
       _shakeController.forward(from: 0.0);
@@ -148,14 +183,14 @@ class _ManagerPinDialogState extends State<ManagerPinDialog>
                 border: Border.all(
                   color: _isError
                       ? AppTheme.danger.withValues(alpha: 0.6)
-                      : AppTheme.primary.withValues(alpha: 0.35),
+                      : widget.themeColor.withValues(alpha: 0.35),
                   width: 1.5,
                 ),
                 boxShadow: [
                   BoxShadow(
                     color: _isError
                         ? AppTheme.danger.withValues(alpha: 0.25)
-                        : AppTheme.primary.withValues(alpha: 0.2),
+                        : widget.themeColor.withValues(alpha: 0.2),
                     blurRadius: 36,
                     spreadRadius: 2,
                     offset: const Offset(0, 10),
@@ -171,7 +206,7 @@ class _ManagerPinDialogState extends State<ManagerPinDialog>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Lock Icon Badge
+                  // Role / Lock Icon Badge
                   Container(
                     width: 54,
                     height: 54,
@@ -179,36 +214,48 @@ class _ManagerPinDialogState extends State<ManagerPinDialog>
                     decoration: BoxDecoration(
                       color: _isError
                           ? AppTheme.danger.withValues(alpha: 0.15)
-                          : AppTheme.primary.withValues(alpha: 0.15),
+                          : widget.themeColor.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: _isError
                             ? AppTheme.danger.withValues(alpha: 0.5)
-                            : AppTheme.primaryNeon.withValues(alpha: 0.5),
+                            : widget.neonColor.withValues(alpha: 0.5),
                         width: 1.5,
                       ),
                       boxShadow: [
                         BoxShadow(
                           color: _isError
                               ? AppTheme.danger.withValues(alpha: 0.2)
-                              : AppTheme.primaryNeon.withValues(alpha: 0.2),
+                              : widget.neonColor.withValues(alpha: 0.2),
                           blurRadius: 16,
                           spreadRadius: 1,
                         ),
                       ],
                     ),
-                    child: Icon(
-                      _isError ? Icons.lock_open_rounded : Icons.lock_rounded,
-                      size: 26,
-                      color: _isError ? AppTheme.danger : AppTheme.primaryNeon,
-                    ),
+                    child: _isError
+                        ? const Icon(
+                            Icons.lock_open_rounded,
+                            size: 26,
+                            color: AppTheme.danger,
+                          )
+                        : (widget.targetRole != null
+                            ? Icon(
+                                widget.targetRole!.icon,
+                                size: 26,
+                                color: widget.neonColor,
+                              )
+                            : Icon(
+                                Icons.lock_rounded,
+                                size: 26,
+                                color: widget.neonColor,
+                              )),
                   ),
                   const SizedBox(height: 16),
 
                   // Header Titles
-                  const Text(
-                    'ยืนยันรหัสผ่านผู้จัดการ',
-                    style: TextStyle(
+                  Text(
+                    widget.roleTitle,
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
                       color: AppTheme.textPrimary,
@@ -218,8 +265,8 @@ class _ManagerPinDialogState extends State<ManagerPinDialog>
                   const SizedBox(height: 4),
                   Text(
                     widget.targetTitle != null
-                        ? 'ต้องใช้สิทธิ์ผู้จัดการเพื่อเข้าสู่ "${widget.targetTitle}"'
-                        : 'ใส่รหัสผ่าน 4 หลัก เพื่อปลดล็อกสิทธิ์ผู้จัดการ',
+                        ? 'ต้องใช้สิทธิ์ ${widget.roleLabel} เพื่อเข้าสู่ "${widget.targetTitle}"'
+                        : 'ใส่รหัสผ่าน 4 หลัก เพื่อปลดล็อกสิทธิ์ ${widget.roleLabel}',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 12,
@@ -250,17 +297,17 @@ class _ManagerPinDialogState extends State<ManagerPinDialog>
                             shape: BoxShape.circle,
                             color: _isError
                                 ? AppTheme.danger
-                                : (isFilled ? AppTheme.primaryNeon : Colors.transparent),
+                                : (isFilled ? widget.neonColor : Colors.transparent),
                             border: Border.all(
                               color: _isError
                                   ? AppTheme.danger
-                                  : (isFilled ? AppTheme.primaryNeon : AppTheme.textMuted),
+                                  : (isFilled ? widget.neonColor : AppTheme.textMuted),
                               width: 2,
                             ),
                             boxShadow: isFilled && !_isError
                                 ? [
                                     BoxShadow(
-                                      color: AppTheme.primaryNeon.withValues(alpha: 0.6),
+                                      color: widget.neonColor.withValues(alpha: 0.6),
                                       blurRadius: 8,
                                       spreadRadius: 1,
                                     ),
@@ -277,16 +324,16 @@ class _ManagerPinDialogState extends State<ManagerPinDialog>
                   SizedBox(
                     height: 20,
                     child: _isError
-                        ? const Text(
-                            'รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่ (รหัส: 1234)',
-                            style: TextStyle(
+                        ? Text(
+                            'รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่ (รหัส: ${widget.effectivePin})',
+                            style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
                               color: AppTheme.danger,
                             ),
                           )
                         : Text(
-                            'รหัสผ่านเริ่มต้นสำหรับสาธิต: 1234',
+                            'รหัสผ่านเริ่มต้นสำหรับสาธิต: ${widget.effectivePin}${widget.effectivePin != '1234' ? ' (หรือผู้จัดการ 1234)' : ''}',
                             style: TextStyle(
                               fontSize: 11,
                               color: AppTheme.textMuted.withValues(alpha: 0.8),
@@ -299,28 +346,28 @@ class _ManagerPinDialogState extends State<ManagerPinDialog>
                   _buildKeypad(),
                   const SizedBox(height: 16),
 
-                  // Quick Demo Shortcut Button (1-Click 1234 Bypass)
+                  // Quick Demo Shortcut Button (1-Click Bypass)
                   SizedBox(
                     width: double.infinity,
                     child: TextButton.icon(
                       key: const Key('pin_bypass_button'),
                       onPressed: _onQuickBypassPressed,
-                      icon: const Text('⚡', style: TextStyle(fontSize: 14)),
-                      label: const Text(
-                        'กรอกรหัสจำลอง 1234 ด่วน (Demo Bypass)',
+                      icon: Text(widget.roleEmoji, style: const TextStyle(fontSize: 14)),
+                      label: Text(
+                        '⚡ กรอกรหัสจำลอง ${widget.effectivePin} ด่วน (Demo Bypass)',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
-                          color: AppTheme.primaryNeon,
+                          color: widget.neonColor,
                         ),
                       ),
                       style: TextButton.styleFrom(
-                        backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
+                        backgroundColor: widget.themeColor.withValues(alpha: 0.1),
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                           side: BorderSide(
-                            color: AppTheme.primary.withValues(alpha: 0.25),
+                            color: widget.themeColor.withValues(alpha: 0.25),
                           ),
                         ),
                       ),

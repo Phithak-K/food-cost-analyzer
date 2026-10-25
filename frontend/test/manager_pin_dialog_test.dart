@@ -203,5 +203,146 @@ void main() {
       expect(container.read(userRoleProvider), equals(UserRole.manager));
       expect(find.text('Dashboard View'), findsOneWidget);
     });
+
+    testWidgets('StaffPinDialog for Cashier validates 2222 and displays Cashier branding', (tester) async {
+      tester.view.physicalSize = const Size(800, 900);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      bool? dialogResult;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) {
+                return ElevatedButton(
+                  onPressed: () async {
+                    dialogResult = await showDialog<bool>(
+                      context: context,
+                      builder: (ctx) => const ManagerPinDialog(targetRole: UserRole.cashier),
+                    );
+                  },
+                  child: const Text('Open Cashier PIN'),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Open Cashier PIN'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('แคชเชียร์'), findsWidgets);
+      expect(find.textContaining('2222'), findsWidgets);
+
+      // Tap 2, 2, 2, 2 manually
+      for (int i = 0; i < 4; i++) {
+        await tester.tap(find.byKey(const Key('pin_key_2')));
+        await tester.pump();
+      }
+      await tester.pumpAndSettle();
+
+      expect(dialogResult, isTrue);
+    });
+
+    testWidgets('StaffPinDialog for Kitchen validates 3333 and displays Kitchen branding', (tester) async {
+      tester.view.physicalSize = const Size(800, 900);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      bool? dialogResult;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) {
+                return ElevatedButton(
+                  onPressed: () async {
+                    dialogResult = await showDialog<bool>(
+                      context: context,
+                      builder: (ctx) => const ManagerPinDialog(targetRole: UserRole.kitchen),
+                    );
+                  },
+                  child: const Text('Open Kitchen PIN'),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Open Kitchen PIN'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('ครัว'), findsWidgets);
+      expect(find.textContaining('3333'), findsWidgets);
+
+      // Tap 3, 3, 3, 3 manually
+      for (int i = 0; i < 4; i++) {
+        await tester.tap(find.byKey(const Key('pin_key_3')));
+        await tester.pump();
+      }
+      await tester.pumpAndSettle();
+
+      expect(dialogResult, isTrue);
+    });
+
+    testWidgets('Master Manager PIN 1234 overrides and unlocks Kitchen station', (tester) async {
+      tester.view.physicalSize = const Size(800, 900);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      bool? dialogResult;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) {
+                return ElevatedButton(
+                  onPressed: () async {
+                    dialogResult = await showDialog<bool>(
+                      context: context,
+                      builder: (ctx) => const ManagerPinDialog(targetRole: UserRole.kitchen),
+                    );
+                  },
+                  child: const Text('Open Kitchen PIN'),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Open Kitchen PIN'));
+      await tester.pumpAndSettle();
+
+      // Enter Manager master PIN: 1, 2, 3, 4
+      await tester.tap(find.byKey(const Key('pin_key_1')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('pin_key_2')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('pin_key_3')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('pin_key_4')));
+      await tester.pumpAndSettle();
+
+      expect(dialogResult, isTrue);
+    });
   });
 }
