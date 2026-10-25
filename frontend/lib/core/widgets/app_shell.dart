@@ -370,9 +370,11 @@ class AppShell extends ConsumerWidget {
       child: Row(
         children: [
           if (!isDesktop) ...[
-            IconButton(
-              icon: const Icon(Icons.menu_rounded),
-              onPressed: () => Scaffold.of(context).openDrawer(),
+            Builder(
+              builder: (drawerContext) => IconButton(
+                icon: const Icon(Icons.menu_rounded),
+                onPressed: () => Scaffold.of(drawerContext).openDrawer(),
+              ),
             ),
             const SizedBox(width: 8),
           ],

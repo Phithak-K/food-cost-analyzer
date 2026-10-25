@@ -262,5 +262,34 @@ void main() {
       expect(find.text('POS Content'), findsOneWidget);
       expect(find.byKey(const Key('sidebar_pos')), findsOneWidget);
     });
+
+    testWidgets('AppShell on mobile screen opens drawer via hamburger menu without Scaffold exception', (tester) async {
+      tester.view.physicalSize = const Size(600, 900); // Mobile / Tablet width (< 1024)
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      await tester.pumpWidget(
+        createTestApp(container: container, initialLocation: '/dashboard'),
+      );
+      await tester.pumpAndSettle();
+
+      // Find hamburger menu button
+      final menuButton = find.byIcon(Icons.menu_rounded);
+      expect(menuButton, findsOneWidget);
+
+      // Tap hamburger menu - must open drawer without throwing Scaffold.of exception
+      await tester.tap(menuButton);
+      await tester.pumpAndSettle();
+
+      // Drawer should be open and display sidebar items
+      expect(find.byType(Drawer), findsOneWidget);
+      expect(find.byKey(const Key('sidebar_dashboard')), findsOneWidget);
+    });
   });
 }
