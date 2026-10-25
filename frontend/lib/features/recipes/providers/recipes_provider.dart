@@ -224,6 +224,81 @@ class RecipesNotifier extends Notifier<List<Recipe>> {
             RecipeItem(ingredient: ingMap['ing_13']!, quantityUsed: 1, unitUsed: 'pcs'),
         ],
       ),
+      Recipe(
+        id: 'rec_15',
+        name: 'Artisan French Butter Croissant (ครัวซองต์เนยฝรั่งเศสสด)',
+        category: 'Bakery',
+        sellingPrice: 120.0,
+        unitsSoldMonthly: 460, // Star
+        items: [
+          if (ingMap.containsKey('ing_25'))
+            RecipeItem(ingredient: ingMap['ing_25']!, quantityUsed: 1, unitUsed: 'pcs'),
+          if (ingMap.containsKey('ing_14'))
+            RecipeItem(ingredient: ingMap['ing_14']!, quantityUsed: 15, unitUsed: 'g'),
+        ],
+      ),
+      Recipe(
+        id: 'rec_16',
+        name: 'Dirty Espresso with Chilled Fresh Milk (เดอร์ตี้คอฟฟี่นมเย็นจัด)',
+        category: 'Beverage',
+        sellingPrice: 145.0,
+        unitsSoldMonthly: 530, // Star
+        items: [
+          if (ingMap.containsKey('ing_23'))
+            RecipeItem(ingredient: ingMap['ing_23']!, quantityUsed: 20, unitUsed: 'g'),
+          if (ingMap.containsKey('ing_15'))
+            RecipeItem(ingredient: ingMap['ing_15']!, quantityUsed: 120, unitUsed: 'ml'),
+          if (ingMap.containsKey('ing_6'))
+            RecipeItem(ingredient: ingMap['ing_6']!, quantityUsed: 30, unitUsed: 'ml'),
+        ],
+      ),
+      Recipe(
+        id: 'rec_17',
+        name: 'Truffle Parmesan French Fries (เฟรนช์ฟรายส์ทรัฟเฟิลพาร์เมซาน)',
+        category: 'Appetizer',
+        sellingPrice: 165.0,
+        unitsSoldMonthly: 610, // Plowhorse
+        items: [
+          if (ingMap.containsKey('ing_28'))
+            RecipeItem(ingredient: ingMap['ing_28']!, quantityUsed: 180, unitUsed: 'g'),
+          if (ingMap.containsKey('ing_29'))
+            RecipeItem(ingredient: ingMap['ing_29']!, quantityUsed: 10, unitUsed: 'ml'),
+          if (ingMap.containsKey('ing_7'))
+            RecipeItem(ingredient: ingMap['ing_7']!, quantityUsed: 20, unitUsed: 'g'),
+        ],
+      ),
+      Recipe(
+        id: 'rec_18',
+        name: 'Passion Fruit Yuzu Cold Brew (โคลด์บรูว์ยูซุเสาวรส)',
+        category: 'Beverage',
+        sellingPrice: 175.0,
+        unitsSoldMonthly: 125, // Puzzle
+        items: [
+          if (ingMap.containsKey('ing_23'))
+            RecipeItem(ingredient: ingMap['ing_23']!, quantityUsed: 20, unitUsed: 'g'),
+          if (ingMap.containsKey('ing_27'))
+            RecipeItem(ingredient: ingMap['ing_27']!, quantityUsed: 30, unitUsed: 'ml'),
+          if (ingMap.containsKey('ing_22'))
+            RecipeItem(ingredient: ingMap['ing_22']!, quantityUsed: 20, unitUsed: 'ml'),
+        ],
+      ),
+      Recipe(
+        id: 'rec_19',
+        name: 'Smoked Salmon & Avocado Toast (โทสต์แซลมอนรมควันอะโวคาโด)',
+        category: 'Main Course',
+        sellingPrice: 290.0,
+        unitsSoldMonthly: 340, // Star
+        items: [
+          if (ingMap.containsKey('ing_1'))
+            RecipeItem(ingredient: ingMap['ing_1']!, quantityUsed: 80, unitUsed: 'g'),
+          if (ingMap.containsKey('ing_26'))
+            RecipeItem(ingredient: ingMap['ing_26']!, quantityUsed: 70, unitUsed: 'g'),
+          if (ingMap.containsKey('ing_13'))
+            RecipeItem(ingredient: ingMap['ing_13']!, quantityUsed: 1, unitUsed: 'pcs'),
+          if (ingMap.containsKey('ing_4'))
+            RecipeItem(ingredient: ingMap['ing_4']!, quantityUsed: 15, unitUsed: 'ml'),
+        ],
+      ),
     ];
   }
 

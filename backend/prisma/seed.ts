@@ -165,12 +165,82 @@ async function main() {
       purchaseUnit: 'pack',
       costPerBaseUnit: 0.19, // 0.19 บาท/g
       yieldPercent: 100.0,
-      currentStock: 35.0, // 35 pack
+      currentStock: 50.0, // 50 pack
       minStockAlert: 5.0,
     },
   });
 
-  console.log('✅ Created 11 realistic ingredients with stock values.');
+  const salmon = await prisma.ingredient.create({
+    data: {
+      name: 'ปลาแซลมอนนอร์เวย์สด (Norwegian Salmon)',
+      category: 'seafood',
+      purchasePrice: 650.0,
+      purchaseQuantity: 1000.0, // 1,000 g
+      purchaseUnit: 'kg',
+      costPerBaseUnit: 0.65, // 0.65 บาท/g
+      yieldPercent: 92.0,
+      currentStock: 45.0,
+      minStockAlert: 5.0,
+    },
+  });
+
+  const croissantDough = await prisma.ingredient.create({
+    data: {
+      name: 'แป้งครัวซองต์เนยสดฝรั่งเศส (Butter Croissant Dough)',
+      category: 'bakery',
+      purchasePrice: 35.0,
+      purchaseQuantity: 1.0,
+      purchaseUnit: 'pcs',
+      costPerBaseUnit: 35.0,
+      yieldPercent: 100.0,
+      currentStock: 120.0,
+      minStockAlert: 15.0,
+    },
+  });
+
+  const coffeeBeans = await prisma.ingredient.create({
+    data: {
+      name: 'เมล็ดกาแฟอาราบิก้าคั่วพิเศษ (Arabica Beans)',
+      category: 'drink',
+      purchasePrice: 780.0,
+      purchaseQuantity: 1000.0, // 1,000 g
+      purchaseUnit: 'kg',
+      costPerBaseUnit: 0.78, // 0.78 บาท/g
+      yieldPercent: 100.0,
+      currentStock: 40.0,
+      minStockAlert: 5.0,
+    },
+  });
+
+  const frenchFries = await prisma.ingredient.create({
+    data: {
+      name: 'มันฝรั่งเส้นสไตล์ฝรั่งเศส (French Fries)',
+      category: 'dry_goods',
+      purchasePrice: 95.0,
+      purchaseQuantity: 1000.0, // 1,000 g
+      purchaseUnit: 'kg',
+      costPerBaseUnit: 0.095, // 0.095 บาท/g
+      yieldPercent: 95.0,
+      currentStock: 50.0,
+      minStockAlert: 5.0,
+    },
+  });
+
+  const truffleOil = await prisma.ingredient.create({
+    data: {
+      name: 'น้ำมันเห็ดทรัฟเฟิลขาวแท้ (White Truffle Oil)',
+      category: 'sauce',
+      purchasePrice: 890.0,
+      purchaseQuantity: 1000.0, // 1,000 ml
+      purchaseUnit: 'l',
+      costPerBaseUnit: 0.89, // 0.89 บาท/ml
+      yieldPercent: 100.0,
+      currentStock: 12.0,
+      minStockAlert: 2.0,
+    },
+  });
+
+  console.log('✅ Created 16 realistic ingredients with rich stock values.');
 
   // 3. Create Sample Recipes & Linked Ingredients
   // --- RECIPE 1: Star (Matcha Latte - กำไรสูง ขายดีมาก) ---
@@ -262,7 +332,73 @@ async function main() {
     },
   });
 
-  console.log('✅ Created 5 sample recipes across Menu Engineering quadrants.');
+  // --- RECIPE 6: Star (สเต๊กแซลมอนย่างนอร์เวย์) ---
+  const recipeSalmon = await prisma.recipe.create({
+    data: {
+      name: 'สเต๊กแซลมอนย่างนอร์เวย์ (Pan-Seared Salmon)',
+      category: 'food',
+      sellingPrice: 490.0,
+      targetCostPercent: 32.0,
+      ingredients: {
+        create: [
+          { ingredientId: salmon.id, quantityUsed: 180.0, unit: 'g' }, // 117.00 ฿
+          { ingredientId: butter.id, quantityUsed: 20.0, unit: 'g' }, // 17.18 ฿
+          { ingredientId: soySauce.id, quantityUsed: 15.0, unit: 'ml' }, // 2.48 ฿
+        ],
+      },
+    },
+  });
+
+  // --- RECIPE 7: Star (ครัวซองต์เนยฝรั่งเศสสด) ---
+  const recipeCroissant = await prisma.recipe.create({
+    data: {
+      name: 'ครัวซองต์เนยสดฝรั่งเศส (French Butter Croissant)',
+      category: 'bakery',
+      sellingPrice: 120.0,
+      targetCostPercent: 35.0,
+      ingredients: {
+        create: [
+          { ingredientId: croissantDough.id, quantityUsed: 1.0, unit: 'pcs' }, // 35.00 ฿
+          { ingredientId: butter.id, quantityUsed: 10.0, unit: 'g' }, // 8.59 ฿
+        ],
+      },
+    },
+  });
+
+  // --- RECIPE 8: Star (เดอร์ตี้คอฟฟี่นมเย็นจัด) ---
+  const recipeDirtyCoffee = await prisma.recipe.create({
+    data: {
+      name: 'เดอร์ตี้คอฟฟี่นมสดเย็นจัด (Dirty Coffee)',
+      category: 'drink',
+      sellingPrice: 145.0,
+      targetCostPercent: 28.0,
+      ingredients: {
+        create: [
+          { ingredientId: coffeeBeans.id, quantityUsed: 20.0, unit: 'g' }, // 15.60 ฿
+          { ingredientId: milk.id, quantityUsed: 120.0, unit: 'ml' }, // 5.88 ฿
+          { ingredientId: syrup.id, quantityUsed: 10.0, unit: 'ml' }, // 0.75 ฿
+        ],
+      },
+    },
+  });
+
+  // --- RECIPE 9: Plowhorse (เฟรนช์ฟรายส์ทรัฟเฟิลพาร์เมซาน) ---
+  const recipeTruffleFries = await prisma.recipe.create({
+    data: {
+      name: 'เฟรนช์ฟรายส์ทรัฟเฟิลพาร์เมซาน (Truffle Fries)',
+      category: 'food',
+      sellingPrice: 165.0,
+      targetCostPercent: 30.0,
+      ingredients: {
+        create: [
+          { ingredientId: frenchFries.id, quantityUsed: 180.0, unit: 'g' }, // 17.10 ฿
+          { ingredientId: truffleOil.id, quantityUsed: 10.0, unit: 'ml' }, // 8.90 ฿
+        ],
+      },
+    },
+  });
+
+  console.log('✅ Created 9 diverse recipes across Menu Engineering quadrants.');
 
   // 4. Insert Sales Logs (Monthly volume data for 4-quadrant scatter plot)
   const currentDate = new Date();
@@ -274,13 +410,17 @@ async function main() {
       { recipeId: recipeWagyu.id, quantitySold: 65, period: currentDate },
       { recipeId: recipeDogPasta.id, quantitySold: 45, period: currentDate },
       { recipeId: recipeEggPork.id, quantitySold: 380, period: currentDate },
+      { recipeId: recipeSalmon.id, quantitySold: 340, period: currentDate },
+      { recipeId: recipeCroissant.id, quantitySold: 460, period: currentDate },
+      { recipeId: recipeDirtyCoffee.id, quantitySold: 520, period: currentDate },
+      { recipeId: recipeTruffleFries.id, quantitySold: 610, period: currentDate },
     ],
   });
 
   console.log('✅ Created monthly SalesLog records for Menu Matrix plotting.');
 
   // 5. Seed Initial Sample Orders (Simulated POS Transactions)
-  const sampleOrder1 = await prisma.order.create({
+  await prisma.order.create({
     data: {
       totalAmount: 379.0, // 145 + 145 + 89
       totalCost: 139.21,
@@ -304,7 +444,7 @@ async function main() {
     },
   });
 
-  const sampleOrder2 = await prisma.order.create({
+  await prisma.order.create({
     data: {
       totalAmount: 1789.0, // 1650 + 139
       totalCost: 706.78,
@@ -328,7 +468,61 @@ async function main() {
     },
   });
 
-  console.log('✅ Seeded 2 sample POS orders with completed transactions.');
+  await prisma.order.create({
+    data: {
+      totalAmount: 935.0,
+      totalCost: 268.0,
+      status: OrderStatus.COMPLETED,
+      items: {
+        create: [
+          {
+            recipeId: recipeSalmon.id,
+            quantity: 1,
+            pricePerUnit: 490.0,
+            costPerUnit: 136.66,
+          },
+          {
+            recipeId: recipeCroissant.id,
+            quantity: 2,
+            pricePerUnit: 120.0,
+            costPerUnit: 43.59,
+          },
+          {
+            recipeId: recipeDirtyCoffee.id,
+            quantity: 1,
+            pricePerUnit: 145.0,
+            costPerUnit: 22.23,
+          },
+        ],
+      },
+    },
+  });
+
+  await prisma.order.create({
+    data: {
+      totalAmount: 610.0,
+      totalCost: 178.0,
+      status: OrderStatus.COMPLETED,
+      items: {
+        create: [
+          {
+            recipeId: recipeTruffleFries.id,
+            quantity: 2,
+            pricePerUnit: 165.0,
+            costPerUnit: 26.0,
+          },
+          {
+            recipeId: recipeDirtyCoffee.id,
+            quantity: 2,
+            pricePerUnit: 145.0,
+            costPerUnit: 22.23,
+          },
+        ],
+      },
+    },
+  });
+
+  console.log('✅ Seeded 4 sample POS orders with completed transactions.');
   console.log('🎉 Seed completed successfully!');
 }
 
