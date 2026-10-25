@@ -8,6 +8,7 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev --name init",
     "prisma:seed": "prisma db seed",
+    "dev": "ts-node src/index.ts",
     "server:start": "ts-node src/index.ts",
     "server:dev": "ts-node src/index.ts",
     "build": "tsc --noEmit",
