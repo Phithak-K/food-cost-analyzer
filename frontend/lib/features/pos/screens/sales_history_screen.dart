@@ -83,58 +83,67 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
 
   Widget _buildTopBar(BuildContext context, OrdersHistoryState state) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       decoration: const BoxDecoration(
         color: AppTheme.backgroundElevated,
         border: Border(bottom: BorderSide(color: AppTheme.border, width: 1)),
       ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFF38BDF8).withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF38BDF8).withValues(alpha: 0.3)),
-            ),
-            child: const Icon(Icons.receipt_long_rounded, color: Color(0xFF38BDF8), size: 24),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'ประวัติการขาย (Sales & Order History)',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.textPrimary),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isNarrow = constraints.maxWidth < 600;
+          return Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF38BDF8).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFF38BDF8).withValues(alpha: 0.3)),
                 ),
-                Text(
-                  'บันทึกรายการขายทั้งหมด การตัดสต็อกต้นทุน และมาร์จิ้นกำไรรายบิล',
-                  style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
+                child: const Icon(Icons.receipt_long_rounded, color: Color(0xFF38BDF8), size: 22),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'ประวัติการขาย (Sales & Order History)',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppTheme.textPrimary),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (!isNarrow)
+                      Text(
+                        'บันทึกรายการขายทั้งหมด การตัดสต็อกต้นทุน และมาร์จิ้นกำไรรายบิล',
+                        style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              color: AppTheme.surfaceMuted,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppTheme.border),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.receipt_rounded, size: 16, color: AppTheme.primaryNeon),
-                const SizedBox(width: 6),
-                Text(
-                  '${state.totalOrdersCount} บิลสำเร็จ',
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppTheme.textPrimary),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppTheme.surfaceMuted,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppTheme.border),
                 ),
-              ],
-            ),
-          ),
-        ],
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.receipt_rounded, size: 14, color: AppTheme.primaryNeon),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${state.totalOrdersCount} บิล',
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppTheme.textPrimary),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -142,14 +151,26 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
   Widget _buildKpiSummary(OrdersHistoryState state, bool isDesktop) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final count = constraints.maxWidth < 600 ? 2 : (constraints.maxWidth < 950 ? 2 : 4);
+        final int count;
+        final double aspectRatio;
+        if (constraints.maxWidth < 480) {
+          count = 1;
+          aspectRatio = 2.6;
+        } else if (constraints.maxWidth < 850) {
+          count = 2;
+          aspectRatio = 1.9;
+        } else {
+          count = 4;
+          aspectRatio = isDesktop ? 2.3 : 1.8;
+        }
+
         return GridView.count(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           crossAxisCount: count,
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
-          childAspectRatio: isDesktop ? 2.3 : 1.8,
+          childAspectRatio: aspectRatio,
           children: [
             _buildKpiCard(
               title: 'ยอดขายรวม (Total Revenue)',
@@ -325,30 +346,38 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Order Header
-          Row(
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 10,
+            runSpacing: 8,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: AppTheme.primary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppTheme.primary.withValues(alpha: 0.3)),
-                ),
-                child: Text(
-                  '#${order.id}',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    color: AppTheme.primaryNeon,
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppTheme.primary.withValues(alpha: 0.3)),
+                    ),
+                    child: Text(
+                      '#${order.id}',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: AppTheme.primaryNeon,
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 10),
+                  Text(
+                    timeStr,
+                    style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
+                  ),
+                ],
               ),
-              const SizedBox(width: 10),
-              Text(
-                timeStr,
-                style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
-              ),
-              const Spacer(),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
@@ -414,11 +443,15 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
           const SizedBox(height: 12),
 
           // Financial Summary Footer
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 16,
+            runSpacing: 10,
             children: [
               Wrap(
-                spacing: 16,
+                spacing: 12,
+                runSpacing: 6,
                 children: [
                   _buildStatBadge(
                     'ต้นทุน BOM',
@@ -438,6 +471,7 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
                 ],
               ),
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   const Text('ยอดชำระ: ', style: TextStyle(fontSize: 12, color: AppTheme.textMuted)),
                   Text(
@@ -448,7 +482,7 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
                       color: AppTheme.textPrimary,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 8),
                   IconButton(
                     icon: const Icon(Icons.print_outlined, size: 20, color: AppTheme.textSecondary),
                     tooltip: 'พิมพ์ใบเสร็จ',

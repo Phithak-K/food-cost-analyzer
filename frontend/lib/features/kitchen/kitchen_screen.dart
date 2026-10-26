@@ -82,100 +82,69 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
     required int cookingCount,
     required int doneCount,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-      decoration: const BoxDecoration(
-        color: AppTheme.backgroundElevated,
-        border: Border(bottom: BorderSide(color: AppTheme.border, width: 1)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.3)),
-            ),
-            child: const Text('👨‍🍳', style: TextStyle(fontSize: 22)),
-          ),
-          const SizedBox(width: 14),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth >= 950;
+
+        final syncIndicator = Builder(
+          builder: (context) {
+            final wsState = ref.watch(kdsWebSocketProvider);
+            final isConnected = wsState.status == WebSocketConnectionStatus.connected;
+            final isConnecting = wsState.status == WebSocketConnectionStatus.connecting;
+
+            final color = isConnected
+                ? const Color(0xFF10B981)
+                : (isConnecting ? const Color(0xFFF59E0B) : const Color(0xFFEF4444));
+
+            return Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  'จอคิวอาหารในครัว (Kitchen Display System - KDS)',
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: AppTheme.textPrimary),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: color.withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        isConnected
+                            ? 'Live Sync'
+                            : (isConnecting ? 'Sync (กำลังต่อ...)' : 'Sync (ออฟไลน์)'),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: color,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                Text(
-                  'คุมเวลาเสิร์ฟ ตรวจสอบสถานะ และเปิดดูคู่มือสเปกการตักปรุง (Portion Guide) เพื่อคุม Food Cost %',
-                  style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
+                const SizedBox(width: 8),
+                IconButton(
+                  tooltip: 'ทดสอบเสียงกระดิ่งครัว (Bell Chime)',
+                  icon: const Icon(Icons.notifications_active_rounded, color: Color(0xFFF59E0B), size: 20),
+                  onPressed: () {
+                    ref.read(kdsWebSocketProvider.notifier).testChime();
+                    CapsuleToast.showInfo(context, '🔔 ทดสอบเสียงกระดิ่งครัว (Ding!)');
+                  },
                 ),
               ],
-            ),
-          ),
+            );
+          },
+        );
 
-          // Live WebSocket Sync Indicator & Chime Test
-          Builder(
-            builder: (context) {
-              final wsState = ref.watch(kdsWebSocketProvider);
-              final isConnected = wsState.status == WebSocketConnectionStatus.connected;
-              final isConnecting = wsState.status == WebSocketConnectionStatus.connecting;
-
-              final color = isConnected
-                  ? const Color(0xFF10B981)
-                  : (isConnecting ? const Color(0xFFF59E0B) : const Color(0xFFEF4444));
-
-              return Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: color.withValues(alpha: 0.3)),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          isConnected
-                              ? 'Live Sync (เปิดรับออเดอร์)'
-                              : (isConnecting ? 'Live Sync (กำลังต่อ WebSocket...)' : 'Live Sync (ออฟไลน์)'),
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: color,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    tooltip: 'ทดสอบเสียงกระดิ่งครัว (Bell Chime)',
-                    icon: const Icon(Icons.notifications_active_rounded, color: Color(0xFFF59E0B), size: 20),
-                    onPressed: () {
-                      ref.read(kdsWebSocketProvider.notifier).testChime();
-                      CapsuleToast.showInfo(context, '🔔 ทดสอบเสียงกระดิ่งครัว (Ding!)');
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                ],
-              );
-            },
-          ),
-
-          // Filter Segment Tabs
-          Container(
+        final filterTabs = SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               color: AppTheme.surfaceMuted,
@@ -183,6 +152,7 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
               border: Border.all(color: AppTheme.border),
             ),
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 _buildFilterTab(0, 'ทั้งหมด (${cookingCount + doneCount})', null),
                 const SizedBox(width: 4),
@@ -192,8 +162,77 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
               ],
             ),
           ),
-        ],
-      ),
+        );
+
+        return Container(
+          padding: EdgeInsets.symmetric(horizontal: isWide ? 24 : 16, vertical: 12),
+          decoration: const BoxDecoration(
+            color: AppTheme.backgroundElevated,
+            border: Border(bottom: BorderSide(color: AppTheme.border, width: 1)),
+          ),
+          child: isWide
+              ? Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.3)),
+                      ),
+                      child: const Text('👨‍🍳', style: TextStyle(fontSize: 22)),
+                    ),
+                    const SizedBox(width: 14),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'จอคิวอาหารในครัว (Kitchen Display System - KDS)',
+                            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: AppTheme.textPrimary),
+                          ),
+                          Text(
+                            'คุมเวลาเสิร์ฟ ตรวจสอบสถานะ และเปิดดูคู่มือสเปกการตักปรุง (Portion Guide) เพื่อคุม Food Cost %',
+                            style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
+                          ),
+                        ],
+                      ),
+                    ),
+                    syncIndicator,
+                    const SizedBox(width: 12),
+                    filterTabs,
+                  ],
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.3)),
+                          ),
+                          child: const Text('👨‍🍳', style: TextStyle(fontSize: 18)),
+                        ),
+                        const SizedBox(width: 10),
+                        const Expanded(
+                          child: Text(
+                            'จอคิวอาหาร (KDS)',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppTheme.textPrimary),
+                          ),
+                        ),
+                        syncIndicator,
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    filterTabs,
+                  ],
+                ),
+        );
+      },
     );
   }
 

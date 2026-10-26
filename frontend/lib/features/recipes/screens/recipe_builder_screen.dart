@@ -315,71 +315,93 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
             ],
           ),
           const SizedBox(height: 18),
-          Row(
-            children: [
-              Expanded(
-                flex: 3,
-                child: TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'ชื่อเมนูอาหาร *',
-                    hintText: 'เช่น สเต๊กแซลมอนซอสเนยมะนาว',
-                  ),
-                  validator: (val) => val == null || val.trim().isEmpty ? 'กรุณาระบุชื่อเมนู' : null,
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth >= 550;
+
+              final nameField = TextFormField(
+                controller: _nameController,
+                decoration: const InputDecoration(
+                  labelText: 'ชื่อเมนูอาหาร *',
+                  hintText: 'เช่น สเต๊กแซลมอนซอสเนยมะนาว',
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                flex: 2,
-                child: DropdownButtonFormField<String>(
-                  initialValue: _categories.contains(_categoryController.text)
-                      ? _categoryController.text
-                      : _categories.first,
-                  decoration: const InputDecoration(labelText: 'หมวดหมู่อาหาร'),
-                  items: _categories
-                      .map((c) => DropdownMenuItem(value: c, child: Text(c, style: const TextStyle(fontSize: 13))))
-                      .toList(),
-                  onChanged: (val) {
-                    if (val != null) setState(() => _categoryController.text = val);
-                  },
+                validator: (val) => val == null || val.trim().isEmpty ? 'กรุณาระบุชื่อเมนู' : null,
+              );
+
+              final categoryField = DropdownButtonFormField<String>(
+                initialValue: _categories.contains(_categoryController.text)
+                    ? _categoryController.text
+                    : _categories.first,
+                decoration: const InputDecoration(labelText: 'หมวดหมู่อาหาร'),
+                items: _categories
+                    .map((c) => DropdownMenuItem(value: c, child: Text(c, style: const TextStyle(fontSize: 13))))
+                    .toList(),
+                onChanged: (val) {
+                  if (val != null) setState(() => _categoryController.text = val);
+                },
+              );
+
+              final priceField = TextFormField(
+                controller: _priceController,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(
+                  labelText: 'ราคาขายหน้าร้าน (Selling Price - ฿) *',
+                  prefixIcon: Icon(Icons.sell_outlined, size: 20),
+                  hintText: 'เช่น 450',
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: TextFormField(
-                  controller: _priceController,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: const InputDecoration(
-                    labelText: 'ราคาขายหน้าร้าน (Selling Price - ฿) *',
-                    prefixIcon: Icon(Icons.sell_outlined, size: 20),
-                    hintText: 'เช่น 450',
-                  ),
-                  onChanged: (_) => setState(() {}),
-                  validator: (val) {
-                    if (val == null || val.isEmpty) return 'กรุณากรอกราคาขาย';
-                    if (double.tryParse(val) == null || double.parse(val) <= 0) return 'ราคาต้องมากกว่า 0';
-                    return null;
-                  },
+                onChanged: (_) => setState(() {}),
+                validator: (val) {
+                  if (val == null || val.isEmpty) return 'กรุณากรอกราคาขาย';
+                  if (double.tryParse(val) == null || double.parse(val) <= 0) return 'ราคาต้องมากกว่า 0';
+                  return null;
+                },
+              );
+
+              final volumeField = TextFormField(
+                controller: _volumeController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'ประมาณการยอดขาย (จาน/เดือน)',
+                  prefixIcon: Icon(Icons.trending_up_rounded, size: 20),
+                  hintText: 'เช่น 150',
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: TextFormField(
-                  controller: _volumeController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'ประมาณการยอดขาย (จาน/เดือน)',
-                    prefixIcon: Icon(Icons.trending_up_rounded, size: 20),
-                    hintText: 'เช่น 150',
-                  ),
-                  onChanged: (_) => setState(() {}),
-                ),
-              ),
-            ],
+                onChanged: (_) => setState(() {}),
+              );
+
+              if (isWide) {
+                return Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(flex: 3, child: nameField),
+                        const SizedBox(width: 16),
+                        Expanded(flex: 2, child: categoryField),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(child: priceField),
+                        const SizedBox(width: 16),
+                        Expanded(child: volumeField),
+                      ],
+                    ),
+                  ],
+                );
+              }
+
+              return Column(
+                children: [
+                  nameField,
+                  const SizedBox(height: 14),
+                  categoryField,
+                  const SizedBox(height: 14),
+                  priceField,
+                  const SizedBox(height: 14),
+                  volumeField,
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -547,10 +569,11 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: AppTheme.border),
                 ),
-                child: Row(
-                  children: [
-                    // Index Badge
-                    Container(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isWide = constraints.maxWidth >= 600;
+
+                    final indexBadge = Container(
                       width: 24,
                       height: 24,
                       alignment: Alignment.center,
@@ -567,96 +590,79 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                           color: AppTheme.primaryNeon,
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 10),
+                    );
 
-                    // Ingredient Selector
-                    Expanded(
-                      flex: 4,
-                      child: DropdownButtonFormField<String>(
-                        initialValue: row.ingredientId,
-                        isExpanded: true,
-                        decoration: const InputDecoration(
-                          isDense: true,
-                          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-                        ),
-                        hint: const Text('เลือกวัตถุดิบ', style: TextStyle(fontSize: 13)),
-                        items: rowItems.map((ing) {
-                          return DropdownMenuItem<String>(
-                            value: ing.id,
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    ing.name,
-                                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                Text(
-                                  '(${Formatters.currency(ing.costPerBaseUnit)}/${ing.baseUnit})',
-                                  style: const TextStyle(fontSize: 11, color: AppTheme.textMuted),
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (val) {
-                          setState(() {
-                            row.ingredientId = val;
-                            if (val != null && ingMap.containsKey(val)) {
-                              row.unit = ingMap[val]!.baseUnit;
-                            }
-                          });
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-
-                    // Inline Quantity Input with Stepper or Direct Entry
-                    Expanded(
-                      flex: 2,
-                      child: TextFormField(
-                        controller: row.quantityController,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        decoration: const InputDecoration(
-                          isDense: true,
-                          hintText: 'ปริมาณ',
-                          contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-                        ),
-                        onChanged: (_) => setState(() {}),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-
-                    // Unit dropdown
-                    Expanded(
-                      flex: 2,
-                      child: DropdownButtonFormField<String>(
-                        initialValue: _commonUnits.contains(row.unit) ? row.unit : _commonUnits.first,
+                    final ingredientSelector = DropdownButtonFormField<String>(
+                      initialValue: row.ingredientId,
+                      isExpanded: true,
+                      decoration: const InputDecoration(
                         isDense: true,
-                        decoration: const InputDecoration(
-                          isDense: true,
-                          contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-                        ),
-                        items: _commonUnits.map((u) {
-                          return DropdownMenuItem<String>(
-                            value: u,
-                            child: Text(u, style: const TextStyle(fontSize: 13)),
-                          );
-                        }).toList(),
-                        onChanged: (val) {
-                          if (val != null) {
-                            setState(() => row.unit = val);
-                          }
-                        },
+                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 9),
                       ),
-                    ),
-                    const SizedBox(width: 12),
+                      hint: const Text('เลือกวัตถุดิบ', style: TextStyle(fontSize: 13)),
+                      items: rowItems.map((ing) {
+                        return DropdownMenuItem<String>(
+                          value: ing.id,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  ing.name,
+                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              Text(
+                                '(${Formatters.currency(ing.costPerBaseUnit)}/${ing.baseUnit})',
+                                style: const TextStyle(fontSize: 11, color: AppTheme.textMuted),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (val) {
+                        setState(() {
+                          row.ingredientId = val;
+                          if (val != null && ingMap.containsKey(val)) {
+                            row.unit = ingMap[val]!.baseUnit;
+                          }
+                        });
+                      },
+                    );
 
-                    // Subtotal Line Cost
-                    SizedBox(
-                      width: 90,
+                    final quantityInput = TextFormField(
+                      controller: row.quantityController,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        hintText: 'ปริมาณ',
+                        contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+                      ),
+                      onChanged: (_) => setState(() {}),
+                    );
+
+                    final unitDropdown = DropdownButtonFormField<String>(
+                      initialValue: _commonUnits.contains(row.unit) ? row.unit : _commonUnits.first,
+                      isDense: true,
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+                      ),
+                      items: _commonUnits.map((u) {
+                        return DropdownMenuItem<String>(
+                          value: u,
+                          child: Text(u, style: const TextStyle(fontSize: 13)),
+                        );
+                      }).toList(),
+                      onChanged: (val) {
+                        if (val != null) {
+                          setState(() => row.unit = val);
+                        }
+                      },
+                    );
+
+                    final lineCostWidget = SizedBox(
+                      width: isWide ? 90 : 85,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
@@ -671,15 +677,57 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                           const Text('ต้นทุน', style: TextStyle(fontSize: 10, color: AppTheme.textMuted)),
                         ],
                       ),
-                    ),
+                    );
 
-                    // Delete row button
-                    IconButton(
+                    final deleteButton = IconButton(
                       icon: const Icon(Icons.delete_outline_rounded, color: AppTheme.danger, size: 20),
                       tooltip: 'ลบรายการนี้',
                       onPressed: () => _removeIngredientRow(index),
-                    ),
-                  ],
+                    );
+
+                    if (isWide) {
+                      return Row(
+                        children: [
+                          indexBadge,
+                          const SizedBox(width: 10),
+                          Expanded(flex: 4, child: ingredientSelector),
+                          const SizedBox(width: 10),
+                          Expanded(flex: 2, child: quantityInput),
+                          const SizedBox(width: 10),
+                          Expanded(flex: 2, child: unitDropdown),
+                          const SizedBox(width: 12),
+                          lineCostWidget,
+                          deleteButton,
+                        ],
+                      );
+                    }
+
+                    // Mobile / Narrow window 2-tier layout
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            indexBadge,
+                            const SizedBox(width: 8),
+                            Expanded(child: ingredientSelector),
+                            deleteButton,
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            const SizedBox(width: 32),
+                            Expanded(flex: 3, child: quantityInput),
+                            const SizedBox(width: 8),
+                            Expanded(flex: 2, child: unitDropdown),
+                            const SizedBox(width: 10),
+                            lineCostWidget,
+                          ],
+                        ),
+                      ],
+                    );
+                  },
                 ),
               );
             },

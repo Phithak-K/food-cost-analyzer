@@ -82,8 +82,8 @@ class _IngredientsScreenState extends ConsumerState<IngredientsScreen> {
                   runSpacing: 12,
                   children: [
                     // Search box
-                    SizedBox(
-                      width: 320,
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 320, minWidth: 180),
                       child: TextField(
                         decoration: const InputDecoration(
                           hintText: 'ค้นหาชื่อวัตถุดิบ หรือผู้จัดจำหน่าย...',

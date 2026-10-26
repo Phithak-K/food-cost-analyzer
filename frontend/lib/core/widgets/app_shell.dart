@@ -363,126 +363,150 @@ class AppShell extends ConsumerWidget {
   }
 
   Widget _buildTopAppBar(BuildContext context, bool isDesktop, UserRole currentRole) {
-    return Container(
-      height: 64,
-      padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24 : 12),
-      decoration: const BoxDecoration(
-        color: AppTheme.backgroundElevated,
-        border: Border(bottom: BorderSide(color: AppTheme.border, width: 1)),
-      ),
-      child: Row(
-        children: [
-          if (!isDesktop) ...[
-            Builder(
-              builder: (drawerContext) => IconButton(
-                icon: const Icon(Icons.menu_rounded),
-                onPressed: () => Scaffold.of(drawerContext).openDrawer(),
-              ),
-            ),
-            const SizedBox(width: 4),
-          ],
-          // Search quick bar
-          Expanded(
-            child: Container(
-              constraints: const BoxConstraints(maxWidth: 380),
-              height: 40,
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: isDesktop ? 'ค้นหาเมนู, วัตถุดิบ, หรือสูตรอาหาร...' : 'ค้นหา...',
-                  prefixIcon: const Icon(Icons.search_rounded, size: 18, color: AppTheme.textMuted),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                  fillColor: Colors.white.withValues(alpha: 0.03),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: AppTheme.border),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: AppTheme.border),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: AppTheme.primary, width: 1.5),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final showSearch = width >= 600;
+        final showOnlineBadge = width >= 1000;
+        final showGlossaryButton = width >= 500;
+        final showNotifications = width >= 480;
+
+        return Container(
+          height: 64,
+          padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24 : 12),
+          decoration: const BoxDecoration(
+            color: AppTheme.backgroundElevated,
+            border: Border(bottom: BorderSide(color: AppTheme.border, width: 1)),
+          ),
+          child: Row(
+            children: [
+              if (!isDesktop) ...[
+                Builder(
+                  builder: (drawerContext) => IconButton(
+                    icon: const Icon(Icons.menu_rounded),
+                    onPressed: () => Scaffold.of(drawerContext).openDrawer(),
                   ),
                 ),
-              ),
-            ),
-          ),
-          if (isDesktop) const Spacer() else const SizedBox(width: 8),
-
-          // Persona / Role Switcher Pill Widget
-          const RoleSwitcherPill(),
-          if (isDesktop) const SizedBox(width: 12),
-
-          // System Status & User Action
-          if (isDesktop) ...[
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: AppTheme.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppTheme.primary.withValues(alpha: 0.25)),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: const BoxDecoration(
-                      color: AppTheme.primaryNeon,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.primaryNeon,
-                          blurRadius: 6,
-                          spreadRadius: 1,
+                const SizedBox(width: 4),
+              ],
+              if (showSearch)
+                Expanded(
+                  child: Container(
+                    constraints: const BoxConstraints(maxWidth: 380),
+                    height: 40,
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: isDesktop ? 'ค้นหาเมนู, วัตถุดิบ, หรือสูตรอาหาร...' : 'ค้นหา...',
+                        prefixIcon: const Icon(Icons.search_rounded, size: 18, color: AppTheme.textMuted),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                        fillColor: Colors.white.withValues(alpha: 0.03),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(color: AppTheme.border),
                         ),
-                      ],
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(color: AppTheme.border),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(color: AppTheme.primary, width: 1.5),
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Online',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppTheme.primaryNeon),
+                )
+              else
+                const Expanded(
+                  child: Text(
+                    'MenuEng Pro',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      color: AppTheme.textPrimary,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-          ],
-          IconButton(
-            icon: const Icon(Icons.menu_book_rounded, color: AppTheme.primaryNeon, size: 20),
-            tooltip: 'คู่มือคำศัพท์ธุรกิจ & เมทริกซ์ (เปิดดู / ดาวน์โหลด)',
-            onPressed: () => showBusinessGlossaryDialog(context),
-          ),
-          IconButton(
-            icon: const Icon(Icons.notifications_none_rounded, color: AppTheme.textSecondary),
-            onPressed: () {},
-          ),
-          const SizedBox(width: 8),
-          Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: currentRole.color.withValues(alpha: 0.3),
-                  blurRadius: 10,
-                  spreadRadius: 1,
                 ),
+              if (isDesktop && showSearch) const Spacer() else const SizedBox(width: 8),
+
+              // Persona / Role Switcher Pill Widget
+              const RoleSwitcherPill(),
+              if (width >= 600) const SizedBox(width: 8),
+
+              // System Status & User Action
+              if (showOnlineBadge) ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: AppTheme.primary.withValues(alpha: 0.25)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: AppTheme.primaryNeon,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.primaryNeon,
+                              blurRadius: 6,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Online',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppTheme.primaryNeon),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
               ],
-            ),
-            child: CircleAvatar(
-              radius: 17,
-              backgroundColor: currentRole.color,
-              child: Text(
-                currentRole.shortLabel.substring(0, 1),
-                style: const TextStyle(color: Color(0xFF0B0F19), fontSize: 13, fontWeight: FontWeight.w800),
+              if (showGlossaryButton)
+                IconButton(
+                  icon: const Icon(Icons.menu_book_rounded, color: AppTheme.primaryNeon, size: 20),
+                  tooltip: 'คู่มือคำศัพท์ธุรกิจ & เมทริกซ์ (เปิดดู / ดาวน์โหลด)',
+                  onPressed: () => showBusinessGlossaryDialog(context),
+                ),
+              if (showNotifications)
+                IconButton(
+                  icon: const Icon(Icons.notifications_none_rounded, color: AppTheme.textSecondary),
+                  onPressed: () {},
+                ),
+              const SizedBox(width: 6),
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: currentRole.color.withValues(alpha: 0.3),
+                      blurRadius: 10,
+                      spreadRadius: 1,
+                    ),
+                  ],
+                ),
+                child: CircleAvatar(
+                  radius: 16,
+                  backgroundColor: currentRole.color,
+                  child: Text(
+                    currentRole.shortLabel.substring(0, 1),
+                    style: const TextStyle(color: Color(0xFF0B0F19), fontSize: 13, fontWeight: FontWeight.w800),
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

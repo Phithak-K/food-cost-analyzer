@@ -138,110 +138,150 @@ class _WhatIfSimulationScreenState extends ConsumerState<WhatIfSimulationScreen>
 
   Widget _buildHeader(
       BuildContext context, SimulationState state, SimulationNotifier notifier) {
-    return Container(
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0F172A),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.border),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primary.withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth >= 700;
+
+        final resetButton = ElevatedButton.icon(
+          onPressed: state.percentAdjustments.isEmpty
+              ? null
+              : () => notifier.resetAll(),
+          icon: const Icon(Icons.restart_alt_rounded, size: 18),
+          label: const Text('รีเซ็ตทั้งหมด'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: AppTheme.primary,
+            elevation: 0,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10)),
           ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppTheme.primary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.primary.withValues(alpha: 0.25)),
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.primary.withValues(alpha: 0.2),
-                  blurRadius: 10,
-                ),
-              ],
-            ),
-            child: const Icon(
-              Icons.tune_rounded,
-              color: AppTheme.primaryNeon,
-              size: 28,
-            ),
+        );
+
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0F172A),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppTheme.border),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.primary.withValues(alpha: 0.08),
+                blurRadius: 20,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: 10,
-                  runSpacing: 4,
+          child: isWide
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const Text(
-                      'What-If Simulation (จำลองสถานการณ์ต้นทุน)',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        letterSpacing: -0.3,
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primary.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppTheme.primary.withValues(alpha: 0.25)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.primary.withValues(alpha: 0.2),
+                            blurRadius: 10,
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.tune_rounded,
+                        color: AppTheme.primaryNeon,
+                        size: 28,
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: AppTheme.accent.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.3)),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 10,
+                            runSpacing: 4,
+                            children: [
+                              const Text(
+                                'What-If Simulation (จำลองสถานการณ์ต้นทุน)',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  letterSpacing: -0.3,
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.accent.withValues(alpha: 0.3),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(
+                                      color: Colors.white.withValues(alpha: 0.3)),
+                                ),
+                                child: const Text(
+                                  'Real-Time Sandbox',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'ทดลองปรับราคาสินค้าขึ้น/ลงเพื่อวิเคราะห์ผลกระทบต่อ % Food Cost และกำไรสุทธิรวมของร้านได้ทันที โดยไม่กระทบฐานข้อมูลจริง',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.white.withValues(alpha: 0.85),
+                            ),
+                          ),
+                        ],
                       ),
-                      child: const Text(
-                        'Real-Time Sandbox',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
+                    ),
+                    const SizedBox(width: 16),
+                    resetButton,
+                  ],
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primary.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: AppTheme.primary.withValues(alpha: 0.25)),
+                          ),
+                          child: const Icon(Icons.tune_rounded, color: AppTheme.primaryNeon, size: 22),
                         ),
-                      ),
+                        const SizedBox(width: 10),
+                        const Expanded(
+                          child: Text(
+                            'What-If Simulation',
+                            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                        ),
+                        resetButton,
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'ทดลองปรับราคาสินค้าขึ้น/ลงเพื่อวิเคราะห์ผลกระทบต่อ % Food Cost และกำไรสุทธิรวมของร้านได้ทันที',
+                      style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.85)),
                     ),
                   ],
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  'ทดลองปรับราคาสินค้าขึ้น/ลงเพื่อวิเคราะห์ผลกระทบต่อ % Food Cost และกำไรสุทธิรวมของร้านได้ทันที โดยไม่กระทบฐานข้อมูลจริง',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.white.withValues(alpha: 0.85),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 16),
-          ElevatedButton.icon(
-            onPressed: state.percentAdjustments.isEmpty
-                ? null
-                : () => notifier.resetAll(),
-            icon: const Icon(Icons.restart_alt_rounded, size: 18),
-            label: const Text('รีเซ็ตทั้งหมด'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: AppTheme.primary,
-              elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -374,64 +414,73 @@ class _WhatIfSimulationScreenState extends ConsumerState<WhatIfSimulationScreen>
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final cardWidth = (constraints.maxWidth - (3 * 16)) / 4;
-        final useGrid = constraints.maxWidth < 900;
+        final card1 = _buildMetricCard(
+          title: 'ผลกระทบต่อกำไรสุทธิรวม',
+          value: '${isLoss ? '-' : (isGain ? '+' : '')}฿${currencyFormat.format(netDiff.abs())}',
+          subtitle: 'ยอดกำไรต่อเดือน (${summary.newlyCriticalRecipesCount > 0 ? "ลดลง" : "เทียบกับเดิม"})',
+          icon: isLoss ? Icons.trending_down_rounded : Icons.trending_up_rounded,
+          accentColor: profitColor,
+          highlight: true,
+        );
 
-        if (useGrid) {
+        final card2 = _buildMetricCard(
+          title: 'Food Cost รวมทั้งร้าน',
+          value: '${percentFormat.format(summary.newOverallCostPercentage)}%',
+          subtitle: 'เดิม ${percentFormat.format(summary.oldOverallCostPercentage)}% (${summary.costPercentageDifference >= 0 ? '+' : ''}${percentFormat.format(summary.costPercentageDifference)}%)',
+          icon: Icons.pie_chart_rounded,
+          accentColor: summary.costPercentageDifference > 0
+              ? AppTheme.warning
+              : AppTheme.info,
+        );
+
+        final card3 = _buildMetricCard(
+          title: 'เมนูที่ต้นทุนทะลุเกณฑ์ (>35%)',
+          value: '${summary.totalCriticalRecipesCount} เมนู',
+          subtitle: summary.newlyCriticalRecipesCount > 0
+              ? 'ทะลุเกณฑ์เพิ่ม ${summary.newlyCriticalRecipesCount} เมนู!'
+              : 'ไม่มีเมนูใหม่ที่เกินเกณฑ์',
+          icon: Icons.warning_amber_rounded,
+          accentColor: summary.newlyCriticalRecipesCount > 0
+              ? AppTheme.danger
+              : AppTheme.success,
+        );
+
+        final card4 = _buildMetricCard(
+          title: 'ต้นทุนรวมทั้งเดือน',
+          value: '฿${currencyFormat.format(summary.newMonthlyTotalCost)}',
+          subtitle: 'เดิม ฿${currencyFormat.format(summary.oldMonthlyTotalCost)} (${summary.totalCostDifference >= 0 ? '+' : ''}฿${currencyFormat.format(summary.totalCostDifference)})',
+          icon: Icons.payments_rounded,
+          accentColor: AppTheme.primary,
+        );
+
+        if (constraints.maxWidth < 600) {
+          return Column(
+            children: [
+              card1,
+              const SizedBox(height: 12),
+              card2,
+              const SizedBox(height: 12),
+              card3,
+              const SizedBox(height: 12),
+              card4,
+            ],
+          );
+        } else if (constraints.maxWidth < 950) {
           return Column(
             children: [
               Row(
                 children: [
-                  Expanded(
-                    child: _buildMetricCard(
-                      title: 'ผลกระทบต่อกำไรสุทธิรวม',
-                      value: '${isLoss ? '-' : (isGain ? '+' : '')}฿${currencyFormat.format(netDiff.abs())}',
-                      subtitle: 'ยอดกำไรต่อเดือน (${summary.newlyCriticalRecipesCount > 0 ? "ลดลง" : "เทียบกับเดิม"})',
-                      icon: isLoss ? Icons.trending_down_rounded : Icons.trending_up_rounded,
-                      accentColor: profitColor,
-                      highlight: true,
-                    ),
-                  ),
+                  Expanded(child: card1),
                   const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildMetricCard(
-                      title: 'Food Cost รวมทั้งร้าน',
-                      value: '${percentFormat.format(summary.newOverallCostPercentage)}%',
-                      subtitle: 'เดิม ${percentFormat.format(summary.oldOverallCostPercentage)}% (${summary.costPercentageDifference >= 0 ? '+' : ''}${percentFormat.format(summary.costPercentageDifference)}%)',
-                      icon: Icons.pie_chart_rounded,
-                      accentColor: summary.costPercentageDifference > 0
-                          ? AppTheme.warning
-                          : AppTheme.info,
-                    ),
-                  ),
+                  Expanded(child: card2),
                 ],
               ),
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Expanded(
-                    child: _buildMetricCard(
-                      title: 'เมนูที่ต้นทุนทะลุเกณฑ์ (>35%)',
-                      value: '${summary.totalCriticalRecipesCount} เมนู',
-                      subtitle: summary.newlyCriticalRecipesCount > 0
-                          ? 'ทะลุเกณฑ์เพิ่ม ${summary.newlyCriticalRecipesCount} เมนู!'
-                          : 'ไม่มีเมนูใหม่ที่เกินเกณฑ์',
-                      icon: Icons.warning_amber_rounded,
-                      accentColor: summary.newlyCriticalRecipesCount > 0
-                          ? AppTheme.danger
-                          : AppTheme.success,
-                    ),
-                  ),
+                  Expanded(child: card3),
                   const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildMetricCard(
-                      title: 'ต้นทุนรวมทั้งเดือน',
-                      value: '฿${currencyFormat.format(summary.newMonthlyTotalCost)}',
-                      subtitle: 'เดิม ฿${currencyFormat.format(summary.oldMonthlyTotalCost)} (${summary.totalCostDifference >= 0 ? '+' : ''}฿${currencyFormat.format(summary.totalCostDifference)})',
-                      icon: Icons.payments_rounded,
-                      accentColor: AppTheme.primary,
-                    ),
-                  ),
+                  Expanded(child: card4),
                 ],
               ),
             ],
@@ -440,56 +489,13 @@ class _WhatIfSimulationScreenState extends ConsumerState<WhatIfSimulationScreen>
 
         return Row(
           children: [
-            SizedBox(
-              width: cardWidth,
-              child: _buildMetricCard(
-                title: 'ผลกระทบต่อกำไรสุทธิรวม',
-                value: '${isLoss ? '-' : (isGain ? '+' : '')}฿${currencyFormat.format(netDiff.abs())}',
-                subtitle: 'ยอดกำไรต่อเดือน (${summary.newMonthlyGrossProfit < summary.oldMonthlyGrossProfit ? "ลดลง" : "คงเดิม"})',
-                icon: isLoss ? Icons.trending_down_rounded : Icons.trending_up_rounded,
-                accentColor: profitColor,
-                highlight: true,
-              ),
-            ),
+            Expanded(child: card1),
             const SizedBox(width: 16),
-            SizedBox(
-              width: cardWidth,
-              child: _buildMetricCard(
-                title: 'Food Cost รวมทั้งร้าน',
-                value: '${percentFormat.format(summary.newOverallCostPercentage)}%',
-                subtitle: 'เดิม ${percentFormat.format(summary.oldOverallCostPercentage)}% (${summary.costPercentageDifference >= 0 ? '+' : ''}${percentFormat.format(summary.costPercentageDifference)}%)',
-                icon: Icons.pie_chart_rounded,
-                accentColor: summary.costPercentageDifference > 0
-                    ? AppTheme.warning
-                    : AppTheme.info,
-              ),
-            ),
+            Expanded(child: card2),
             const SizedBox(width: 16),
-            SizedBox(
-              width: cardWidth,
-              child: _buildMetricCard(
-                title: 'เมนูต้นทุนเกินเกณฑ์ (>35%)',
-                value: '${summary.totalCriticalRecipesCount} เมนู',
-                subtitle: summary.newlyCriticalRecipesCount > 0
-                    ? 'พุ่งเกินเกณฑ์เพิ่ม ${summary.newlyCriticalRecipesCount} เมนู!'
-                    : 'สถานะปลอดภัย',
-                icon: Icons.warning_amber_rounded,
-                accentColor: summary.newlyCriticalRecipesCount > 0
-                    ? AppTheme.danger
-                    : AppTheme.success,
-              ),
-            ),
+            Expanded(child: card3),
             const SizedBox(width: 16),
-            SizedBox(
-              width: cardWidth,
-              child: _buildMetricCard(
-                title: 'ต้นทุนรวมทั้งร้าน / เดือน',
-                value: '฿${currencyFormat.format(summary.newMonthlyTotalCost)}',
-                subtitle: 'เดิม ฿${currencyFormat.format(summary.oldMonthlyTotalCost)} (${summary.totalCostDifference >= 0 ? '+' : ''}฿${currencyFormat.format(summary.totalCostDifference)})',
-                icon: Icons.payments_rounded,
-                accentColor: AppTheme.primary,
-              ),
-            ),
+            Expanded(child: card4),
           ],
         );
       },
@@ -578,10 +584,14 @@ class _WhatIfSimulationScreenState extends ConsumerState<WhatIfSimulationScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 10,
             children: [
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
                     padding: const EdgeInsets.all(8),
@@ -592,12 +602,14 @@ class _WhatIfSimulationScreenState extends ConsumerState<WhatIfSimulationScreen>
                     child: const Icon(Icons.compare_rounded, color: AppTheme.primaryNeon, size: 20),
                   ),
                   const SizedBox(width: 10),
-                  const Text(
-                    'เปรียบเทียบผลกระทบกำไรสุทธิ 2 ฝั่ง (Profit Impact Comparison)',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                  const Flexible(
+                    child: Text(
+                      'เปรียบเทียบผลกระทบกำไรสุทธิ 2 ฝั่ง (Profit Impact Comparison)',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ],

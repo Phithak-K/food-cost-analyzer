@@ -146,49 +146,61 @@ class RoleSwitcherPill extends ConsumerWidget {
           );
         }).toList();
       },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-        decoration: BoxDecoration(
-          color: currentRole.color.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(
-            color: currentRole.color.withValues(alpha: 0.35),
-            width: 1.2,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: currentRole.color.withValues(alpha: 0.18),
-              blurRadius: 10,
-              spreadRadius: 0,
+      child: Builder(
+        builder: (context) {
+          final screenWidth = MediaQuery.sizeOf(context).width;
+          final displayText = screenWidth < 400
+              ? currentRole.shortLabel.substring(0, 3)
+              : (screenWidth < 640 ? currentRole.shortLabel : currentRole.label);
+
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: EdgeInsets.symmetric(
+              horizontal: screenWidth < 500 ? 10 : 14,
+              vertical: 7,
             ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              currentRole.emoji,
-              style: const TextStyle(fontSize: 15),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              currentRole.label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-                color: currentRole.color,
-                letterSpacing: -0.2,
+            decoration: BoxDecoration(
+              color: currentRole.color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(
+                color: currentRole.color.withValues(alpha: 0.35),
+                width: 1.2,
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: currentRole.color.withValues(alpha: 0.18),
+                  blurRadius: 10,
+                  spreadRadius: 0,
+                ),
+              ],
             ),
-            const SizedBox(width: 6),
-            Icon(
-              Icons.keyboard_arrow_down_rounded,
-              size: 16,
-              color: currentRole.color,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  currentRole.emoji,
+                  style: const TextStyle(fontSize: 15),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  displayText,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: currentRole.color,
+                    letterSpacing: -0.2,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 16,
+                  color: currentRole.color,
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

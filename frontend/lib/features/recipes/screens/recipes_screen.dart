@@ -72,25 +72,23 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
             Card(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: TextField(
-                        decoration: const InputDecoration(
-                          hintText: 'ค้นหาชื่อเมนูอาหาร...',
-                          prefixIcon: Icon(Icons.search_rounded, size: 20),
-                          isDense: true,
-                        ),
-                        onChanged: (val) {
-                          setState(() {
-                            _searchQuery = val;
-                          });
-                        },
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isWide = constraints.maxWidth >= 650;
+                    final searchField = TextField(
+                      decoration: const InputDecoration(
+                        hintText: 'ค้นหาชื่อเมนูอาหาร...',
+                        prefixIcon: Icon(Icons.search_rounded, size: 20),
+                        isDense: true,
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    Container(
+                      onChanged: (val) {
+                        setState(() {
+                          _searchQuery = val;
+                        });
+                      },
+                    );
+
+                    final dropdown = Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
                         color: AppTheme.surfaceMuted,
@@ -116,13 +114,39 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
                           },
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    Text(
+                    );
+
+                    final countText = Text(
                       'พบ ${filtered.length} เมนู',
                       style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
+                    );
+
+                    if (isWide) {
+                      return Row(
+                        children: [
+                          Expanded(flex: 2, child: searchField),
+                          const SizedBox(width: 16),
+                          dropdown,
+                          const SizedBox(width: 16),
+                          countText,
+                        ],
+                      );
+                    }
+
+                    return Column(
+                      children: [
+                        searchField,
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            dropdown,
+                            const Spacer(),
+                            countText,
+                          ],
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
             ),

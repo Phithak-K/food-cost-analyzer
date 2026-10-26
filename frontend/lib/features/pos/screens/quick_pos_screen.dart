@@ -101,128 +101,149 @@ class _QuickPosScreenState extends ConsumerState<QuickPosScreen> {
   }
 
   Widget _buildTopFilterBar(List<String> categories) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-      decoration: const BoxDecoration(
-        color: AppTheme.backgroundElevated,
-        border: Border(bottom: BorderSide(color: AppTheme.border, width: 1)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth >= 700;
+
+        final searchInput = SizedBox(
+          width: isWide ? 260 : double.infinity,
+          height: 38,
+          child: TextField(
+            controller: _searchController,
+            onChanged: (val) => setState(() => _searchQuery = val),
+            style: const TextStyle(fontSize: 13, color: AppTheme.textPrimary),
+            decoration: InputDecoration(
+              hintText: 'ค้นหาเมนูอาหาร...',
+              hintStyle: const TextStyle(fontSize: 12, color: AppTheme.textMuted),
+              prefixIcon: const Icon(Icons.search_rounded, size: 18, color: AppTheme.textMuted),
+              suffixIcon: _searchQuery.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear_rounded, size: 16),
+                      onPressed: () {
+                        _searchController.clear();
+                        setState(() => _searchQuery = '');
+                      },
+                    )
+                  : null,
+              filled: true,
+              fillColor: Colors.white.withValues(alpha: 0.04),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: AppTheme.border),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: AppTheme.primary),
+              ),
+            ),
+          ),
+        );
+
+        final titleWidget = Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppTheme.primary.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: AppTheme.primary.withValues(alpha: 0.3),
+                ),
+              ),
+              child: const Icon(
+                Icons.point_of_sale_rounded,
+                color: AppTheme.primaryNeon,
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Quick POS / รับออเดอร์หน้าร้าน',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textPrimary,
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                  Text(
+                    'เลือกเมนูเพื่อจำลองการขาย ระบบจะตัดสต็อกวัตถุดิบตามสูตร (BOM) และอัปเดต Dashboard ทันที',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+
+        return Container(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+          decoration: const BoxDecoration(
+            color: AppTheme.backgroundElevated,
+            border: Border(bottom: BorderSide(color: AppTheme.border, width: 1)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppTheme.primary.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: AppTheme.primary.withValues(alpha: 0.3),
-                  ),
-                ),
-                child: const Icon(
-                  Icons.point_of_sale_rounded,
-                  color: AppTheme.primaryNeon,
-                  size: 22,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              if (isWide)
+                Row(
                   children: [
-                    const Text(
-                      'Quick POS / รับออเดอร์หน้าร้าน',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.textPrimary,
-                        letterSpacing: -0.3,
-                      ),
-                    ),
-                    Text(
-                      'เลือกเมนูเพื่อจำลองการขาย ระบบจะตัดสต็อกวัตถุดิบตามสูตร (BOM) และอัปเดต Dashboard ทันที',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.textSecondary,
-                      ),
-                    ),
+                    Expanded(child: titleWidget),
+                    const SizedBox(width: 16),
+                    searchInput,
                   ],
-                ),
-              ),
-              // Search Input
-              SizedBox(
-                width: 260,
-                height: 38,
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: (val) => setState(() => _searchQuery = val),
-                  style: const TextStyle(fontSize: 13, color: AppTheme.textPrimary),
-                  decoration: InputDecoration(
-                    hintText: 'ค้นหาเมนูอาหาร...',
-                    hintStyle: const TextStyle(fontSize: 12, color: AppTheme.textMuted),
-                    prefixIcon: const Icon(Icons.search_rounded, size: 18, color: AppTheme.textMuted),
-                    suffixIcon: _searchQuery.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear_rounded, size: 16),
-                            onPressed: () {
-                              _searchController.clear();
-                              setState(() => _searchQuery = '');
-                            },
-                          )
-                        : null,
-                    filled: true,
-                    fillColor: Colors.white.withValues(alpha: 0.04),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: AppTheme.border),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: AppTheme.primary),
-                    ),
-                  ),
+                )
+              else ...[
+                titleWidget,
+                const SizedBox(height: 12),
+                searchInput,
+              ],
+              const SizedBox(height: 12),
+              // Category Filter Chips
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: categories.map((cat) {
+                    final isSelected = cat == _selectedCategory;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: FilterChip(
+                        label: Text(cat),
+                        selected: isSelected,
+                        onSelected: (_) => setState(() => _selectedCategory = cat),
+                        labelStyle: TextStyle(
+                          fontSize: 12,
+                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                          color: isSelected ? const Color(0xFF0B0F19) : AppTheme.textSecondary,
+                        ),
+                        backgroundColor: Colors.white.withValues(alpha: 0.04),
+                        selectedColor: AppTheme.primary,
+                        checkmarkColor: const Color(0xFF0B0F19),
+                        side: BorderSide(
+                          color: isSelected ? AppTheme.primary : AppTheme.border,
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                    );
+                  }).toList(),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          // Category Filter Chips
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: categories.map((cat) {
-                final isSelected = cat == _selectedCategory;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: FilterChip(
-                    label: Text(cat),
-                    selected: isSelected,
-                    onSelected: (_) => setState(() => _selectedCategory = cat),
-                    labelStyle: TextStyle(
-                      fontSize: 12,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                      color: isSelected ? const Color(0xFF0B0F19) : AppTheme.textSecondary,
-                    ),
-                    backgroundColor: Colors.white.withValues(alpha: 0.04),
-                    selectedColor: AppTheme.primary,
-                    checkmarkColor: const Color(0xFF0B0F19),
-                    side: BorderSide(
-                      color: isSelected ? AppTheme.primary : AppTheme.border,
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
+
 
   Widget _buildMenuGrid(List<Recipe> recipes, OrderState orderState) {
     if (recipes.isEmpty) {
