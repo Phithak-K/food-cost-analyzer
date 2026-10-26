@@ -153,15 +153,15 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
       builder: (context, constraints) {
         final int count;
         final double aspectRatio;
-        if (constraints.maxWidth < 480) {
+        if (constraints.maxWidth < 520) {
           count = 1;
-          aspectRatio = 2.6;
-        } else if (constraints.maxWidth < 850) {
+          aspectRatio = 2.8;
+        } else if (constraints.maxWidth < 960) {
           count = 2;
-          aspectRatio = 1.9;
+          aspectRatio = 2.0;
         } else {
           count = 4;
-          aspectRatio = isDesktop ? 2.3 : 1.8;
+          aspectRatio = isDesktop ? 2.3 : 1.9;
         }
 
         return GridView.count(
@@ -234,7 +234,14 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(title, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textMuted)),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textMuted),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
@@ -247,7 +254,7 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
           ),
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w900,
               color: AppTheme.textPrimary,
@@ -256,7 +263,7 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
           ),
           Text(
             subtitle,
-            style: TextStyle(fontSize: 11, color: AppTheme.textMuted),
+            style: const TextStyle(fontSize: 11, color: AppTheme.textMuted),
             overflow: TextOverflow.ellipsis,
           ),
         ],

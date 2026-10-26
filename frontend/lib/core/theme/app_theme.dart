@@ -183,6 +183,21 @@ class AppTheme {
         thickness: 1,
         space: 1,
       ),
+      scrollbarTheme: ScrollbarThemeData(
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.dragged)) {
+            return primary.withValues(alpha: 0.7);
+          }
+          if (states.contains(WidgetState.hovered)) {
+            return primary.withValues(alpha: 0.5);
+          }
+          return Colors.white.withValues(alpha: 0.2);
+        }),
+        thickness: const WidgetStatePropertyAll(7.0),
+        radius: const Radius.circular(8),
+        thumbVisibility: const WidgetStatePropertyAll(true),
+        interactive: true,
+      ),
       dialogTheme: DialogThemeData(
         backgroundColor: surface,
         shape: RoundedRectangleBorder(

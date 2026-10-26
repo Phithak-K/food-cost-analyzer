@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// Reusable Frosted Glass Card / Container with razor-sharp borders, subtle glow,
@@ -92,31 +93,54 @@ class _GlassContainerState extends State<GlassContainer> {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(widget.borderRadius),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: widget.blur, sigmaY: widget.blur),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            curve: Curves.easeOutCubic,
-            padding: widget.padding,
-            decoration: BoxDecoration(
-              color: effectiveBgColor,
-              borderRadius: BorderRadius.circular(widget.borderRadius),
-              border: Border.all(
-                color: effectiveBorderColor,
-                width: 1.0,
+        child: (kIsWeb || widget.blur <= 0)
+            ? AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                curve: Curves.easeOutCubic,
+                padding: widget.padding,
+                decoration: BoxDecoration(
+                  color: effectiveBgColor,
+                  borderRadius: BorderRadius.circular(widget.borderRadius),
+                  border: Border.all(
+                    color: effectiveBorderColor,
+                    width: 1.0,
+                  ),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.white.withValues(alpha: (_isHovered && widget.enableHover) ? 0.09 : 0.06),
+                      Colors.white.withValues(alpha: (_isHovered && widget.enableHover) ? 0.03 : 0.02),
+                    ],
+                  ),
+                ),
+                child: widget.child,
+              )
+            : BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: widget.blur, sigmaY: widget.blur),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  curve: Curves.easeOutCubic,
+                  padding: widget.padding,
+                  decoration: BoxDecoration(
+                    color: effectiveBgColor,
+                    borderRadius: BorderRadius.circular(widget.borderRadius),
+                    border: Border.all(
+                      color: effectiveBorderColor,
+                      width: 1.0,
+                    ),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.white.withValues(alpha: (_isHovered && widget.enableHover) ? 0.09 : 0.06),
+                        Colors.white.withValues(alpha: (_isHovered && widget.enableHover) ? 0.03 : 0.02),
+                      ],
+                    ),
+                  ),
+                  child: widget.child,
+                ),
               ),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white.withValues(alpha: (_isHovered && widget.enableHover) ? 0.09 : 0.06),
-                  Colors.white.withValues(alpha: (_isHovered && widget.enableHover) ? 0.03 : 0.02),
-                ],
-              ),
-            ),
-            child: widget.child,
-          ),
-        ),
       ),
     );
 
