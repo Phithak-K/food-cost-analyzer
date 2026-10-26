@@ -104,6 +104,83 @@ export class ForecastService {
   }
 
   /**
+   * Pure calculation logic for ingredient forecast, waste risks, and suggested reorders
+   */
+  static calculateItemForecast(params: {
+    ingredientId: string;
+    ingredientName: string;
+    category: string;
+    purchaseUnit: string;
+    currentStock: number;
+    unitCost: number;
+    dailyConsumption: number;
+    shelfLifeDays: number;
+  }): IngredientForecast {
+    const {
+      ingredientId,
+      ingredientName,
+      category,
+      purchaseUnit,
+      currentStock,
+      unitCost,
+      dailyConsumption,
+      shelfLifeDays,
+    } = params;
+
+    const daysRemaining = dailyConsumption > 0 ? currentStock / dailyConsumption : 999;
+
+    let riskLevel: 'CRITICAL' | 'WARNING' | 'SAFE' = 'SAFE';
+    let potentialWasteQuantity = 0;
+    let potentialWasteValue = 0;
+    let suggestedOrder7Days = 0;
+    let suggestedOrderValue = 0;
+    let message = 'ระดับสต็อกเพียงพอและอยู่ในเกณฑ์ปลอดภัย';
+    let actionRecommendation = 'ยังไม่ต้องสั่งซื้อเพิ่มเติมในสัปดาห์นี้';
+
+    if (daysRemaining > shelfLifeDays && currentStock > 0) {
+      riskLevel = 'CRITICAL';
+      const usableStockBeforeExpiry = dailyConsumption * shelfLifeDays;
+      potentialWasteQuantity = Math.max(0, currentStock - usableStockBeforeExpiry);
+      potentialWasteValue = potentialWasteQuantity * unitCost;
+      message = `เสี่ยงเน่าเสียสูง! สต็อกจะหมดอายุในอีก ${shelfLifeDays} วัน แต่ปริมาณบริโภคทันเพียง ${usableStockBeforeExpiry.toFixed(1)} ${purchaseUnit}`;
+      actionRecommendation = `แนะนำจัดโปรโมชั่นลดราคาหรือเพิ่มเมนูแนะนำที่ใช้วัตถุดิบนี้ด่วน เพื่อระบายสต็อก ${potentialWasteQuantity.toFixed(1)} ${purchaseUnit}`;
+    } else if (daysRemaining <= 2.0) {
+      riskLevel = 'WARNING';
+      const demand7Days = dailyConsumption * 7.0;
+      suggestedOrder7Days = Math.max(0, demand7Days - currentStock);
+      suggestedOrderValue = suggestedOrder7Days * unitCost;
+      message = `สต็อกใกล้หมด! เหลือพอใช้เพียง ${daysRemaining.toFixed(1)} วัน (อัตราใช้ ${dailyConsumption.toFixed(2)} ${purchaseUnit}/วัน)`;
+      actionRecommendation = `ควรสั่งซื้อเพิ่มประมาณ ${suggestedOrder7Days.toFixed(1)} ${purchaseUnit} เพื่อสำรองการใช้งาน 7 วัน`;
+    } else {
+      riskLevel = 'SAFE';
+      const demand7Days = dailyConsumption * 7.0;
+      if (currentStock < demand7Days) {
+        suggestedOrder7Days = demand7Days - currentStock;
+        suggestedOrderValue = suggestedOrder7Days * unitCost;
+        actionRecommendation = `สต็อกปลอดภัย แต่สามารถสั่งเพิ่ม ${suggestedOrder7Days.toFixed(1)} ${purchaseUnit} เพื่อสำรองให้ครบ 7 วัน`;
+      }
+    }
+
+    return {
+      ingredientId,
+      ingredientName,
+      category,
+      purchaseUnit,
+      currentStock: Number(currentStock.toFixed(2)),
+      shelfLifeDays,
+      dailyConsumption: Number(dailyConsumption.toFixed(3)),
+      daysRemaining: Number(daysRemaining.toFixed(1)),
+      riskLevel,
+      potentialWasteQuantity: Number(potentialWasteQuantity.toFixed(2)),
+      potentialWasteValue: Number(potentialWasteValue.toFixed(2)),
+      suggestedOrder7Days: Number(suggestedOrder7Days.toFixed(2)),
+      suggestedOrderValue: Number(suggestedOrderValue.toFixed(2)),
+      message,
+      actionRecommendation,
+    };
+  }
+
+  /**
    * Calculate demand velocity, waste risks, and reorder suggestions for all ingredients
    */
   static async getDemandAndWasteForecast(): Promise<ForecastSummary> {
@@ -194,77 +271,29 @@ export class ForecastService {
       const baseToPurchaseUnitRatio = UnitConverter.toBaseUnit(1.0, purchaseUnit) || 1.0;
       const dailyConsumption = dailyConsumptionBaseUnit / baseToPurchaseUnitRatio;
 
-      // Days remaining before current stock is exhausted
-      const daysRemaining = dailyConsumption > 0 ? currentStock / dailyConsumption : (currentStock > 0 ? 999 : 0);
-
-      // Waste Calculation: If current stock exceeds what will be consumed within shelf-life
-      const maxUsableBeforeExpiry = dailyConsumption * shelfLifeDays;
-      let potentialWasteQuantity = 0;
-      let potentialWasteValue = 0;
-
-      if (currentStock > maxUsableBeforeExpiry && shelfLifeDays < 30) {
-        potentialWasteQuantity = currentStock - maxUsableBeforeExpiry;
-        potentialWasteValue = potentialWasteQuantity * unitCost;
-      }
-
-      // 7-Day Smart Reorder Suggestion
-      const demand7Days = dailyConsumption * 7;
-      let suggestedOrder7Days = 0;
-      let suggestedOrderValue = 0;
-
-      if (demand7Days > currentStock) {
-        suggestedOrder7Days = demand7Days - currentStock;
-        suggestedOrderValue = suggestedOrder7Days * unitCost;
-      }
-
-      // Determine Risk Level & Actionable Recommendation
-      let riskLevel: 'CRITICAL' | 'WARNING' | 'SAFE' = 'SAFE';
-      let message = '';
-      let actionRecommendation = '';
-
-      if (potentialWasteQuantity > 0 && shelfLifeDays <= 4) {
-        riskLevel = 'CRITICAL';
-        criticalItemsCount++;
-        totalWasteValueAtRisk += potentialWasteValue;
-        message = `เสี่ยงเน่าเสียทิ้ง ${potentialWasteQuantity.toFixed(1)} ${purchaseUnit} (คาดใช้ไม่ทันใน ${shelfLifeDays} วัน)`;
-        actionRecommendation = 'จัดโปรโมชั่นเมนูเร่งด่วน หรือเพิ่มเป็นเมนูแนะนำประจำวันเพื่อระบายสต็อก';
-      } else if (potentialWasteQuantity > 0 || (daysRemaining < 2 && dailyConsumption > 0)) {
-        riskLevel = 'WARNING';
-        warningItemsCount++;
-        totalWasteValueAtRisk += potentialWasteValue;
-        if (daysRemaining < 2) {
-          message = `สต็อกเหลือน้อยมาก จะหมดใน ${daysRemaining.toFixed(1)} วัน`;
-          actionRecommendation = `สั่งซื้อด่วนอย่างน้อย ${suggestedOrder7Days.toFixed(1)} ${purchaseUnit}`;
-        } else {
-          message = `มีความเสี่ยงใช้ไม่ทันก่อนหมดอายุเล็กน้อย (~${potentialWasteQuantity.toFixed(1)} ${purchaseUnit})`;
-          actionRecommendation = 'เฝ้าระวังอัตราการสั่ง และชะลอการสั่งรอบใหม่';
-        }
-      } else {
-        riskLevel = 'SAFE';
-        safeItemsCount++;
-        message = 'ระดับสต็อกสมดุลกับการใช้งาน ปลอดภัย';
-        actionRecommendation = 'รักษาระดับการสั่งซื้อตามปริมาณแนะนำรายสัปดาห์';
-      }
-
-      suggestedOrderTotalValue += suggestedOrderValue;
-
-      items.push({
+      const itemForecast = ForecastService.calculateItemForecast({
         ingredientId: ing.id,
         ingredientName: ing.name,
         category: ing.category,
         purchaseUnit,
         currentStock,
+        unitCost,
+        dailyConsumption,
         shelfLifeDays,
-        dailyConsumption: Number(dailyConsumption.toFixed(2)),
-        daysRemaining: Number(daysRemaining.toFixed(1)),
-        riskLevel,
-        potentialWasteQuantity: Number(potentialWasteQuantity.toFixed(2)),
-        potentialWasteValue: Number(potentialWasteValue.toFixed(2)),
-        suggestedOrder7Days: Number(suggestedOrder7Days.toFixed(2)),
-        suggestedOrderValue: Number(suggestedOrderValue.toFixed(2)),
-        message,
-        actionRecommendation,
       });
+
+      if (itemForecast.riskLevel === 'CRITICAL') {
+        criticalItemsCount++;
+        totalWasteValueAtRisk += itemForecast.potentialWasteValue;
+      } else if (itemForecast.riskLevel === 'WARNING') {
+        warningItemsCount++;
+        totalWasteValueAtRisk += itemForecast.potentialWasteValue;
+      } else {
+        safeItemsCount++;
+      }
+
+      suggestedOrderTotalValue += itemForecast.suggestedOrderValue;
+      items.push(itemForecast);
     }
 
     // Sort items so CRITICAL is first, then WARNING, then SAFE
