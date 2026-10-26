@@ -36,3 +36,6 @@ migrate_working_dir/
 **/.env.*
 !**/.env.example
 foodcost_pgdata/
+screenshots/
+*.js
+*.pdf

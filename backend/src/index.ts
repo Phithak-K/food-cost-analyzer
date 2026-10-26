@@ -1,4 +1,6 @@
 import http from 'http';
+import path from 'path';
+import fs from 'fs';
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import ingredientsRouter from './routes/ingredients.routes';
@@ -51,6 +53,22 @@ app.use('/api/ingredients', ingredientsRouter);
 app.use('/api/recipes', recipesRouter);
 app.use('/api/analytics', analyticsRouter);
 app.use('/api/orders', ordersRouter);
+
+// Serve Flutter Web Frontend (Monorepo Single-Service)
+const webDistPath = path.resolve(__dirname, '../../frontend/build/web');
+app.use(express.static(webDistPath));
+
+// Fallback for SPA routing in Express 5
+app.use((req: Request, res: Response, next: NextFunction) => {
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+  const indexHtml = path.join(webDistPath, 'index.html');
+  if (fs.existsSync(indexHtml)) {
+    return res.sendFile(indexHtml);
+  }
+  return next();
+});
 
 // 404 Handler
 app.use((_req: Request, res: Response) => {
