@@ -365,7 +365,7 @@ class AppShell extends ConsumerWidget {
   Widget _buildTopAppBar(BuildContext context, bool isDesktop, UserRole currentRole) {
     return Container(
       height: 64,
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24 : 12),
       decoration: const BoxDecoration(
         color: AppTheme.backgroundElevated,
         border: Border(bottom: BorderSide(color: AppTheme.border, width: 1)),
@@ -379,7 +379,7 @@ class AppShell extends ConsumerWidget {
                 onPressed: () => Scaffold.of(drawerContext).openDrawer(),
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 4),
           ],
           // Search quick bar
           Expanded(
@@ -388,9 +388,9 @@ class AppShell extends ConsumerWidget {
               height: 40,
               child: TextField(
                 decoration: InputDecoration(
-                  hintText: 'ค้นหาเมนู, วัตถุดิบ, หรือสูตรอาหาร...',
+                  hintText: isDesktop ? 'ค้นหาเมนู, วัตถุดิบ, หรือสูตรอาหาร...' : 'ค้นหา...',
                   prefixIcon: const Icon(Icons.search_rounded, size: 18, color: AppTheme.textMuted),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
                   fillColor: Colors.white.withValues(alpha: 0.03),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -408,11 +408,11 @@ class AppShell extends ConsumerWidget {
               ),
             ),
           ),
-          const Spacer(),
+          if (isDesktop) const Spacer() else const SizedBox(width: 8),
 
           // Persona / Role Switcher Pill Widget
           const RoleSwitcherPill(),
-          const SizedBox(width: 12),
+          if (isDesktop) const SizedBox(width: 12),
 
           // System Status & User Action
           if (isDesktop) ...[
@@ -486,7 +486,7 @@ class AppShell extends ConsumerWidget {
     );
   }
 
-  Widget _buildBottomNavigationBar(BuildContext context, String location, UserRole currentRole) {
+  Widget? _buildBottomNavigationBar(BuildContext context, String location, UserRole currentRole) {
     if (currentRole == UserRole.cashier) {
       final selectedIdx = location.startsWith('/orders') ? 1 : 0;
       return NavigationBar(
@@ -511,17 +511,9 @@ class AppShell extends ConsumerWidget {
     }
 
     if (currentRole == UserRole.kitchen) {
-      return NavigationBar(
-        selectedIndex: 0,
-        onDestinationSelected: (idx) => context.go('/kds'),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.restaurant_outlined),
-            selectedIcon: Icon(Icons.restaurant_rounded),
-            label: 'จอคิวอาหาร',
-          ),
-        ],
-      );
+      // Kitchen role primarily operates on the full-screen KDS ticket queue;
+      // no bottom navigation tabs needed (prevents destinations.length >= 2 assert error)
+      return null;
     }
 
     // Default: Manager

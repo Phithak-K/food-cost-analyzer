@@ -291,5 +291,27 @@ void main() {
       expect(find.byType(Drawer), findsOneWidget);
       expect(find.byKey(const Key('sidebar_dashboard')), findsOneWidget);
     });
+
+    testWidgets('AppShell on mobile screen with Kitchen role renders without NavigationBar assertion error',
+        (tester) async {
+      tester.view.physicalSize = const Size(500, 900);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      container.read(userRoleProvider.notifier).setRole(UserRole.kitchen);
+
+      await tester.pumpWidget(
+        createTestApp(container: container, initialLocation: '/kds'),
+      );
+      await tester.pumpAndSettle();
+
+      // Kitchen role uses full screen without NavigationBar (prevents destinations.length >= 2 error)
+      expect(find.byType(NavigationBar), findsNothing);
+    });
   });
 }
