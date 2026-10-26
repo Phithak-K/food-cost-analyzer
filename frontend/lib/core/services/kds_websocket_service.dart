@@ -94,21 +94,29 @@ class KdsWebSocketNotifier extends Notifier<KdsWebSocketState> {
 
     try {
       final uri = Uri.parse(_wsUrl);
-      _channel = WebSocketChannel.connect(uri);
+      final channel = WebSocketChannel.connect(uri);
+      _channel = channel;
 
-      _subscription = _channel!.stream.listen(
+      // Catch channel.ready future gracefully to prevent uncaught zone error in console
+      channel.ready.catchError((err) {
+        // Expected when backend server is offline; handle gracefully
+        if (!_isDisposed) {
+          state = state.copyWith(status: WebSocketConnectionStatus.disconnected);
+          _scheduleReconnect();
+        }
+      });
+
+      _subscription = channel.stream.listen(
         (data) {
           _handleMessage(data);
         },
         onDone: () {
-          debugPrint('[WebSocket] Connection closed');
           if (!_isDisposed) {
             state = state.copyWith(status: WebSocketConnectionStatus.disconnected);
             _scheduleReconnect();
           }
         },
         onError: (err) {
-          debugPrint('[WebSocket] Connection error: $err');
           if (!_isDisposed) {
             state = state.copyWith(status: WebSocketConnectionStatus.disconnected);
             _scheduleReconnect();
@@ -125,8 +133,7 @@ class KdsWebSocketNotifier extends Notifier<KdsWebSocketState> {
           } catch (_) {}
         }
       });
-    } catch (e) {
-      debugPrint('[WebSocket] Error initiating connection: $e');
+    } catch (_) {
       state = state.copyWith(status: WebSocketConnectionStatus.disconnected);
       _scheduleReconnect();
     }
@@ -135,7 +142,7 @@ class KdsWebSocketNotifier extends Notifier<KdsWebSocketState> {
   void _scheduleReconnect() {
     if (_isDisposed) return;
     _reconnectTimer?.cancel();
-    _reconnectTimer = Timer(const Duration(seconds: 3), () {
+    _reconnectTimer = Timer(const Duration(seconds: 5), () {
       if (!_isDisposed && state.status != WebSocketConnectionStatus.connected) {
         _connect();
       }
