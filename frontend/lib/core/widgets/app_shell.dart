@@ -338,6 +338,12 @@ class AppShell extends ConsumerWidget {
         targetRoute: '/ingredients',
       ),
       buildItem(
+        key: const Key('sidebar_forecast'),
+        icon: Icons.auto_graph_rounded,
+        title: 'พยากรณ์ & ป้องกันของเสีย',
+        targetRoute: '/forecast',
+      ),
+      buildItem(
         key: const Key('sidebar_simulation'),
         icon: Icons.tune_rounded,
         title: 'จำลองต้นทุน (What-If)',

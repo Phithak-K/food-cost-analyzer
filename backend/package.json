@@ -13,7 +13,7 @@
     "server:dev": "ts-node src/index.ts",
     "build": "tsc --noEmit",
     "lint": "tsc --noEmit",
-    "test": "ts-node src/tests/unitConverter.test.ts && ts-node src/tests/ordersValidation.test.ts"
+    "test": "ts-node src/tests/unitConverter.test.ts && ts-node src/tests/ordersValidation.test.ts && ts-node src/tests/forecast.test.ts"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"

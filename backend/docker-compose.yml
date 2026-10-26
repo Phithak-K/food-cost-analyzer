@@ -17,6 +17,22 @@ services:
       timeout: 5s
       retries: 5
 
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: foodcost_backend
+    restart: always
+    environment:
+      DATABASE_URL: "postgresql://dev_user:dev_password@postgres:5432/foodcost_db?schema=public"
+      PORT: 5000
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: sh -c "npx prisma db push && npx prisma db seed && npm run dev"
+
 volumes:
   foodcost_pgdata:
     name: foodcost_pgdata

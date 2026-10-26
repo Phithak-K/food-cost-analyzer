@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/dashboard/screens/dashboard_screen.dart';
+import '../../features/forecast/screens/forecast_screen.dart';
 import '../../features/ingredients/screens/ingredients_screen.dart';
 import '../../features/kitchen/kitchen_screen.dart';
 import '../../features/pos/screens/quick_pos_screen.dart';
@@ -70,6 +71,12 @@ final GoRouter appRouter = GoRouter(
           path: '/ingredients',
           pageBuilder: (context, state) => const NoTransitionPage(
             child: IngredientsScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/forecast',
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: ForecastScreen(),
           ),
         ),
         GoRoute(

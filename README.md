@@ -27,6 +27,8 @@
 - **Point of Sale (POS) & Automated Inventory Deduction**: แคชเชียร์รับออเดอร์หน้าร้าน และระบบตัดสต็อกวัตถุดิบย่อยระดับกรัม/มิลลิลิตรทันที
 - **Kitchen Display System (KDS) & Real-Time WebSockets**: หน้าจอคิวออเดอร์สำหรับห้องครัว เมื่อแคชเชียร์กดยืนยันออเดอร์ที่ POS บิลจะเด้งขึ้นหน้าจอครัวทันทีผ่าน WebSocket (`ws://localhost:5000/ws`) พร้อมเสียงกระดิ่งเตือนเชฟ (Bell Chime "Ding!") โดยไม่ต้องกดรีเฟรชหน้าจอ
 - **Role-Based Access Control (RBAC) & 4-Digit PIN Security**: แถบสลับบทบาทรวดเร็ว พร้อมระบบล็อกหน้าจอที่มีความสำคัญสูงด้วยรหัสผ่าน PIN 4 หลัก
+- **AI Demand & Waste Forecasting (พยากรณ์ความต้องการ & ป้องกันของเสีย)**: วิเคราะห์อัตราการใช้วัตถุดิบจริงรายวัน (Daily BOM Consumption Rate), คำนวณวันหมดอายุตามธรรมชาติของวัตถุดิบ (Shelf-life), ประเมินจำนวนวันที่สต็อกจะพอใช้ (Runway Days), คำนวณมูลค่าที่เสี่ยงเน่าเสียทิ้ง (Potential Waste Value ฿), และแนะนำปริมาณการสั่งซื้อล่วงหน้า 7 วันอย่างแม่นยำ
+- **Full Docker & Docker Compose Containerization**: สั่งรันฐานข้อมูล PostgreSQL 16 และ Backend Node.js API พร้อมกันด้วยคำสั่งเดียว (`docker compose up -d`)
 - **Financial & BOM Export**: ส่งออกรายงานทั้งในรูปแบบไฟล์ PDF และ CSV/Excel
 
 ---
@@ -91,6 +93,15 @@ my_first_app/
 เปิด **Terminal 2 หน้าต่าง (หรือ 2 แท็บ)**:
 
 #### 🟢 หน้าต่างที่ 1: รันหลังบ้าน (Backend & Database)
+
+**วิธีที่ 1: รันแบบ Docker Compose ทั้งระบบ (แนะนำ สะดวกที่สุด ไม่ต้องติดตั้ง Node.js):**
+```bash
+# อยู่ที่โฟลเดอร์ราก my_first_app แล้วรันคำสั่งเดียว
+docker compose up -d
+```
+*(ระบบจะสร้างคอนเทนเนอร์ PostgreSQL และ Backend API พร้อม Seed ข้อมูลให้อัตโนมัติที่ `http://localhost:5000`)*
+
+**วิธีที่ 2: รันแบบแยก Dev Server บนเครื่อง:**
 ```bash
 # 1. เข้าโฟลเดอร์ backend
 cd d:\CS67\my_first_app\backend
@@ -167,19 +178,19 @@ flutter run -d chrome
 
 ### คำสั่งรันชุดทดสอบ (Automated Testing)
 
-#### 1. ทดสอบส่วนหลังบ้าน (Backend - 8 ข้อ)
+#### 1. ทดสอบส่วนหลังบ้าน (Backend - 12 ข้อ)
 ```bash
 cd backend
 npm test
 ```
-*ครอบคลุม: การแปลงหน่วยกรัม/กิโลกรัม/ลิตร, การคำนวณ Yield %, โครงสร้าง Error เมื่อสต็อกไม่พอ, และการตัดสต็อกวัตถุดิบ BOM*
+*ครอบคลุม: การแปลงหน่วยกรัม/กิโลกรัม/ลิตร, การคำนวณ Yield %, โครงสร้าง Error เมื่อสต็อกไม่พอ, การตัดสต็อกวัตถุดิบ BOM, และการประเมิน Shelf-life & Demand & Waste Forecast (ผ่าน 100%)*
 
-#### 2. ทดสอบส่วนหน้าบ้าน (Frontend - 49 ข้อ)
+#### 2. ทดสอบส่วนหน้าบ้าน (Frontend - 54 ข้อ)
 ```bash
 cd frontend
 flutter test
 ```
-*ครอบคลุม: Smoke Test, Unit Test, Widget Test, การจำลองสถานการณ์ What-If, การ Export รายงาน, สิทธิ์บทบาทผู้ใช้งาน (RBAC), และการเปิดเมนูบนหน้าจอมือถือโดยไม่เกิดข้อผิดพลาด Scaffold*
+*ครอบคลุม: Smoke Test, Unit Test, Widget Test, การจำลองสถานการณ์ What-If, การ Export รายงาน, สิทธิ์บทบาทผู้ใช้งาน (RBAC), การเปิดเมนูบนหน้าจอมือถือ, และหน้าจอ AI Demand & Waste Forecast (ผ่าน 100%)*
 
 ---
 
@@ -223,4 +234,5 @@ Base URL: `http://localhost:5000/api`
 | | `GET` | `/orders/:id` | ดูรายละเอียดรายการสั่งซื้อรายออเดอร์ |
 | | `POST` | `/orders` | บันทึกออเดอร์ใหม่จาก POS พร้อมตัดสต็อกวัตถุดิบ (BOM) ในคลังทันที |
 | **Analytics** | `GET` | `/analytics/menu-matrix` | คำนวณ Kasavana & Smith Matrix จัดหมวด 4 Quadrants |
+| | `GET` | `/analytics/waste-forecast` | **พยากรณ์ความต้องการวัตถุดิบ & ของเสีย**: วิเคราะห์ Shelf-life, Runway Days, มูลค่าเสี่ยงเน่าเสีย (฿) และข้อเสนอแนะสั่งซื้อ 7 วัน |
 | **Simulation** | `POST` | `/analytics/simulate-cost` | ประมวลผล What-If Sandbox จำลองการเปลี่ยนแปลงต้นทุน |

@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: foodcost_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: foodcost_db
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - foodcost_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dev_user -d foodcost_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: foodcost_backend
+    restart: always
+    environment:
+      DATABASE_URL: "postgresql://dev_user:dev_password@postgres:5432/foodcost_db?schema=public"
+      PORT: 5000
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: sh -c "npx prisma db push && npx prisma db seed && npm run dev"
+
+volumes:
+  foodcost_pgdata:
+    name: foodcost_pgdata

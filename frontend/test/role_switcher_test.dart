@@ -129,7 +129,7 @@ void main() {
     }
 
     testWidgets('Manager sees full sidebar menu', (tester) async {
-      tester.view.physicalSize = const Size(1440, 900);
+      tester.view.physicalSize = const Size(1440, 1050);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
         tester.view.resetPhysicalSize();
@@ -152,6 +152,7 @@ void main() {
       expect(find.byKey(const Key('sidebar_recipes')), findsOneWidget);
       expect(find.byKey(const Key('sidebar_recipe_builder')), findsOneWidget);
       expect(find.byKey(const Key('sidebar_ingredients')), findsOneWidget);
+      expect(find.byKey(const Key('sidebar_forecast')), findsOneWidget);
       expect(find.byKey(const Key('sidebar_simulation')), findsOneWidget);
       expect(find.byKey(const Key('sidebar_glossary')), findsOneWidget);
     });

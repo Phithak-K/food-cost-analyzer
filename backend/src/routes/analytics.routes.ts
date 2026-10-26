@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { CalculatorService } from '../services/calculator.service';
 import { SimulationService, SimulationRequest } from '../services/simulation.service';
+import { ForecastService } from '../services/forecast.service';
 
 const router = Router();
 
@@ -17,6 +18,23 @@ router.get('/menu-matrix', async (_req: Request, res: Response) => {
     return res.status(500).json({
       success: false,
       error: 'Failed to compute menu matrix analytics',
+    });
+  }
+});
+
+// GET /api/analytics/waste-forecast - Demand Forecasting & Waste Risk Prediction
+router.get('/waste-forecast', async (_req: Request, res: Response) => {
+  try {
+    const forecast = await ForecastService.getDemandAndWasteForecast();
+    return res.json({
+      success: true,
+      data: forecast,
+    });
+  } catch (error) {
+    console.error('Error generating waste forecast:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to compute waste and demand forecast',
     });
   }
 });
