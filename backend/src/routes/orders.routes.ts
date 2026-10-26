@@ -7,8 +7,8 @@ const router = Router();
 // GET /api/orders - Fetch order history
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 50;
-    const orders = await OrdersService.getOrders(isNaN(limit) ? 50 : limit);
+    const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 250;
+    const orders = await OrdersService.getOrders(isNaN(limit) ? 250 : limit);
     return res.json({
       success: true,
       count: orders.length,

@@ -53,7 +53,7 @@ class OrdersHistoryNotifier extends Notifier<OrdersHistoryState> {
 
   Future<void> _fetchOrders() async {
     try {
-      final response = await _dio.get('/api/orders?limit=50');
+      final response = await _dio.get('/api/orders?limit=250');
       if (response.data != null && response.data['data'] != null) {
         final list = (response.data['data'] as List)
             .map((item) => OrderHistoryRecord.fromJson(item as Map<String, dynamic>))
