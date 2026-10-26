@@ -22,6 +22,15 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
     super.dispose();
   }
 
+  String _formatOrderId(String id) {
+    if (id.startsWith('ORD-') || id.startsWith('ord-')) {
+      return id.toUpperCase();
+    }
+    final cleanId = id.replaceAll('-', '');
+    final shortCode = cleanId.length >= 6 ? cleanId.substring(0, 6).toUpperCase() : cleanId.toUpperCase();
+    return '#ORD-$shortCode';
+  }
+
   @override
   Widget build(BuildContext context) {
     final historyState = ref.watch(ordersHistoryProvider);
@@ -30,7 +39,8 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
     final filteredOrders = historyState.orders.where((order) {
       if (_searchQuery.isEmpty) return true;
       final query = _searchQuery.toLowerCase();
-      final matchesId = order.id.toLowerCase().contains(query);
+      final matchesId = order.id.toLowerCase().contains(query) ||
+          _formatOrderId(order.id).toLowerCase().contains(query);
       final matchesItem = order.items.any((i) => i.recipeName.toLowerCase().contains(query));
       return matchesId || matchesItem;
     }).toList();
@@ -362,19 +372,22 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primary.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppTheme.primary.withValues(alpha: 0.3)),
-                    ),
-                    child: Text(
-                      '#${order.id}',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                        color: AppTheme.primaryNeon,
+                  Tooltip(
+                    message: 'เลขที่อ้างอิงฐานข้อมูล: ${order.id}',
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primary.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppTheme.primary.withValues(alpha: 0.3)),
+                      ),
+                      child: Text(
+                        _formatOrderId(order.id),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          color: AppTheme.primaryNeon,
+                        ),
                       ),
                     ),
                   ),
@@ -538,8 +551,16 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
             children: [
               const Icon(Icons.receipt_rounded, size: 36, color: AppTheme.primaryNeon),
               const SizedBox(height: 10),
-              const Text('ใบเสร็จรับเงิน / สรุปบิล', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
-              Text('#${order.id}', style: TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+              Text(
+                _formatOrderId(order.id),
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppTheme.primaryNeon),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                'Ref: ${order.id}',
+                style: const TextStyle(fontSize: 10, color: AppTheme.textMuted),
+                overflow: TextOverflow.ellipsis,
+              ),
               const SizedBox(height: 16),
               const Divider(),
               ...order.items.map((i) => Padding(
