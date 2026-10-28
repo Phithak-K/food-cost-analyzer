@@ -189,7 +189,8 @@ class _IngredientsScreenState extends ConsumerState<IngredientsScreen> {
       child: DataTable2(
         columnSpacing: 16,
         horizontalMargin: 20,
-        minWidth: 950,
+        minWidth: 980,
+        dataRowHeight: 76,
         headingRowColor: WidgetStateProperty.all(AppTheme.surfaceMuted),
         headingTextStyle: const TextStyle(
           fontWeight: FontWeight.w600,
@@ -201,10 +202,10 @@ class _IngredientsScreenState extends ConsumerState<IngredientsScreen> {
           DataColumn2(label: Text('หมวดหมู่'), size: ColumnSize.S),
           DataColumn2(label: Text('ราคาซื้อ'), numeric: true, size: ColumnSize.S),
           DataColumn2(label: Text('Yield %'), numeric: true, size: ColumnSize.S),
-          DataColumn2(label: Text('ต้นทุนต่อหน่วยย่อย (Base EP)'), numeric: true, size: ColumnSize.M),
+          DataColumn2(label: Text('ต้นทุนต่อหน่วยย่อย (Base EP)'), numeric: true, size: ColumnSize.L),
           DataColumn2(label: Text('คงเหลือในสต็อก'), numeric: true, size: ColumnSize.S),
           DataColumn2(label: Text('ผู้จัดจำหน่าย'), size: ColumnSize.M),
-          DataColumn2(label: Text('การจัดการ'), size: ColumnSize.S),
+          DataColumn2(label: Text('การจัดการ'), fixedWidth: 96),
         ],
         rows: items.map((item) {
           final isLowYield = item.yieldPercentage < 80;
@@ -265,6 +266,7 @@ class _IngredientsScreenState extends ConsumerState<IngredientsScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       '${Formatters.currency(item.costPerBaseUnit)} / ${item.baseUnit}',
@@ -294,11 +296,18 @@ class _IngredientsScreenState extends ConsumerState<IngredientsScreen> {
                     IconButton(
                       icon: const Icon(Icons.edit_outlined, size: 18, color: AppTheme.primary),
                       tooltip: 'แก้ไข',
+                      padding: const EdgeInsets.all(6),
+                      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                      visualDensity: VisualDensity.compact,
                       onPressed: () => IngredientFormDialog.show(context, ingredient: item),
                     ),
+                    const SizedBox(width: 4),
                     IconButton(
                       icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppTheme.danger),
                       tooltip: 'ลบ',
+                      padding: const EdgeInsets.all(6),
+                      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                      visualDensity: VisualDensity.compact,
                       onPressed: () => _confirmDelete(item),
                     ),
                   ],

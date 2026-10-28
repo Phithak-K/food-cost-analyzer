@@ -112,28 +112,38 @@ class RecipeCard extends StatelessWidget {
 
               // Metrics Row
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _MetricItem(
-                    label: 'Food Cost %',
-                    value: Formatters.percentage(costPct),
-                    valueColor: costStatusColor,
-                    tooltip: 'เกณฑ์มาตรฐานร้านอาหาร: 28% - 35%',
+                  Expanded(
+                    child: _MetricItem(
+                      label: 'Food Cost %',
+                      value: Formatters.percentage(costPct),
+                      valueColor: costStatusColor,
+                      tooltip: 'เกณฑ์มาตรฐานร้านอาหาร: 28% - 35%',
+                    ),
                   ),
-                  _MetricItem(
-                    label: 'ต้นทุนอาหาร (Cost)',
-                    value: Formatters.currency(foodCost),
-                    valueColor: AppTheme.textPrimary,
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _MetricItem(
+                      label: 'ต้นทุนอาหาร',
+                      value: Formatters.currency(foodCost),
+                      valueColor: AppTheme.textPrimary,
+                    ),
                   ),
-                  _MetricItem(
-                    label: 'กำไรขั้นต้น (Margin)',
-                    value: Formatters.currency(margin),
-                    valueColor: AppTheme.success,
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _MetricItem(
+                      label: 'กำไรขั้นต้น',
+                      value: Formatters.currency(margin),
+                      valueColor: AppTheme.success,
+                    ),
                   ),
-                  _MetricItem(
-                    label: 'ยอดขาย/เดือน',
-                    value: '${recipe.unitsSoldMonthly} จาน',
-                    valueColor: AppTheme.textPrimary,
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _MetricItem(
+                      label: 'ยอดขาย/เดือน',
+                      value: '${recipe.unitsSoldMonthly} จาน',
+                      valueColor: AppTheme.textPrimary,
+                    ),
                   ),
                 ],
               ),
@@ -146,13 +156,16 @@ class RecipeCard extends StatelessWidget {
                 children: [
                   const Icon(Icons.receipt_long_outlined, size: 16, color: AppTheme.textMuted),
                   const SizedBox(width: 6),
-                  Text(
-                    'วัตถุดิบ ${recipe.ingredients.length} ชนิดในสูตร',
-                    style: Theme.of(context).textTheme.bodySmall,
+                  Flexible(
+                    child: Text(
+                      'วัตถุดิบ ${recipe.ingredients.length} ชนิดในสูตร',
+                      style: Theme.of(context).textTheme.bodySmall,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                  const Spacer(),
+                  const SizedBox(width: 8),
                   Text(
-                    'กำไรรวม/เดือน: ${Formatters.compactCurrency(recipe.monthlyProfit)}',
+                    'กำไรรวม: ${Formatters.compactCurrency(recipe.monthlyProfit)}/ด.',
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -190,23 +203,34 @@ class _MetricItem extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(label, style: Theme.of(context).textTheme.bodySmall),
+            Flexible(
+              child: Text(
+                label,
+                style: Theme.of(context).textTheme.bodySmall,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ),
             if (tooltip != null) ...[
-              const SizedBox(width: 4),
+              const SizedBox(width: 3),
               Tooltip(
                 message: tooltip!,
-                child: const Icon(Icons.info_outline, size: 12, color: AppTheme.textMuted),
+                child: const Icon(Icons.info_outline, size: 11, color: AppTheme.textMuted),
               ),
             ],
           ],
         ),
         const SizedBox(height: 2),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: valueColor,
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            value,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: valueColor,
+            ),
           ),
         ),
       ],

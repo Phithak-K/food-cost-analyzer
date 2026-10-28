@@ -284,73 +284,84 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppTheme.primary, AppTheme.primaryNeon],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppTheme.primary.withValues(alpha: 0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 3),
+          Flexible(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [AppTheme.primary, AppTheme.primaryNeon],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                  ],
-                ),
-                child: const Center(
-                  child: Icon(Icons.restaurant_menu_rounded, color: Colors.white, size: 22),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        AppConstants.appName,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: -0.3,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primary.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(5),
-                          border: Border.all(color: AppTheme.primary.withValues(alpha: 0.3)),
-                        ),
-                        child: const Text(
-                          'v2.4 Pro',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: AppTheme.primaryNeon,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.primary.withValues(alpha: 0.3),
+                        blurRadius: 12,
+                        offset: const Offset(0, 3),
                       ),
                     ],
                   ),
-                  const Text(
-                    'Food Cost Analyzer & Kasavana-Smith Intelligence',
-                    style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                  child: const Center(
+                    child: Icon(Icons.restaurant_menu_rounded, color: Colors.white, size: 22),
                   ),
-                ],
-              ),
-            ],
+                ),
+                const SizedBox(width: 12),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              AppConstants.appName,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: -0.3,
+                                color: Colors.white,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppTheme.primary.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(5),
+                              border: Border.all(color: AppTheme.primary.withValues(alpha: 0.3)),
+                            ),
+                            child: const Text(
+                              'v2.4 Pro',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: AppTheme.primaryNeon,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Text(
+                        'Food Cost Analyzer & Kasavana-Smith Intelligence',
+                        style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
+          const SizedBox(width: 12),
           const SystemStatusBadge(),
         ],
       ),
@@ -994,10 +1005,14 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: const [
-          Text(
-            '© 2026 MenuEng Pro — Intelligent Restaurant Engineering Platform',
-            style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+          Flexible(
+            child: Text(
+              '© 2026 MenuEng Pro — Intelligent Restaurant Engineering Platform',
+              style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
+          SizedBox(width: 12),
           Text(
             'CS67 Food Cost Analyzer Project',
             style: TextStyle(

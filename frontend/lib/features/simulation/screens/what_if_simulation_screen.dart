@@ -643,7 +643,7 @@ class _WhatIfSimulationScreenState extends ConsumerState<WhatIfSimulationScreen>
           const SizedBox(height: 16),
           LayoutBuilder(
             builder: (context, constraints) {
-              final isWide = constraints.maxWidth > 700;
+              final isWide = constraints.maxWidth >= 860;
               final sideWidth = isWide ? (constraints.maxWidth - 140) / 2 : constraints.maxWidth;
 
               final beforeWidget = Container(
@@ -660,14 +660,18 @@ class _WhatIfSimulationScreenState extends ConsumerState<WhatIfSimulationScreen>
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'กำไรเดิม (Baseline Profit)',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.textSecondary,
+                        const Expanded(
+                          child: Text(
+                            'กำไรเดิม (Baseline Profit)',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.textSecondary,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        const SizedBox(width: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                           decoration: BoxDecoration(
@@ -688,11 +692,14 @@ class _WhatIfSimulationScreenState extends ConsumerState<WhatIfSimulationScreen>
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Row(
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         const Text('ต้นทุนรวมเดิม: ', style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
                         Text('฿${currencyFormat.format(summary.oldMonthlyTotalCost)}', style: const TextStyle(fontSize: 11, color: Colors.white70, fontWeight: FontWeight.w600)),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 4),
                         const Text('Food Cost: ', style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
                         Text('${percentFormat.format(summary.oldOverallCostPercentage)}%', style: const TextStyle(fontSize: 11, color: Colors.white70, fontWeight: FontWeight.w600)),
                       ],
@@ -760,14 +767,18 @@ class _WhatIfSimulationScreenState extends ConsumerState<WhatIfSimulationScreen>
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'กำไรที่คาดการณ์ (Projected Profit)',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.textSecondary,
+                        const Expanded(
+                          child: Text(
+                            'กำไรที่คาดการณ์ (Projected Profit)',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.textSecondary,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        const SizedBox(width: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                           decoration: BoxDecoration(
@@ -791,11 +802,14 @@ class _WhatIfSimulationScreenState extends ConsumerState<WhatIfSimulationScreen>
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Row(
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         const Text('ต้นทุนใหม่: ', style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
                         Text('฿${currencyFormat.format(summary.newMonthlyTotalCost)}', style: const TextStyle(fontSize: 11, color: Colors.white70, fontWeight: FontWeight.w600)),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 4),
                         const Text('Food Cost: ', style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
                         Text(
                           '${percentFormat.format(summary.newOverallCostPercentage)}%',
