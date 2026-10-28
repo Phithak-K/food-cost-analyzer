@@ -31,7 +31,7 @@ class MenuEngineeringApp extends StatelessWidget {
   }
 }
 
-/// Custom scroll behavior enabling smooth mouse, touch, and trackpad dragging for Web & Desktop.
+/// Custom scroll behavior enabling smooth mouse, touch, and trackpad dragging with fluid physics for Web & Desktop.
 class AppScrollBehavior extends MaterialScrollBehavior {
   const AppScrollBehavior();
 
@@ -42,4 +42,11 @@ class AppScrollBehavior extends MaterialScrollBehavior {
         PointerDeviceKind.trackpad,
         PointerDeviceKind.stylus,
       };
+
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) {
+    return const BouncingScrollPhysics(
+      parent: AlwaysScrollableScrollPhysics(),
+    );
+  }
 }

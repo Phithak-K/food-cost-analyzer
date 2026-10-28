@@ -41,7 +41,7 @@ class AppShell extends ConsumerWidget {
           Expanded(
             child: Column(
               children: [
-                _buildTopAppBar(context, isDesktop, currentRole),
+                _buildTopAppBar(context, ref, isDesktop, currentRole),
                 Expanded(child: child),
               ],
             ),
@@ -187,7 +187,7 @@ class AppShell extends ConsumerWidget {
             ),
           ),
 
-          // User Persona Info Footer
+          // User Persona Info Footer with Switch Role Action
           Container(
             margin: const EdgeInsets.all(16),
             padding: const EdgeInsets.all(12),
@@ -196,39 +196,69 @@ class AppShell extends ConsumerWidget {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: currentRole.color.withValues(alpha: 0.25)),
             ),
-            child: Row(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  width: 34,
-                  height: 34,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: currentRole.color.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: currentRole.color.withValues(alpha: 0.3)),
-                  ),
-                  child: Text(
-                    currentRole.emoji,
-                    style: const TextStyle(fontSize: 16),
-                  ),
+                Row(
+                  children: [
+                    Container(
+                      width: 34,
+                      height: 34,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: currentRole.color.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: currentRole.color.withValues(alpha: 0.3)),
+                      ),
+                      child: Text(
+                        currentRole.emoji,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            currentRole.label,
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            currentRole == UserRole.manager
+                                ? 'สิทธิ์เต็ม (Full Access)'
+                                : 'คลิกเมนู 🔒 เพื่อใส่รหัสประจำตำแหน่ง',
+                            style: TextStyle(fontSize: 10, color: AppTheme.textMuted),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        currentRole.label,
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
-                        overflow: TextOverflow.ellipsis,
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  height: 32,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      if (isDrawer) Navigator.pop(context);
+                      ref.read(authProvider.notifier).logout();
+                      context.go('/role-select');
+                    },
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: currentRole.color,
+                      side: BorderSide(color: currentRole.color.withValues(alpha: 0.4)),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      Text(
-                        currentRole == UserRole.manager
-                            ? 'สิทธิ์เต็ม (Full Access)'
-                            : 'คลิกเมนู 🔒 เพื่อใส่รหัสประจำตำแหน่ง',
-                        style: TextStyle(fontSize: 10, color: AppTheme.textMuted),
-                      ),
-                    ],
+                    ),
+                    icon: const Icon(Icons.swap_horiz_rounded, size: 16),
+                    label: const Text(
+                      'สลับบทบาท / หน้าแรก',
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                    ),
                   ),
                 ),
               ],
@@ -368,7 +398,7 @@ class AppShell extends ConsumerWidget {
     ];
   }
 
-  Widget _buildTopAppBar(BuildContext context, bool isDesktop, UserRole currentRole) {
+  Widget _buildTopAppBar(BuildContext context, WidgetRef ref, bool isDesktop, UserRole currentRole) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
@@ -508,6 +538,15 @@ class AppShell extends ConsumerWidget {
                     style: const TextStyle(color: Color(0xFF0B0F19), fontSize: 13, fontWeight: FontWeight.w800),
                   ),
                 ),
+              ),
+              const SizedBox(width: 6),
+              IconButton(
+                icon: const Icon(Icons.logout_rounded, size: 20, color: AppTheme.textMuted),
+                tooltip: 'สลับบทบาท / กลับหน้าหลัก (Switch Role)',
+                onPressed: () {
+                  ref.read(authProvider.notifier).logout();
+                  context.go('/role-select');
+                },
               ),
             ],
           ),

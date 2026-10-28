@@ -120,3 +120,23 @@ class UserRoleNotifier extends Notifier<UserRole> {
 final userRoleProvider = NotifierProvider<UserRoleNotifier, UserRole>(
   UserRoleNotifier.new,
 );
+
+class AuthNotifier extends Notifier<bool> {
+  @override
+  bool build() {
+    // False on initial app launch to show Role Selection Portal
+    return false;
+  }
+
+  void login() {
+    state = true;
+  }
+
+  void logout() {
+    state = false;
+  }
+}
+
+final authProvider = NotifierProvider<AuthNotifier, bool>(
+  AuthNotifier.new,
+);

@@ -53,36 +53,47 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
             // Top Bar
             _buildTopBar(context, historyState),
 
-            // Content Area
+            // Content Area - High-Performance Virtualized Slivers for 250+ Orders
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // KPI Summary Cards
-                    _buildKpiSummary(historyState, isDesktop),
-                    const SizedBox(height: 24),
+              child: CustomScrollView(
+                slivers: [
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+                    sliver: SliverToBoxAdapter(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // KPI Summary Cards
+                          _buildKpiSummary(historyState, isDesktop),
+                          const SizedBox(height: 24),
 
-                    // Search & Filter Bar
-                    _buildSearchBar(),
-                    const SizedBox(height: 16),
+                          // Search & Filter Bar
+                          _buildSearchBar(),
+                        ],
+                      ),
+                    ),
+                  ),
 
-                    // Order History List
-                    if (filteredOrders.isEmpty)
-                      _buildEmptyState()
-                    else
-                      ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
+                  // Virtualized Order History List (Builds only visible items on screen)
+                  if (filteredOrders.isEmpty)
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      sliver: SliverToBoxAdapter(child: _buildEmptyState()),
+                    )
+                  else
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
+                      sliver: SliverList.separated(
                         itemCount: filteredOrders.length,
                         separatorBuilder: (context, index) => const SizedBox(height: 12),
                         itemBuilder: (context, index) {
-                          return _buildOrderCard(context, filteredOrders[index]);
+                          return RepaintBoundary(
+                            child: _buildOrderCard(context, filteredOrders[index]),
+                          );
                         },
                       ),
-                  ],
-                ),
+                    ),
+                ],
               ),
             ),
           ],

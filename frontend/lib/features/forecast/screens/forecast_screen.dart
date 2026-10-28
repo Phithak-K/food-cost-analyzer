@@ -43,38 +43,49 @@ class _ForecastScreenState extends ConsumerState<ForecastScreen> {
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Top Header
-              _buildHeader(context, forecastState.isLoading),
-              const SizedBox(height: 20),
+        child: CustomScrollView(
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Top Header
+                    _buildHeader(context, forecastState.isLoading),
+                    const SizedBox(height: 20),
 
-              // KPI Metric Cards (Responsive 1/2/4 cols)
-              _buildKpiMetrics(summary),
-              const SizedBox(height: 24),
+                    // KPI Metric Cards (Responsive 1/2/4 cols)
+                    _buildKpiMetrics(summary),
+                    const SizedBox(height: 24),
 
-              // Search & Filter Toolbar
-              _buildFilterToolbar(summary),
-              const SizedBox(height: 16),
+                    // Search & Filter Toolbar
+                    _buildFilterToolbar(summary),
+                  ],
+                ),
+              ),
+            ),
 
-              // List of Forecast Cards
-              if (filteredItems.isEmpty)
-                _buildEmptyState()
-              else
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
+            // Virtualized List of Forecast Cards
+            if (filteredItems.isEmpty)
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                sliver: SliverToBoxAdapter(child: _buildEmptyState()),
+              )
+            else
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
+                sliver: SliverList.separated(
                   itemCount: filteredItems.length,
                   separatorBuilder: (context, index) => const SizedBox(height: 14),
                   itemBuilder: (context, index) {
-                    return _buildForecastCard(filteredItems[index]);
+                    return RepaintBoundary(
+                      child: _buildForecastCard(filteredItems[index]),
+                    );
                   },
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       ),
     );

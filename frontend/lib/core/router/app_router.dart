@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../features/auth/screens/role_selection_screen.dart';
 import '../../features/dashboard/screens/dashboard_screen.dart';
 import '../../features/forecast/screens/forecast_screen.dart';
 import '../../features/ingredients/screens/ingredients_screen.dart';
@@ -19,8 +20,14 @@ final GlobalKey<NavigatorState> _shellNavigatorKey =
 
 final GoRouter appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: '/dashboard',
+  initialLocation: '/role-select',
   routes: [
+    GoRoute(
+      path: '/role-select',
+      pageBuilder: (context, state) => const NoTransitionPage(
+        child: RoleSelectionScreen(),
+      ),
+    ),
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
       builder: (context, state, child) {

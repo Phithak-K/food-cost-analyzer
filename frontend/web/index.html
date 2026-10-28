@@ -31,6 +31,29 @@
 
   <title>my_first_app</title>
   <link rel="manifest" href="manifest.json">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #0F172A;
+      overflow: hidden;
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      touch-action: pan-x pan-y;
+    }
+    flutter-view {
+      contain: strict;
+      transform: translateZ(0);
+      backface-visibility: hidden;
+    }
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+  </style>
 </head>
 <body>
   <!--

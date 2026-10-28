@@ -228,65 +228,67 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       // Matrix Quadrant Scatter Plot
                       Expanded(
                         flex: 6,
-                        child: GlassContainer(
-                          padding: const EdgeInsets.all(AppConstants.cardPadding),
-                          child: SizedBox(
-                            height: 520,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    const Icon(Icons.grid_view_rounded, size: 20, color: AppTheme.primary),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        'Menu Engineering Matrix (Kasavana & Smith)',
-                                        style: Theme.of(context).textTheme.titleLarge,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    InkWell(
-                                      onTap: () => showBusinessGlossaryDialog(context),
-                                      borderRadius: BorderRadius.circular(8),
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                        decoration: BoxDecoration(
-                                          color: AppTheme.primary.withValues(alpha: 0.1),
-                                          borderRadius: BorderRadius.circular(8),
-                                          border: Border.all(color: AppTheme.primary.withValues(alpha: 0.3)),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: const [
-                                            Icon(Icons.help_outline_rounded, size: 14, color: AppTheme.primaryNeon),
-                                            SizedBox(width: 6),
-                                            Text(
-                                              'คู่มือความหมาย 4 กลุ่ม',
-                                              style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: AppTheme.primaryNeon),
-                                            ),
-                                          ],
+                        child: RepaintBoundary(
+                          child: GlassContainer(
+                            padding: const EdgeInsets.all(AppConstants.cardPadding),
+                            child: SizedBox(
+                              height: 520,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.grid_view_rounded, size: 20, color: AppTheme.primary),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          'Menu Engineering Matrix (Kasavana & Smith)',
+                                          style: Theme.of(context).textTheme.titleLarge,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'แกน X = ยอดขาย (Volume) | แกน Y = กำไรส่วนเกิน (Margin) | คลิกจุดเพื่อดูสัดส่วนต้นทุน',
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                                const SizedBox(height: 12),
-                                Expanded(
-                                  child: MenuMatrixChart(
-                                    metrics: metrics,
-                                    selectedRecipe: currentSelected,
-                                    onRecipeSelected: (recipe) {
-                                      setState(() => _selectedRecipe = recipe);
-                                    },
+                                      InkWell(
+                                        onTap: () => showBusinessGlossaryDialog(context),
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                          decoration: BoxDecoration(
+                                            color: AppTheme.primary.withValues(alpha: 0.1),
+                                            borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(color: AppTheme.primary.withValues(alpha: 0.3)),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: const [
+                                              Icon(Icons.help_outline_rounded, size: 14, color: AppTheme.primaryNeon),
+                                              SizedBox(width: 6),
+                                              Text(
+                                                'คู่มือความหมาย 4 กลุ่ม',
+                                                style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: AppTheme.primaryNeon),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'แกน X = ยอดขาย (Volume) | แกน Y = กำไรส่วนเกิน (Margin) | คลิกจุดเพื่อดูสัดส่วนต้นทุน',
+                                    style: Theme.of(context).textTheme.bodySmall,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Expanded(
+                                    child: MenuMatrixChart(
+                                      metrics: metrics,
+                                      selectedRecipe: currentSelected,
+                                      onRecipeSelected: (recipe) {
+                                        setState(() => _selectedRecipe = recipe);
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -295,16 +297,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       // Recipe Breakdown Pie Chart
                       Expanded(
                         flex: 5,
-                        child: GlassContainer(
-                          padding: const EdgeInsets.all(AppConstants.cardPadding),
-                          child: SizedBox(
-                            height: 520,
-                            child: RecipeCostPieChart(
-                              recipe: currentSelected,
-                              availableRecipes: availableRecipes,
-                              onRecipeChanged: (recipe) {
-                                setState(() => _selectedRecipe = recipe);
-                              },
+                        child: RepaintBoundary(
+                          child: GlassContainer(
+                            padding: const EdgeInsets.all(AppConstants.cardPadding),
+                            child: SizedBox(
+                              height: 520,
+                              child: RecipeCostPieChart(
+                                recipe: currentSelected,
+                                availableRecipes: availableRecipes,
+                                onRecipeChanged: (recipe) {
+                                  setState(() => _selectedRecipe = recipe);
+                                },
+                              ),
                             ),
                           ),
                         ),
@@ -314,30 +318,34 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 } else {
                   return Column(
                     children: [
-                      GlassContainer(
-                        padding: const EdgeInsets.all(AppConstants.cardPadding),
-                        child: SizedBox(
-                          height: 460,
-                          child: MenuMatrixChart(
-                            metrics: metrics,
-                            selectedRecipe: currentSelected,
-                            onRecipeSelected: (recipe) {
-                              setState(() => _selectedRecipe = recipe);
-                            },
+                      RepaintBoundary(
+                        child: GlassContainer(
+                          padding: const EdgeInsets.all(AppConstants.cardPadding),
+                          child: SizedBox(
+                            height: 460,
+                            child: MenuMatrixChart(
+                              metrics: metrics,
+                              selectedRecipe: currentSelected,
+                              onRecipeSelected: (recipe) {
+                                setState(() => _selectedRecipe = recipe);
+                              },
+                            ),
                           ),
                         ),
                       ),
                       const SizedBox(height: 16),
-                      GlassContainer(
-                        padding: const EdgeInsets.all(AppConstants.cardPadding),
-                        child: SizedBox(
-                          height: 460,
-                          child: RecipeCostPieChart(
-                            recipe: currentSelected,
-                            availableRecipes: availableRecipes,
-                            onRecipeChanged: (recipe) {
-                              setState(() => _selectedRecipe = recipe);
-                            },
+                      RepaintBoundary(
+                        child: GlassContainer(
+                          padding: const EdgeInsets.all(AppConstants.cardPadding),
+                          child: SizedBox(
+                            height: 460,
+                            child: RecipeCostPieChart(
+                              recipe: currentSelected,
+                              availableRecipes: availableRecipes,
+                              onRecipeChanged: (recipe) {
+                                setState(() => _selectedRecipe = recipe);
+                              },
+                            ),
                           ),
                         ),
                       ),
@@ -430,30 +438,32 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             const SizedBox(height: 24),
 
             // Food Cost % Distribution Bar Chart
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(AppConstants.cardPadding),
-                child: SizedBox(
-                  height: 380,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.bar_chart_rounded, size: 20, color: AppTheme.secondary),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Food Cost % เปรียบเทียบรายเมนู',
-                              style: Theme.of(context).textTheme.titleLarge,
-                              overflow: TextOverflow.ellipsis,
+            RepaintBoundary(
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppConstants.cardPadding),
+                  child: SizedBox(
+                    height: 380,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.bar_chart_rounded, size: 20, color: AppTheme.secondary),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Food Cost % เปรียบเทียบรายเมนู',
+                                style: Theme.of(context).textTheme.titleLarge,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Expanded(child: CostDistributionChart(metrics: metrics)),
-                    ],
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Expanded(child: CostDistributionChart(metrics: metrics)),
+                      ],
+                    ),
                   ),
                 ),
               ),
