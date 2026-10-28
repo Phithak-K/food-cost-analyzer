@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../../core/providers/system_status_provider.dart';
 import '../../../core/providers/user_role_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/capsule_toast.dart';
@@ -269,37 +270,8 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
             ],
           ),
           const Spacer(),
-          // Live PostgreSQL & Cloud status indicator
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: const Color(0xFF10B981).withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF10B981),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  'PostgreSQL 60-Day Data Online',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF10B981),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          // Live PostgreSQL & Server real-time status badge
+          const SystemStatusBadge(),
         ],
       ),
     );

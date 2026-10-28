@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/dashboard/widgets/business_glossary_dialog.dart';
+import '../providers/system_status_provider.dart';
 import '../providers/user_role_provider.dart';
 import '../services/kds_websocket_service.dart';
 import '../theme/app_theme.dart';
@@ -470,41 +471,9 @@ class AppShell extends ConsumerWidget {
               const RoleSwitcherPill(),
               if (width >= 600) const SizedBox(width: 8),
 
-              // System Status & User Action
+              // System Status & User Action (Live Dynamic Health Badge)
               if (showOnlineBadge) ...[
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppTheme.primary.withValues(alpha: 0.25)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: const BoxDecoration(
-                          color: AppTheme.primaryNeon,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppTheme.primaryNeon,
-                              blurRadius: 6,
-                              spreadRadius: 1,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Online',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppTheme.primaryNeon),
-                      ),
-                    ],
-                  ),
-                ),
+                const SystemStatusBadge(),
                 const SizedBox(width: 8),
               ],
               if (showGlossaryButton)

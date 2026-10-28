@@ -8,6 +8,7 @@ import recipesRouter from './routes/recipes.routes';
 import analyticsRouter from './routes/analytics.routes';
 import ordersRouter from './routes/orders.routes';
 import { WebSocketService } from './services/websocket.service';
+import { prisma } from './prisma';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -38,14 +39,27 @@ app.use((req: Request, _res: Response, next: NextFunction) => {
   next();
 });
 
-// Health check endpoint
-app.get('/api/health', (_req: Request, res: Response) => {
-  return res.json({
-    success: true,
-    status: 'ONLINE',
-    service: 'Food Costing & Menu Engineering API',
-    timestamp: new Date().toISOString(),
-  });
+// Health check endpoint with real live PostgreSQL connection test
+app.get('/api/health', async (_req: Request, res: Response) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    return res.json({
+      success: true,
+      status: 'ONLINE',
+      database: 'CONNECTED',
+      service: 'Food Costing & Menu Engineering API',
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err: any) {
+    return res.status(503).json({
+      success: false,
+      status: 'DEGRADED',
+      database: 'DISCONNECTED',
+      service: 'Food Costing & Menu Engineering API',
+      error: 'PostgreSQL offline or unreachable',
+      timestamp: new Date().toISOString(),
+    });
+  }
 });
 
 // API Routes
