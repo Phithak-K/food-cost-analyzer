@@ -7,6 +7,7 @@ import 'package:my_first_app/features/dashboard/screens/dashboard_screen.dart';
 import 'package:my_first_app/features/forecast/providers/forecast_provider.dart';
 import 'package:my_first_app/features/forecast/screens/forecast_screen.dart';
 import 'package:my_first_app/features/ingredients/screens/ingredients_screen.dart';
+import 'package:my_first_app/features/kitchen/kitchen_screen.dart';
 import 'package:my_first_app/features/pos/screens/kds_screen.dart';
 import 'package:my_first_app/features/pos/screens/quick_pos_screen.dart';
 import 'package:my_first_app/features/pos/screens/sales_history_screen.dart';
@@ -146,6 +147,23 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(find.byType(KdsScreen), findsOneWidget);
+      });
+
+      testWidgets('KitchenScreen on $name renders without RenderFlex overflow', (tester) async {
+        tester.view.physicalSize = size;
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() => tester.view.resetPhysicalSize());
+
+        await tester.pumpWidget(
+          ProviderScope(
+            child: MaterialApp(
+              theme: AppTheme.darkTheme,
+              home: const KitchenScreen(),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.byType(KitchenScreen), findsOneWidget);
       });
 
       testWidgets('RecipesScreen on $name renders without RenderFlex overflow', (tester) async {

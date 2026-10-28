@@ -84,7 +84,7 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
   }) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isWide = constraints.maxWidth >= 950;
+        final isWide = constraints.maxWidth >= 1050;
 
         final syncIndicator = Builder(
           builder: (context) {
@@ -183,17 +183,21 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
                       child: const Text('👨‍🍳', style: TextStyle(fontSize: 22)),
                     ),
                     const SizedBox(width: 14),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
+                        children: const [
                           Text(
                             'จอคิวอาหารในครัว (Kitchen Display System - KDS)',
                             style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: AppTheme.textPrimary),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
                           Text(
                             'คุมเวลาเสิร์ฟ ตรวจสอบสถานะ และเปิดดูคู่มือสเปกการตักปรุง (Portion Guide) เพื่อคุม Food Cost %',
                             style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
                         ],
                       ),
@@ -503,7 +507,7 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
               children: [
                 // 'กำลังทำ (Cooking)' Button
                 Expanded(
-                  child: OutlinedButton.icon(
+                  child: OutlinedButton(
                     key: Key('status_cooking_${ticket.id}'),
                     onPressed: isCooking
                         ? null
@@ -511,8 +515,6 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
                             ref.read(kdsProvider.notifier).updateTicketStatus(ticket.id, KitchenOrderStatus.cooking);
                             CapsuleToast.showInfo(context, 'ออเดอร์ #${ticket.orderNumber} กำลังปรุงอาหาร');
                           },
-                    icon: const Text('🍳', style: TextStyle(fontSize: 13)),
-                    label: const Text('กำลังทำ (Cooking)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFFF59E0B),
                       backgroundColor: isCooking ? const Color(0xFFF59E0B).withValues(alpha: 0.15) : Colors.transparent,
@@ -520,8 +522,19 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
                         color: isCooking ? const Color(0xFFF59E0B) : AppTheme.border,
                         width: isCooking ? 1.5 : 1,
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Text('🍳', style: TextStyle(fontSize: 13)),
+                          SizedBox(width: 4),
+                          Text('กำลังทำ (Cooking)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -529,7 +542,7 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
 
                 // 'เสร็จแล้ว (Done)' Button
                 Expanded(
-                  child: ElevatedButton.icon(
+                  child: ElevatedButton(
                     key: Key('status_done_${ticket.id}'),
                     onPressed: !isCooking
                         ? null
@@ -537,16 +550,25 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
                             ref.read(kdsProvider.notifier).updateTicketStatus(ticket.id, KitchenOrderStatus.ready);
                             CapsuleToast.showSuccess(context, 'ออเดอร์ #${ticket.orderNumber} ปรุงเสร็จพร้อมเสิร์ฟแล้ว!');
                           },
-                    icon: const Icon(Icons.check_circle_rounded, size: 14),
-                    label: const Text('เสร็จแล้ว (Done)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF10B981),
                       foregroundColor: const Color(0xFF0B0F19),
                       disabledBackgroundColor: const Color(0xFF10B981).withValues(alpha: 0.15),
                       disabledForegroundColor: const Color(0xFF10B981),
-                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       elevation: 0,
+                    ),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Icon(Icons.check_circle_rounded, size: 14),
+                          SizedBox(width: 4),
+                          Text('เสร็จแล้ว (Done)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
                     ),
                   ),
                 ),
