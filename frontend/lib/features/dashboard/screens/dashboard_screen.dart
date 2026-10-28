@@ -618,12 +618,15 @@ class _RecommendationItem extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(
-                      'กลุ่ม ${quadrant.shortName} ($count รายการ)',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: color,
+                    Flexible(
+                      child: Text(
+                        'กลุ่ม ${quadrant.shortName} ($count รายการ)',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: color,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],

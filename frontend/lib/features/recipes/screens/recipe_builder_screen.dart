@@ -571,7 +571,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                 ),
                 child: LayoutBuilder(
                   builder: (context, constraints) {
-                    final isWide = constraints.maxWidth >= 600;
+                    final isWide = constraints.maxWidth >= 720;
 
                     final indexBadge = Container(
                       width: 24,
@@ -644,6 +644,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                     final unitDropdown = DropdownButtonFormField<String>(
                       initialValue: _commonUnits.contains(row.unit) ? row.unit : _commonUnits.first,
                       isDense: true,
+                      isExpanded: true,
                       decoration: const InputDecoration(
                         isDense: true,
                         contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 9),

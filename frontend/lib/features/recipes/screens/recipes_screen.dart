@@ -137,10 +137,13 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
                       children: [
                         searchField,
                         const SizedBox(height: 10),
-                        Row(
+                        Wrap(
+                          spacing: 12,
+                          runSpacing: 8,
+                          alignment: WrapAlignment.spaceBetween,
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
                             dropdown,
-                            const Spacer(),
                             countText,
                           ],
                         ),

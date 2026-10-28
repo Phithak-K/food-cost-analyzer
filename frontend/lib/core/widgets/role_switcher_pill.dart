@@ -149,9 +149,9 @@ class RoleSwitcherPill extends ConsumerWidget {
       child: Builder(
         builder: (context) {
           final screenWidth = MediaQuery.sizeOf(context).width;
-          final displayText = screenWidth < 400
+          final displayText = screenWidth < 450
               ? currentRole.shortLabel.substring(0, 3)
-              : (screenWidth < 640 ? currentRole.shortLabel : currentRole.label);
+              : (screenWidth < 980 ? currentRole.shortLabel : currentRole.label);
 
           return AnimatedContainer(
             duration: const Duration(milliseconds: 200),

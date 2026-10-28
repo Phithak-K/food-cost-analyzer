@@ -38,7 +38,7 @@ class AppTheme {
 
   // Modern Dark Dashboard Theme (Default)
   static ThemeData get darkTheme {
-    final baseTextTheme = GoogleFonts.interTextTheme(ThemeData.dark().textTheme);
+    final baseTextTheme = GoogleFonts.promptTextTheme(ThemeData.dark().textTheme);
 
     return ThemeData(
       useMaterial3: true,
@@ -118,7 +118,7 @@ class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         iconTheme: const IconThemeData(color: textPrimary),
-        titleTextStyle: GoogleFonts.inter(
+        titleTextStyle: GoogleFonts.prompt(
           color: textPrimary,
           fontSize: 18,
           fontWeight: FontWeight.w700,
@@ -141,7 +141,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: primary, width: 1.5),
         ),
-        hintStyle: GoogleFonts.inter(color: textMuted, fontSize: 13),
+        hintStyle: GoogleFonts.prompt(color: textMuted, fontSize: 13),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -153,7 +153,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          textStyle: GoogleFonts.inter(
+          textStyle: GoogleFonts.prompt(
             fontWeight: FontWeight.w700,
             fontSize: 14,
           ),
@@ -167,7 +167,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          textStyle: GoogleFonts.inter(
+          textStyle: GoogleFonts.prompt(
             fontWeight: FontWeight.w600,
             fontSize: 14,
           ),
@@ -210,7 +210,7 @@ class AppTheme {
 
   // Light Theme fallback if requested
   static ThemeData get lightTheme {
-    final baseTextTheme = GoogleFonts.interTextTheme();
+    final baseTextTheme = GoogleFonts.promptTextTheme();
 
     return ThemeData(
       useMaterial3: true,

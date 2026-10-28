@@ -306,13 +306,20 @@ class _RecipeCostPieChartState extends State<RecipeCostPieChart> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'ต้นทุนรวมวัตถุดิบต่อจาน:',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textSecondary),
+              const Flexible(
+                child: Text(
+                  'ต้นทุนรวมวัตถุดิบต่อจาน:',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textSecondary),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-              Text(
-                Formatters.currency(totalCost),
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.danger),
+              const SizedBox(width: 8),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  Formatters.currency(totalCost),
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.danger),
+                ),
               ),
             ],
           ),

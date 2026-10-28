@@ -403,10 +403,12 @@ class AppShell extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        final showSearch = width >= 600;
-        final showOnlineBadge = width >= 1000;
-        final showGlossaryButton = width >= 500;
-        final showNotifications = width >= 480;
+        // Search bar needs at least 950px to comfortably fit alongside badges & buttons
+        final showSearch = width >= 950;
+        final showFullOnlineBadge = width >= 1050;
+        final showCompactOnlineBadge = width >= 600;
+        final showGlossaryButton = width >= 720;
+        final showNotifications = width >= 780;
 
         return Container(
           height: 64,
@@ -429,7 +431,7 @@ class AppShell extends ConsumerWidget {
               if (showSearch)
                 Expanded(
                   child: Container(
-                    constraints: const BoxConstraints(maxWidth: 380),
+                    constraints: const BoxConstraints(maxWidth: 340),
                     height: 40,
                     child: TextField(
                       decoration: InputDecoration(
@@ -472,8 +474,11 @@ class AppShell extends ConsumerWidget {
               if (width >= 600) const SizedBox(width: 8),
 
               // System Status & User Action (Live Dynamic Health Badge)
-              if (showOnlineBadge) ...[
-                const SystemStatusBadge(),
+              if (showFullOnlineBadge) ...[
+                const SystemStatusBadge(compact: false),
+                const SizedBox(width: 8),
+              ] else if (showCompactOnlineBadge) ...[
+                const SystemStatusBadge(compact: true),
                 const SizedBox(width: 8),
               ],
               if (showGlossaryButton)

@@ -95,7 +95,17 @@ class SystemHealthNotifier extends Notifier<SystemHealthState> {
           lastChecked: DateTime.now(),
         );
       }
-    } catch (_) {
+    } catch (e) {
+      if (e is DioException && (e.response?.statusCode == 503 || e.response?.data?['database'] == 'DISCONNECTED')) {
+        state = SystemHealthState(
+          status: BackendHealthStatus.dbOffline,
+          label: 'PostgreSQL Offline',
+          color: const Color(0xFFF59E0B),
+          description: 'เซิร์ฟเวอร์เปิดอยู่ แต่ Docker PostgreSQL หยุดทำงาน',
+          lastChecked: DateTime.now(),
+        );
+        return;
+      }
       // Server itself is offline / connection refused
       state = SystemHealthState(
         status: BackendHealthStatus.serverOffline,
@@ -116,10 +126,12 @@ final systemHealthProvider =
 /// Reusable Real-time Live Status Badge Widget
 class SystemStatusBadge extends ConsumerWidget {
   final bool showTooltip;
+  final bool compact;
 
   const SystemStatusBadge({
     super.key,
     this.showTooltip = true,
+    this.compact = false,
   });
 
   @override
@@ -132,7 +144,10 @@ class SystemStatusBadge extends ConsumerWidget {
       borderRadius: BorderRadius.circular(20),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: EdgeInsets.symmetric(
+          horizontal: compact ? 8 : 12,
+          vertical: compact ? 6 : 6,
+        ),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(20),
@@ -163,15 +178,17 @@ class SystemStatusBadge extends ConsumerWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            Text(
-              health.label,
-              style: TextStyle(
-                fontSize: 12,
-                color: color,
-                fontWeight: FontWeight.w600,
+            if (!compact) ...[
+              const SizedBox(width: 8),
+              Text(
+                health.label,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: color,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ),

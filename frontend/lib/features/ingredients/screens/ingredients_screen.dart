@@ -97,8 +97,10 @@ class _IngredientsScreenState extends ConsumerState<IngredientsScreen> {
                         },
                       ),
                     ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 8,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         // Category filter
                         Container(
@@ -128,7 +130,6 @@ class _IngredientsScreenState extends ConsumerState<IngredientsScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
                         // View Toggle Buttons (Table vs Grid)
                         Container(
                           decoration: BoxDecoration(
@@ -137,6 +138,7 @@ class _IngredientsScreenState extends ConsumerState<IngredientsScreen> {
                             border: Border.all(color: AppTheme.border),
                           ),
                           child: Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
                                 icon: Icon(
@@ -159,7 +161,6 @@ class _IngredientsScreenState extends ConsumerState<IngredientsScreen> {
                             ],
                           ),
                         ),
-                        const SizedBox(width: 12),
                         Text(
                           '${filtered.length} รายการ',
                           style: Theme.of(context).textTheme.bodySmall,

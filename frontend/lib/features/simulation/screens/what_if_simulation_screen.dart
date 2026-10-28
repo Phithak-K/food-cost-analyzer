@@ -299,20 +299,24 @@ class _WhatIfSimulationScreenState extends ConsumerState<WhatIfSimulationScreen>
         spacing: 12,
         runSpacing: 10,
         children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: const [
-              Icon(Icons.flash_on_rounded, color: AppTheme.accent, size: 20),
-              SizedBox(width: 8),
-              Text(
-                'จำลองสถานการณ์ด่วน (Presets):',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textPrimary,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(Icons.flash_on_rounded, color: AppTheme.accent, size: 20),
+                SizedBox(width: 8),
+                Text(
+                  'จำลองสถานการณ์ด่วน (Presets):',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textPrimary,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           Wrap(
             spacing: 8,
