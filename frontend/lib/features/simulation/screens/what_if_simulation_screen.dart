@@ -1166,19 +1166,94 @@ class _WhatIfSimulationScreenState extends ConsumerState<WhatIfSimulationScreen>
             scrollDirection: Axis.horizontal,
             child: DataTable(
               headingRowColor: WidgetStateProperty.all(AppTheme.surfaceMuted),
-              columnSpacing: 18,
-              horizontalMargin: 12,
+              columnSpacing: 22,
+              horizontalMargin: 16,
               dataRowMinHeight: 52,
               dataRowMaxHeight: 64,
               columns: const [
-                DataColumn(label: Text('เมนูอาหาร (Recipe)', style: TextStyle(fontWeight: FontWeight.bold))),
-                DataColumn(label: Text('ราคาขาย', style: TextStyle(fontWeight: FontWeight.bold))),
-                DataColumn(label: Text('ยอดขาย/ด.', style: TextStyle(fontWeight: FontWeight.bold))),
-                DataColumn(label: Text('ต้นทุนเดิม vs ใหม่', style: TextStyle(fontWeight: FontWeight.bold))),
-                DataColumn(label: Text('กำไรส่วนเกินเดิม vs ใหม่', style: TextStyle(fontWeight: FontWeight.bold))),
-                DataColumn(label: Text('% Food Cost', style: TextStyle(fontWeight: FontWeight.bold))),
-                DataColumn(label: Text('ผลกระทบกำไร/เดือน', style: TextStyle(fontWeight: FontWeight.bold))),
-                DataColumn(label: Text('สถานะ', style: TextStyle(fontWeight: FontWeight.bold))),
+                DataColumn(
+                  label: SizedBox(
+                    width: 170,
+                    child: Text(
+                      'เมนูอาหาร (Recipe)',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  numeric: true,
+                  label: SizedBox(
+                    width: 80,
+                    child: Text(
+                      'ราคาขาย',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  numeric: true,
+                  label: SizedBox(
+                    width: 90,
+                    child: Text(
+                      'ยอดขาย/ด.',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: SizedBox(
+                    width: 135,
+                    child: Text(
+                      'ต้นทุนเดิม vs ใหม่',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: SizedBox(
+                    width: 160,
+                    child: Text(
+                      'กำไรส่วนเกินเดิม vs ใหม่',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: SizedBox(
+                    width: 110,
+                    child: Text(
+                      '% Food Cost',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  numeric: true,
+                  label: SizedBox(
+                    width: 135,
+                    child: Text(
+                      'ผลกระทบกำไร/เดือน',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: SizedBox(
+                    width: 145,
+                    child: Text(
+                      'สถานะ',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
               ],
               rows: filteredComparisons.map((comp) {
                 final isChanged = comp.costDifference != 0.0;
