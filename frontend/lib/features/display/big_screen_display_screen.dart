@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/providers/user_role_provider.dart';
 import '../../core/services/kds_websocket_service.dart';
 import '../../core/utils/audio_chime.dart';
 import '../../core/widgets/capsule_toast.dart';
@@ -112,46 +113,49 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final isWide = constraints.maxWidth >= 900;
+          final isWide = constraints.maxWidth >= 1050;
+          final showCompactBrand = constraints.maxWidth < 620;
+          final showCompactControls = constraints.maxWidth < 750;
 
           final brandAndClock = Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(7),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [Color(0xFF38BDF8), Color(0xFF0284C7)],
                   ),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(Icons.tv_rounded, color: Colors.white, size: 22),
+                child: const Icon(Icons.tv_rounded, color: Colors.white, size: 20),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
-                    'MenuEng TV Live Display',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                      letterSpacing: -0.3,
+                  if (!showCompactBrand)
+                    const Text(
+                      'MenuEng TV Live Display',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        letterSpacing: -0.3,
+                      ),
                     ),
-                  ),
                   Row(
                     children: [
-                      const Icon(Icons.schedule_rounded, size: 12, color: Color(0xFF38BDF8)),
+                      const Icon(Icons.schedule_rounded, size: 11, color: Color(0xFF38BDF8)),
                       const SizedBox(width: 4),
                       Text(
                         timeFormatted,
-                        style: const TextStyle(
-                          fontSize: 13,
+                        style: TextStyle(
+                          fontSize: showCompactBrand ? 13 : 12,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF38BDF8),
-                          fontFeatures: [FontFeature.tabularFigures()],
+                          color: const Color(0xFF38BDF8),
+                          fontFeatures: const [FontFeature.tabularFigures()],
                         ),
                       ),
                     ],
@@ -209,7 +213,7 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
                       : (isConnecting ? const Color(0xFFF59E0B) : const Color(0xFFEF4444));
 
                   return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                     decoration: BoxDecoration(
                       color: color.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(8),
@@ -219,29 +223,33 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Container(
-                          width: 8,
-                          height: 8,
+                          width: 7,
+                          height: 7,
                           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
                         ),
-                        const SizedBox(width: 6),
-                        Text(
-                          isConnected ? 'LIVE' : (isConnecting ? 'CONNECTING' : 'OFFLINE'),
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: color),
-                        ),
+                        if (!showCompactControls) ...[
+                          const SizedBox(width: 5),
+                          Text(
+                            isConnected ? 'LIVE' : (isConnecting ? 'CONNECTING' : 'OFFLINE'),
+                            style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: color),
+                          ),
+                        ],
                       ],
                     ),
                   );
                 },
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 4),
 
               // Sound toggle
               IconButton(
+                padding: const EdgeInsets.all(6),
+                constraints: const BoxConstraints(),
                 tooltip: _soundEnabled ? 'ปิดเสียงแจ้งเตือน' : 'เปิดเสียงแจ้งเตือน',
                 icon: Icon(
                   _soundEnabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
                   color: _soundEnabled ? const Color(0xFF10B981) : Colors.grey,
-                  size: 20,
+                  size: 19,
                 ),
                 onPressed: () {
                   setState(() => _soundEnabled = !_soundEnabled);
@@ -254,33 +262,42 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
 
               // Bell Chime Test
               IconButton(
+                padding: const EdgeInsets.all(6),
+                constraints: const BoxConstraints(),
                 tooltip: 'ทดสอบเสียงกระดิ่ง (Ding!)',
-                icon: const Icon(Icons.notifications_active_rounded, color: Color(0xFFF59E0B), size: 20),
+                icon: const Icon(Icons.notifications_active_rounded, color: Color(0xFFF59E0B), size: 19),
                 onPressed: () {
                   AudioChime.play();
                   CapsuleToast.showSuccess(context, '🔔 ทดสอบเสียงกระดิ่ง (Ding!)');
                 },
               ),
 
-              const SizedBox(width: 6),
+              const SizedBox(width: 4),
 
               // Exit TV Mode Button
               ElevatedButton.icon(
                 onPressed: () {
                   if (Navigator.of(context).canPop()) {
                     Navigator.of(context).pop();
+                  } else if (ref.read(authProvider)) {
+                    final currentRole = ref.read(userRoleProvider);
+                    context.go(currentRole.defaultRoute);
                   } else {
-                    context.go('/pos');
+                    context.go('/role-select');
                   }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1E293B),
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  padding: EdgeInsets.symmetric(horizontal: showCompactControls ? 8 : 12, vertical: 8),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  minimumSize: Size.zero,
                 ),
-                icon: const Icon(Icons.fullscreen_exit_rounded, size: 18),
-                label: const Text('ปิดจอใหญ่', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                icon: const Icon(Icons.fullscreen_exit_rounded, size: 16),
+                label: Text(
+                  showCompactControls ? 'ออก' : 'ปิดจอใหญ่',
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                ),
               ),
             ],
           );
@@ -290,7 +307,9 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 brandAndClock,
-                modeTabs,
+                const SizedBox(width: 8),
+                Expanded(child: Center(child: modeTabs)),
+                const SizedBox(width: 8),
                 controls,
               ],
             );
@@ -301,11 +320,12 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    brandAndClock,
+                    Flexible(child: brandAndClock),
+                    const SizedBox(width: 8),
                     controls,
                   ],
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
                 Center(child: modeTabs),
               ],
             );
@@ -491,18 +511,23 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
                     ],
                   ),
                 )
-              : GridView.builder(
-                  padding: const EdgeInsets.all(20),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: isReadyState ? 2 : 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    mainAxisExtent: isReadyState ? 140 : 110,
-                  ),
-                  itemCount: tickets.length,
-                  itemBuilder: (context, index) {
-                    final ticket = tickets[index];
-                    return _buildCustomerQueueCard(ticket, isReadyState, accentColor);
+              : LayoutBuilder(
+                  builder: (context, colConstraints) {
+                    final crossAxisCount = colConstraints.maxWidth < 360 ? 1 : 2;
+                    return GridView.builder(
+                      padding: const EdgeInsets.all(16),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                        mainAxisExtent: isReadyState ? 140 : 110,
+                      ),
+                      itemCount: tickets.length,
+                      itemBuilder: (context, index) {
+                        final ticket = tickets[index];
+                        return _buildCustomerQueueCard(ticket, isReadyState, accentColor);
+                      },
+                    );
                   },
                 ),
         ),
@@ -548,33 +573,36 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
           ),
           const SizedBox(height: 6),
           // Table / Order Type Badge
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: ticket.isTakeaway
-                  ? const Color(0xFF38BDF8).withValues(alpha: 0.15)
-                  : const Color(0xFF10B981).withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
                 color: ticket.isTakeaway
-                    ? const Color(0xFF38BDF8).withValues(alpha: 0.4)
-                    : const Color(0xFF10B981).withValues(alpha: 0.4),
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(ticket.isTakeaway ? '🛍️' : '🍽️', style: const TextStyle(fontSize: 12)),
-                const SizedBox(width: 4),
-                Text(
-                  ticket.isTakeaway ? 'กลับบ้าน (Takeaway)' : ticket.tableNumber,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    color: ticket.isTakeaway ? const Color(0xFF38BDF8) : const Color(0xFF34D399),
-                  ),
+                    ? const Color(0xFF38BDF8).withValues(alpha: 0.15)
+                    : const Color(0xFF10B981).withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: ticket.isTakeaway
+                      ? const Color(0xFF38BDF8).withValues(alpha: 0.4)
+                      : const Color(0xFF10B981).withValues(alpha: 0.4),
                 ),
-              ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(ticket.isTakeaway ? '🛍️' : '🍽️', style: const TextStyle(fontSize: 12)),
+                  const SizedBox(width: 4),
+                  Text(
+                    ticket.isTakeaway ? 'กลับบ้าน (Takeaway)' : ticket.tableNumber,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      color: ticket.isTakeaway ? const Color(0xFF38BDF8) : const Color(0xFF34D399),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

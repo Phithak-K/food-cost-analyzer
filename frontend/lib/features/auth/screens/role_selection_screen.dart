@@ -502,7 +502,7 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
         const SizedBox(height: 12),
         // Big Screen TV Display launcher card
         InkWell(
-          onTap: () => context.go('/display'),
+          onTap: () => context.push('/display'),
           borderRadius: BorderRadius.circular(14),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

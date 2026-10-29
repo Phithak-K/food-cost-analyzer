@@ -220,6 +220,42 @@ void main() {
       expect(find.textContaining('กำลังปรุงอาหาร'), findsOneWidget);
       expect(find.textContaining('จุดรับส่งอาหารพนักงาน'), findsOneWidget);
     });
+
+    testWidgets('renders cleanly without overflow at 918px snapped half-screen with takeaway badge',
+        (tester) async {
+      tester.view.physicalSize = const Size(918, 900);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      final takeawayTicket = KitchenTicket(
+        id: 't_takeaway',
+        orderNumber: 'ORD-7803',
+        tableNumber: 'รับกลับบ้าน (Takeaway)',
+        orderType: 'กลับบ้าน (Takeaway)',
+        createdAt: DateTime.now().subtract(const Duration(minutes: 3)),
+        items: [KitchenOrderItem(recipe: sampleRecipe, quantity: 1)],
+        status: KitchenOrderStatus.cooking,
+      );
+
+      final container = ProviderContainer(
+        overrides: [
+          kdsProvider.overrideWith(() => _CustomKds([takeawayTicket])),
+          kdsWebSocketProvider.overrideWith(() => KdsWebSocketNotifier(autoConnect: false)),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      await tester.pumpWidget(createTestApp(container));
+      await tester.pumpAndSettle();
+
+      // Verify no RenderFlex overflow occurs on 918px
+      expect(tester.takeException(), isNull);
+      expect(find.text('#ORD-7803'), findsOneWidget);
+      expect(find.textContaining('กลับบ้าน (Takeaway)'), findsOneWidget);
+    });
   });
 }
 
