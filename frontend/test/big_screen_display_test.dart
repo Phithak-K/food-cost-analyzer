@@ -230,3 +230,4 @@ class _CustomKds extends KdsNotifier {
   @override
   List<KitchenTicket> build() => initial;
 }
+

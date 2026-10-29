@@ -20,8 +20,16 @@ class KdsNotifier extends Notifier<List<KitchenTicket>> {
           orderType: 'ทานที่ร้าน (Dine-In)',
           createdAt: DateTime.now().subtract(const Duration(minutes: 6)),
           items: [
-            KitchenOrderItem(recipe: recipeMap['rec_1']!, quantity: 2, note: 'สุก Medium-Well'),
-            KitchenOrderItem(recipe: recipeMap['rec_2']!, quantity: 1, note: 'เพิ่มพริกไทยดำ'),
+            KitchenOrderItem(
+              recipe: recipeMap['rec_1']!,
+              quantity: 2,
+              note: 'สุก Medium-Well',
+            ),
+            KitchenOrderItem(
+              recipe: recipeMap['rec_2']!,
+              quantity: 1,
+              note: 'เพิ่มพริกไทยดำ',
+            ),
           ],
           status: KitchenOrderStatus.cooking,
         ),
@@ -33,7 +41,11 @@ class KdsNotifier extends Notifier<List<KitchenTicket>> {
           orderType: 'ทานที่ร้าน (Dine-In)',
           createdAt: DateTime.now().subtract(const Duration(minutes: 14)),
           items: [
-            KitchenOrderItem(recipe: recipeMap['rec_3']!, quantity: 1, note: 'ความสุก Medium-Rare'),
+            KitchenOrderItem(
+              recipe: recipeMap['rec_3']!,
+              quantity: 1,
+              note: 'ความสุก Medium-Rare',
+            ),
           ],
           status: KitchenOrderStatus.cooking,
         ),
@@ -46,7 +58,11 @@ class KdsNotifier extends Notifier<List<KitchenTicket>> {
           createdAt: DateTime.now().subtract(const Duration(minutes: 2)),
           items: [
             KitchenOrderItem(recipe: recipeMap['rec_4']!, quantity: 2),
-            KitchenOrderItem(recipe: recipeMap['rec_5']!, quantity: 1, note: 'แยกซอส'),
+            KitchenOrderItem(
+              recipe: recipeMap['rec_5']!,
+              quantity: 1,
+              note: 'แยกซอส',
+            ),
           ],
           status: KitchenOrderStatus.cooking,
         ),
@@ -85,7 +101,9 @@ class KdsNotifier extends Notifier<List<KitchenTicket>> {
   }
 
   void addTicket(KitchenTicket ticket) {
-    if (state.any((t) => t.id == ticket.id || t.orderNumber == ticket.orderNumber)) {
+    if (state.any(
+      (t) => t.id == ticket.id || t.orderNumber == ticket.orderNumber,
+    )) {
       return;
     }
     state = [ticket, ...state];
@@ -113,10 +131,7 @@ class KdsNotifier extends Notifier<List<KitchenTicket>> {
   void updateTicketStatus(String ticketId, KitchenOrderStatus status) {
     state = [
       for (final ticket in state)
-        if (ticket.id == ticketId)
-          ticket.copyWith(status: status)
-        else
-          ticket,
+        if (ticket.id == ticketId) ticket.copyWith(status: status) else ticket,
     ];
   }
 
