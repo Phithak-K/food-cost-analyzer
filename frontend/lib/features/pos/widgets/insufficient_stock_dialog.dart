@@ -211,7 +211,11 @@ class InsufficientStockDialog extends ConsumerWidget {
                   ),
                   child: Row(
                     children: [
-                      const Text('💡', style: TextStyle(fontSize: 16)),
+                      const Icon(
+                        Icons.lightbulb_outline_rounded,
+                        size: 18,
+                        color: Color(0xFFF59E0B),
+                      ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(

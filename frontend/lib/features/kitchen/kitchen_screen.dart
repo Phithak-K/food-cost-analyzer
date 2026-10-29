@@ -134,7 +134,7 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
                   icon: const Icon(Icons.notifications_active_rounded, color: Color(0xFFF59E0B), size: 20),
                   onPressed: () {
                     ref.read(kdsWebSocketProvider.notifier).testChime();
-                    CapsuleToast.showInfo(context, '🔔 ทดสอบเสียงกระดิ่งครัว (Ding!)');
+                    CapsuleToast.showInfo(context, 'ทดสอบเสียงกระดิ่งครัว (Ding!)');
                   },
                 ),
               ],
@@ -180,7 +180,11 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.3)),
                       ),
-                      child: const Text('👨‍🍳', style: TextStyle(fontSize: 22)),
+                      child: const Icon(
+                        Icons.soup_kitchen_rounded,
+                        size: 24,
+                        color: Color(0xFFF59E0B),
+                      ),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -219,7 +223,11 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.3)),
                           ),
-                          child: const Text('👨‍🍳', style: TextStyle(fontSize: 18)),
+                          child: const Icon(
+                            Icons.soup_kitchen_rounded,
+                            size: 20,
+                            color: Color(0xFFF59E0B),
+                          ),
                         ),
                         const SizedBox(width: 10),
                         const Expanded(
@@ -292,7 +300,11 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
               color: Colors.white.withValues(alpha: 0.04),
               shape: BoxShape.circle,
             ),
-            child: const Text('🍳', style: TextStyle(fontSize: 36)),
+            child: const Icon(
+              Icons.soup_kitchen_outlined,
+              size: 38,
+              color: Color(0xFFF59E0B),
+            ),
           ),
           const SizedBox(height: 16),
           const Text(
@@ -389,7 +401,15 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(ticket.isTakeaway ? '🛍️' : '🍽️', style: const TextStyle(fontSize: 11)),
+                              Icon(
+                                ticket.isTakeaway
+                                    ? Icons.shopping_bag_outlined
+                                    : Icons.table_restaurant_rounded,
+                                size: 12,
+                                color: ticket.isTakeaway
+                                    ? const Color(0xFF38BDF8)
+                                    : const Color(0xFF10B981),
+                              ),
                               const SizedBox(width: 4),
                               Text(
                                 ticket.isTakeaway ? 'กลับบ้าน' : ticket.tableNumber,
@@ -508,7 +528,11 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text('⚖️', style: TextStyle(fontSize: 13)),
+                              Icon(
+                                Icons.scale_rounded,
+                                size: 13,
+                                color: AppTheme.primaryNeon,
+                              ),
                               SizedBox(width: 4),
                               Text(
                                 'สเปก',
@@ -561,7 +585,7 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: const [
-                          Text('🍳', style: TextStyle(fontSize: 13)),
+                          Icon(Icons.soup_kitchen_rounded, size: 14, color: Color(0xFFF59E0B)),
                           SizedBox(width: 4),
                           Text('กำลังทำ (Cooking)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                         ],

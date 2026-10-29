@@ -138,7 +138,7 @@ class _ForecastScreenState extends ConsumerState<ForecastScreen> {
               : () async {
                   await ref.read(forecastProvider.notifier).fetchForecast();
                   if (context.mounted) {
-                    CapsuleToast.showSuccess(context, '✨ อัปเดตการวิเคราะห์พยากรณ์ล่าสุดเรียบร้อย');
+                    CapsuleToast.showSuccess(context, 'อัปเดตการวิเคราะห์พยากรณ์ล่าสุดเรียบร้อย');
                   }
                 },
           icon: isLoading
@@ -353,7 +353,8 @@ class _ForecastScreenState extends ConsumerState<ForecastScreen> {
               _buildFilterChip('ปลอดภัย', ForecastRiskLevel.safe, summary.safeItemsCount, AppTheme.success),
               const SizedBox(width: 4),
               FilterChip(
-                label: const Text('เฉพาะที่ต้องสั่งซื้อ 🛒'),
+                avatar: const Icon(Icons.shopping_cart_outlined, size: 14),
+                label: const Text('เฉพาะที่ต้องสั่งซื้อ'),
                 selected: _showReorderOnly,
                 onSelected: (val) => setState(() => _showReorderOnly = val),
                 backgroundColor: Colors.white.withValues(alpha: 0.04),

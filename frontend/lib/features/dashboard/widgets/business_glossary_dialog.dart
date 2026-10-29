@@ -88,7 +88,7 @@ class BusinessGlossary {
     ),
     GlossaryTerm(
       id: 'stars',
-      title: '⭐ Stars (ดาวเด่น / ขายดีมาก + กำไรสูงมาก)',
+      title: 'Stars (ดาวเด่น / ขายดีมาก + กำไรสูงมาก)',
       englishName: 'Stars (High Margin / High Volume)',
       category: 'เมทริกซ์ 4 กลุ่ม',
       icon: Icons.star_rounded,
@@ -105,7 +105,7 @@ class BusinessGlossary {
     ),
     GlossaryTerm(
       id: 'plowhorses',
-      title: '🐎 Plowhorses (ม้าศึก / ขายดีมาก + แต่กำไรต่ำ)',
+      title: 'Plowhorses (ม้าศึก / ขายดีมาก + แต่กำไรต่ำ)',
       englishName: 'Plowhorses (Low Margin / High Volume)',
       category: 'เมทริกซ์ 4 กลุ่ม',
       icon: Icons.bolt_rounded,
@@ -122,7 +122,7 @@ class BusinessGlossary {
     ),
     GlossaryTerm(
       id: 'puzzles',
-      title: '🧩 Puzzles (ปริศนา / กำไรสูงปัง + แต่ขายน้อย)',
+      title: 'Puzzles (ปริศนา / กำไรสูงปัง + แต่ขายน้อย)',
       englishName: 'Puzzles (High Margin / Low Volume)',
       category: 'เมทริกซ์ 4 กลุ่ม',
       icon: Icons.extension_rounded,
@@ -139,7 +139,7 @@ class BusinessGlossary {
     ),
     GlossaryTerm(
       id: 'dogs',
-      title: '🐶 Dogs (สุนัขจนตรอก / ขายน้อย + กำไรต่ำ)',
+      title: 'Dogs (สุนัขจนตรอก / ขายน้อย + กำไรต่ำ)',
       englishName: 'Dogs (Low Margin / Low Volume)',
       category: 'เมทริกซ์ 4 กลุ่ม',
       icon: Icons.pets_rounded,
@@ -254,17 +254,17 @@ class BusinessGlossary {
 
       final catTerms = terms.where((t) => t.category == cat).toList();
       for (final term in catTerms) {
-        buffer.writeln('### 📌 ${term.title}');
+        buffer.writeln('### [${term.category}] ${term.title}');
         buffer.writeln('**ชื่อภาษาอังกฤษ:** `${term.englishName}`');
         buffer.writeln();
-        buffer.writeln('**💡 สรุปแบบเข้าใจง่าย:** ${term.oneLiner}');
+        buffer.writeln('**สรุปแบบเข้าใจง่าย:** ${term.oneLiner}');
         buffer.writeln();
-        buffer.writeln('**📖 คำอธิบายอย่างละเอียด:**');
+        buffer.writeln('**คำอธิบายอย่างละเอียด:**');
         buffer.writeln(term.details);
         buffer.writeln();
 
         if (term.formula != null) {
-          buffer.writeln('**📐 สูตรการคำนวณ:**');
+          buffer.writeln('**สูตรการคำนวณ:**');
           buffer.writeln('```');
           buffer.writeln(term.formula);
           buffer.writeln('```');
@@ -272,15 +272,15 @@ class BusinessGlossary {
         }
 
         if (term.benchmark != null) {
-          buffer.writeln('**🎯 เกณฑ์มาตรฐานธุรกิจ:** ${term.benchmark}');
+          buffer.writeln('**เกณฑ์มาตรฐานธุรกิจ:** ${term.benchmark}');
           buffer.writeln();
         }
 
-        buffer.writeln('**🍳 ตัวอย่างจริงในร้านอาหาร:**');
+        buffer.writeln('**ตัวอย่างจริงในร้านอาหาร:**');
         buffer.writeln('> ${term.example}');
         buffer.writeln();
 
-        buffer.writeln('**🚀 ข้อแนะนำเชิงกลยุทธ์ (Action Tip):**');
+        buffer.writeln('**ข้อแนะนำเชิงกลยุทธ์ (Action Tip):**');
         buffer.writeln('> ${term.actionTip}');
         buffer.writeln();
         buffer.writeln('---');
@@ -291,15 +291,15 @@ class BusinessGlossary {
 
     buffer.writeln('## 5. ตารางสรุปเกณฑ์มาตรฐานที่ร้านอาหารควรจำ');
     buffer.writeln();
-    buffer.writeln('| ตัวชี้วัด / กลุ่ม | สัญลักษณ์ | เกณฑ์มาตรฐาน | ความหมายเชิงธุรกิจ | สิ่งที่ควรทำทันที |');
+    buffer.writeln('| ตัวชี้วัด / กลุ่ม | สถานะ | เกณฑ์มาตรฐาน | ความหมายเชิงธุรกิจ | สิ่งที่ควรทำทันที |');
     buffer.writeln('| :--- | :---: | :---: | :--- | :--- |');
-    buffer.writeln('| **Food Cost % (ดีเยี่ยม)** | 🟢 | ต่ำกว่า 28% | ต้นทุนต่ำมาก ทำกำไรได้สูง | รักษามาตรฐานสูตร |');
-    buffer.writeln('| **Food Cost % (ปกติ)** | 🟡 | 28% - 35% | เกณฑ์มาตรฐานร้านอาหารส่วนใหญ่ | คุมของเสียและ Portion |');
-    buffer.writeln('| **Food Cost % (อันตราย)** | 🔴 | มากกว่า 35% | กำไรบาง เสี่ยงขาดทุน | ปรับราคา / ปรับสูตรด่วน |');
-    buffer.writeln('| **Stars (ดาวเด่น)** | ⭐ | ขายดี + กำไรสูง | เมนูพระเอก นำเงินเข้ากระเป๋า | วางจุดเด่นในเล่มเมนู ห้ามลดคุณภาพ |');
-    buffer.writeln('| **Plowhorses (ม้าศึก)** | 🐎 | ขายดี + กำไรต่ำ | ขวัญใจมหาชนแต่เหนื่อยเปล่า | ขยับราคาทีละนิด หรือทำ Combo Set |');
-    buffer.writeln('| **Puzzles (ปริศนา)** | 🧩 | ขายน้อย + กำไรสูง | ของดีกำไรปังแต่ไม่มีใครรู้ | ถ่ายรูปใหม่ เปลี่ยนชื่อ ให้เด็กเสิร์ฟเชียร์ |');
-    buffer.writeln('| **Dogs (สุนัขจนตรอก)** | 🐶 | ขายน้อย + กำไรต่ำ | เปลืองสต็อก เพิ่มภาระครัว | ตัดทิ้งจากเล่มเมนู หรือดัดแปลงสูตร |');
+    buffer.writeln('| **Food Cost % (ดีเยี่ยม)** | [ดีเยี่ยม] | ต่ำกว่า 28% | ต้นทุนต่ำมาก ทำกำไรได้สูง | รักษามาตรฐานสูตร |');
+    buffer.writeln('| **Food Cost % (ปกติ)** | [ปกติ] | 28% - 35% | เกณฑ์มาตรฐานร้านอาหารส่วนใหญ่ | คุมของเสียและ Portion |');
+    buffer.writeln('| **Food Cost % (อันตราย)** | [อันตราย] | มากกว่า 35% | กำไรบาง เสี่ยงขาดทุน | ปรับราคา / ปรับสูตรด่วน |');
+    buffer.writeln('| **Stars (ดาวเด่น)** | [Stars] | ขายดี + กำไรสูง | เมนูพระเอก นำเงินเข้ากระเป๋า | วางจุดเด่นในเล่มเมนู ห้ามลดคุณภาพ |');
+    buffer.writeln('| **Plowhorses (ม้าศึก)** | [Plowhorses] | ขายดี + กำไรต่ำ | ขวัญใจมหาชนแต่เหนื่อยเปล่า | ขยับราคาทีละนิด หรือทำ Combo Set |');
+    buffer.writeln('| **Puzzles (ปริศนา)** | [Puzzles] | ขายน้อย + กำไรสูง | ของดีกำไรปังแต่ไม่มีใครรู้ | ถ่ายรูปใหม่ เปลี่ยนชื่อ ให้เด็กเสิร์ฟเชียร์ |');
+    buffer.writeln('| **Dogs (สุนัขจนตรอก)** | [Dogs] | ขายน้อย + กำไรต่ำ | เปลืองสต็อก เพิ่มภาระครัว | ตัดทิ้งจากเล่มเมนู หรือดัดแปลงสูตร |');
     buffer.writeln();
     buffer.writeln('---');
     buffer.writeln('เอกสารนี้ถูกสร้างโดย Food Cost Analyzer เพื่อส่งเสริมการบริหารร้านอาหารอย่างยั่งยืน');

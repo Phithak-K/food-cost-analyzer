@@ -180,8 +180,8 @@ void main() {
       expect(find.text('ผัดไทยกุ้งสด'), findsOneWidget);
       expect(find.text('1x'), findsOneWidget);
 
-      // Find and tap '✔ เสิร์ฟแล้ว (Mark as Served)'
-      final servedButton = find.text('✔ เสิร์ฟแล้ว (Mark as Served)');
+      // Find and tap 'เสิร์ฟแล้ว (Mark as Served)'
+      final servedButton = find.text('เสิร์ฟแล้ว (Mark as Served)');
       expect(servedButton, findsOneWidget);
       await tester.tap(servedButton);
       await tester.pumpAndSettle();

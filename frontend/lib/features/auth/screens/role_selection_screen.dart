@@ -13,7 +13,8 @@ class RoleSelectionScreen extends ConsumerStatefulWidget {
   const RoleSelectionScreen({super.key});
 
   @override
-  ConsumerState<RoleSelectionScreen> createState() => _RoleSelectionScreenState();
+  ConsumerState<RoleSelectionScreen> createState() =>
+      _RoleSelectionScreenState();
 }
 
 class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
@@ -33,9 +34,10 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
       vsync: this,
       duration: const Duration(milliseconds: 380),
     );
-    _shakeAnimation = Tween<double>(begin: 0.0, end: 12.0)
-        .chain(CurveTween(curve: Curves.elasticIn))
-        .animate(_shakeController);
+    _shakeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 12.0,
+    ).chain(CurveTween(curve: Curves.elasticIn)).animate(_shakeController);
 
     // Auto-focus keyboard listener for desktop numpad support
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -120,7 +122,8 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
   }
 
   void _verifyPin({bool bypass = false}) {
-    final isValid = bypass ||
+    final isValid =
+        bypass ||
         _enteredPin == _selectedRole.pinCode ||
         _enteredPin == '1234'; // Master PIN 1234 always unlocks
 
@@ -148,29 +151,39 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
 
     if (key == LogicalKeyboardKey.digit0 || key == LogicalKeyboardKey.numpad0) {
       _onDigitPressed('0');
-    } else if (key == LogicalKeyboardKey.digit1 || key == LogicalKeyboardKey.numpad1) {
+    } else if (key == LogicalKeyboardKey.digit1 ||
+        key == LogicalKeyboardKey.numpad1) {
       _onDigitPressed('1');
-    } else if (key == LogicalKeyboardKey.digit2 || key == LogicalKeyboardKey.numpad2) {
+    } else if (key == LogicalKeyboardKey.digit2 ||
+        key == LogicalKeyboardKey.numpad2) {
       _onDigitPressed('2');
-    } else if (key == LogicalKeyboardKey.digit3 || key == LogicalKeyboardKey.numpad3) {
+    } else if (key == LogicalKeyboardKey.digit3 ||
+        key == LogicalKeyboardKey.numpad3) {
       _onDigitPressed('3');
-    } else if (key == LogicalKeyboardKey.digit4 || key == LogicalKeyboardKey.numpad4) {
+    } else if (key == LogicalKeyboardKey.digit4 ||
+        key == LogicalKeyboardKey.numpad4) {
       _onDigitPressed('4');
-    } else if (key == LogicalKeyboardKey.digit5 || key == LogicalKeyboardKey.numpad5) {
+    } else if (key == LogicalKeyboardKey.digit5 ||
+        key == LogicalKeyboardKey.numpad5) {
       _onDigitPressed('5');
-    } else if (key == LogicalKeyboardKey.digit6 || key == LogicalKeyboardKey.numpad6) {
+    } else if (key == LogicalKeyboardKey.digit6 ||
+        key == LogicalKeyboardKey.numpad6) {
       _onDigitPressed('6');
-    } else if (key == LogicalKeyboardKey.digit7 || key == LogicalKeyboardKey.numpad7) {
+    } else if (key == LogicalKeyboardKey.digit7 ||
+        key == LogicalKeyboardKey.numpad7) {
       _onDigitPressed('7');
-    } else if (key == LogicalKeyboardKey.digit8 || key == LogicalKeyboardKey.numpad8) {
+    } else if (key == LogicalKeyboardKey.digit8 ||
+        key == LogicalKeyboardKey.numpad8) {
       _onDigitPressed('8');
-    } else if (key == LogicalKeyboardKey.digit9 || key == LogicalKeyboardKey.numpad9) {
+    } else if (key == LogicalKeyboardKey.digit9 ||
+        key == LogicalKeyboardKey.numpad9) {
       _onDigitPressed('9');
     } else if (key == LogicalKeyboardKey.backspace) {
       _onBackspacePressed();
     } else if (key == LogicalKeyboardKey.escape) {
       _onClearPressed();
-    } else if (key == LogicalKeyboardKey.enter || key == LogicalKeyboardKey.numpadEnter) {
+    } else if (key == LogicalKeyboardKey.enter ||
+        key == LogicalKeyboardKey.numpadEnter) {
       if (_enteredPin.length == 4) {
         _verifyPin();
       } else {
@@ -277,9 +290,7 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       decoration: const BoxDecoration(
         color: Color(0xFF0B1120),
-        border: Border(
-          bottom: BorderSide(color: Color(0xFF1E293B), width: 1),
-        ),
+        border: Border(bottom: BorderSide(color: Color(0xFF1E293B), width: 1)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -307,7 +318,11 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
                     ],
                   ),
                   child: const Center(
-                    child: Icon(Icons.restaurant_menu_rounded, color: Colors.white, size: 22),
+                    child: Icon(
+                      Icons.restaurant_menu_rounded,
+                      color: Colors.white,
+                      size: 22,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -333,11 +348,16 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
                           ),
                           const SizedBox(width: 8),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: AppTheme.primary.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(5),
-                              border: Border.all(color: AppTheme.primary.withValues(alpha: 0.3)),
+                              border: Border.all(
+                                color: AppTheme.primary.withValues(alpha: 0.3),
+                              ),
                             ),
                             child: const Text(
                               'v2.4 Pro',
@@ -352,7 +372,10 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
                       ),
                       const Text(
                         'Food Cost Analyzer & Kasavana-Smith Intelligence',
-                        style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Color(0xFF94A3B8),
+                        ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
@@ -390,12 +413,7 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
           ),
           const SizedBox(width: 28),
           // Right: PIN Security Terminal (42% width)
-          Expanded(
-            flex: 42,
-            child: Center(
-              child: _buildPosPinTerminal(),
-            ),
-          ),
+          Expanded(flex: 42, child: Center(child: _buildPosPinTerminal())),
         ],
       ),
     );
@@ -479,7 +497,8 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
         _buildStreamlinedRoleCard(
           role: UserRole.manager,
           title: 'ผู้จัดการร้าน (Restaurant Manager)',
-          subtitle: 'ภาพรวมแดชบอร์ดเมทริกซ์ 4 Quadrants, สต็อกวัตถุดิบ & แผนสูตรอาหาร',
+          subtitle:
+              'ภาพรวมแดชบอร์ดเมทริกซ์ 4 Quadrants, สต็อกวัตถุดิบ & แผนสูตรอาหาร',
           routeLabel: '/dashboard',
           features: ['Dashboard & Kasavana', 'Recipe & BOM', 'AI Forecast'],
         ),
@@ -487,17 +506,27 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
         _buildStreamlinedRoleCard(
           role: UserRole.kitchen,
           title: 'หัวหน้าเชฟ & ห้องครัว (Kitchen Chef)',
-          subtitle: 'จอคิวอาหาร Real-time (KDS), ตัวคุมสัดส่วนปรุง (Portion Guide) และจับเวลา',
+          subtitle:
+              'จอคิวอาหาร Real-time (KDS), ตัวคุมสัดส่วนปรุง (Portion Guide) และจับเวลา',
           routeLabel: '/kds',
-          features: ['Kitchen Display (KDS)', 'Portion Guide', 'กระดิ่งเตือนออเดอร์'],
+          features: [
+            'Kitchen Display (KDS)',
+            'Portion Guide',
+            'กระดิ่งเตือนออเดอร์',
+          ],
         ),
         const SizedBox(height: 10),
         _buildStreamlinedRoleCard(
           role: UserRole.cashier,
           title: 'แคชเชียร์ & หน้าร้าน (Cashier / POS)',
-          subtitle: 'ระบบขายหน้าร้านด่วน (Quick POS), รับออเดอร์ตัดสต็อก และดูประวัติบิล',
+          subtitle:
+              'ระบบขายหน้าร้านด่วน (Quick POS), รับออเดอร์ตัดสต็อก และดูประวัติบิล',
           routeLabel: '/pos',
-          features: ['Quick POS หน้าร้าน', 'ตัดสต็อกอัตโนมัติ', 'ประวัติบิล 60 วัน'],
+          features: [
+            'Quick POS หน้าร้าน',
+            'ตัดสต็อกอัตโนมัติ',
+            'ประวัติบิล 60 วัน',
+          ],
         ),
         const SizedBox(height: 12),
         // Big Screen TV Display launcher card
@@ -509,7 +538,9 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
             decoration: BoxDecoration(
               color: const Color(0xFF0D1424),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.5)),
+              border: Border.all(
+                color: const Color(0xFF0284C7).withValues(alpha: 0.5),
+              ),
             ),
             child: Row(
               children: [
@@ -519,10 +550,16 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
                   decoration: BoxDecoration(
                     color: const Color(0xFF38BDF8).withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color(0xFF38BDF8).withValues(alpha: 0.3)),
+                    border: Border.all(
+                      color: const Color(0xFF38BDF8).withValues(alpha: 0.3),
+                    ),
                   ),
                   child: const Center(
-                    child: Icon(Icons.tv_rounded, color: Color(0xFF38BDF8), size: 22),
+                    child: Icon(
+                      Icons.tv_rounded,
+                      color: Color(0xFF38BDF8),
+                      size: 22,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 14),
@@ -542,12 +579,19 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
                       SizedBox(height: 2),
                       Text(
                         'สำหรับต่อจอทีวีติดผนัง: แสดงคิวรับอาหารลูกค้า & รายการโต๊ะรอเสิร์ฟ ไม่ต้องล็อกอิน',
-                        style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Color(0xFF94A3B8),
+                        ),
                       ),
                     ],
                   ),
                 ),
-                const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Color(0xFF38BDF8)),
+                const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 14,
+                  color: Color(0xFF38BDF8),
+                ),
               ],
             ),
           ),
@@ -612,14 +656,13 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
                       : const Color(0xFF0F172A),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: isSelected ? color.withValues(alpha: 0.6) : const Color(0xFF334155),
+                    color: isSelected
+                        ? color.withValues(alpha: 0.6)
+                        : const Color(0xFF334155),
                   ),
                 ),
                 child: Center(
-                  child: Text(
-                    role.emoji,
-                    style: const TextStyle(fontSize: 22),
-                  ),
+                  child: Icon(role.icon, size: 24, color: color),
                 ),
               ),
               const SizedBox(width: 14),
@@ -638,13 +681,18 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
                             style: TextStyle(
                               fontSize: 14.5,
                               fontWeight: FontWeight.bold,
-                              color: isSelected ? Colors.white : const Color(0xFFE2E8F0),
+                              color: isSelected
+                                  ? Colors.white
+                                  : const Color(0xFFE2E8F0),
                             ),
                           ),
                         ),
                         // Route Badge
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 7,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: const Color(0xFF0B1120),
                             borderRadius: BorderRadius.circular(5),
@@ -659,7 +707,9 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
                             style: TextStyle(
                               fontSize: 10.5,
                               fontFamily: 'monospace',
-                              color: isSelected ? color : const Color(0xFF94A3B8),
+                              color: isSelected
+                                  ? color
+                                  : const Color(0xFF94A3B8),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -683,7 +733,10 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
                       runSpacing: 4,
                       children: features.map((feat) {
                         return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: isSelected
                                 ? color.withValues(alpha: 0.1)
@@ -694,7 +747,9 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
                             feat,
                             style: TextStyle(
                               fontSize: 10,
-                              color: isSelected ? color : const Color(0xFF64748B),
+                              color: isSelected
+                                  ? color
+                                  : const Color(0xFF64748B),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -708,12 +763,16 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
 
               // 1-Click Quick Demo Login Button directly on Card
               Tooltip(
-                message: 'คลิกเข้าใช้งาน ${role.label} ทันทีโดยไม่ต้องใส่รหัส PIN',
+                message:
+                    'คลิกเข้าใช้งาน ${role.label} ทันทีโดยไม่ต้องใส่รหัส PIN',
                 child: InkWell(
                   onTap: () => _directLoginWithRole(role),
                   borderRadius: BorderRadius.circular(8),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: isSelected
                           ? color.withValues(alpha: 0.25)
@@ -783,7 +842,7 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(_selectedRole.emoji, style: const TextStyle(fontSize: 20)),
+              Icon(_selectedRole.icon, size: 20, color: color),
               const SizedBox(width: 8),
               Flexible(
                 child: Text(
@@ -867,7 +926,10 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
               onTap: _quickFillPinAndSubmit,
               borderRadius: BorderRadius.circular(12),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 3,
+                ),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
@@ -922,8 +984,9 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
           ),
           const SizedBox(height: 6),
           const Text(
-            '💡 สามารถพิมพ์ตัวเลข 0-9 บนคีย์บอร์ดได้ทันที',
+            'สามารถพิมพ์ตัวเลข 0-9 บนคีย์บอร์ดได้ทันที',
             style: TextStyle(fontSize: 10, color: Color(0xFF64748B)),
+            textAlign: TextAlign.center,
           ),
         ],
       ),

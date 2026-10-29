@@ -214,9 +214,10 @@ class AppShell extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: currentRole.color.withValues(alpha: 0.3)),
                       ),
-                      child: Text(
-                        currentRole.emoji,
-                        style: const TextStyle(fontSize: 16),
+                      child: Icon(
+                        currentRole.icon,
+                        size: 18,
+                        color: currentRole.color,
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -232,7 +233,7 @@ class AppShell extends ConsumerWidget {
                           Text(
                             currentRole == UserRole.manager
                                 ? 'สิทธิ์เต็ม (Full Access)'
-                                : 'คลิกเมนู 🔒 เพื่อใส่รหัสประจำตำแหน่ง',
+                                : 'คลิกเมนูเพื่อสลับตำแหน่งและใส่ PIN',
                             style: TextStyle(fontSize: 10, color: AppTheme.textMuted),
                           ),
                         ],

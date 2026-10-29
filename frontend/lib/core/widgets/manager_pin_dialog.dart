@@ -67,7 +67,6 @@ class ManagerPinDialog extends StatefulWidget {
   Color get neonColor => targetRole == UserRole.kitchen
       ? const Color(0xFFFBBF24)
       : (targetRole == UserRole.cashier ? const Color(0xFF38BDF8) : AppTheme.primaryNeon);
-  String get roleEmoji => targetRole?.emoji ?? '🔒';
   String get roleLabel => targetRole?.label ?? 'ผู้จัดการ (Manager)';
   String get roleTitle => targetRole != null
       ? 'ยืนยันรหัสผ่าน ${targetRole!.label}'
@@ -352,9 +351,13 @@ class _ManagerPinDialogState extends State<ManagerPinDialog>
                     child: TextButton.icon(
                       key: const Key('pin_bypass_button'),
                       onPressed: _onQuickBypassPressed,
-                      icon: Text(widget.roleEmoji, style: const TextStyle(fontSize: 14)),
+                      icon: Icon(
+                        widget.targetRole?.icon ?? Icons.lock_outline_rounded,
+                        size: 16,
+                        color: widget.neonColor,
+                      ),
                       label: Text(
-                        '⚡ กรอกรหัสจำลอง ${widget.effectivePin} ด่วน (Demo Bypass)',
+                        'กรอกรหัสจำลอง ${widget.effectivePin} ด่วน (Demo Bypass)',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,

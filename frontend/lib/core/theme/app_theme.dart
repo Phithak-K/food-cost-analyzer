@@ -36,13 +36,29 @@ class AppTheme {
   static const Color danger = Color(0xFFF43F5E);
   static const Color info = Color(0xFF38BDF8);
 
+  // Font Fallback Families for Web & Multi-Platform (Resolves CanvasKit Missing Font Warnings)
+  static const List<String> fontFallbackFamilies = [
+    'Prompt',
+    'Noto Sans Thai',
+    'Noto Sans',
+    'Noto Color Emoji',
+    'Segoe UI Emoji',
+    'Apple Color Emoji',
+    'sans-serif',
+  ];
+
   // Modern Dark Dashboard Theme (Default)
   static ThemeData get darkTheme {
-    final baseTextTheme = GoogleFonts.promptTextTheme(ThemeData.dark().textTheme);
+    final rawTheme = ThemeData.dark();
+    final baseTextTheme = GoogleFonts.promptTextTheme(rawTheme.textTheme).apply(
+      fontFamilyFallback: fontFallbackFamilies,
+    );
 
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
+      fontFamily: GoogleFonts.prompt().fontFamily,
+      fontFamilyFallback: fontFallbackFamilies,
       primaryColor: primary,
       scaffoldBackgroundColor: background,
       canvasColor: backgroundElevated,
@@ -122,7 +138,7 @@ class AppTheme {
           color: textPrimary,
           fontSize: 18,
           fontWeight: FontWeight.w700,
-        ),
+        ).copyWith(fontFamilyFallback: fontFallbackFamilies),
         shape: const Border(bottom: BorderSide(color: border, width: 1)),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -141,7 +157,10 @@ class AppTheme {
           borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: primary, width: 1.5),
         ),
-        hintStyle: GoogleFonts.prompt(color: textMuted, fontSize: 13),
+        hintStyle: GoogleFonts.prompt(
+          color: textMuted,
+          fontSize: 13,
+        ).copyWith(fontFamilyFallback: fontFallbackFamilies),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -156,7 +175,7 @@ class AppTheme {
           textStyle: GoogleFonts.prompt(
             fontWeight: FontWeight.w700,
             fontSize: 14,
-          ),
+          ).copyWith(fontFamilyFallback: fontFallbackFamilies),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -170,7 +189,7 @@ class AppTheme {
           textStyle: GoogleFonts.prompt(
             fontWeight: FontWeight.w600,
             fontSize: 14,
-          ),
+          ).copyWith(fontFamilyFallback: fontFallbackFamilies),
         ),
       ),
       navigationRailTheme: const NavigationRailThemeData(
@@ -210,11 +229,15 @@ class AppTheme {
 
   // Light Theme fallback if requested
   static ThemeData get lightTheme {
-    final baseTextTheme = GoogleFonts.promptTextTheme();
+    final baseTextTheme = GoogleFonts.promptTextTheme().apply(
+      fontFamilyFallback: fontFallbackFamilies,
+    );
 
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
+      fontFamily: GoogleFonts.prompt().fontFamily,
+      fontFamilyFallback: fontFallbackFamilies,
       primaryColor: primary,
       scaffoldBackgroundColor: const Color(0xFFF8FAFC),
       colorScheme: ColorScheme.fromSeed(

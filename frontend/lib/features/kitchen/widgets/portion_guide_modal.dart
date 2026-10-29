@@ -86,7 +86,11 @@ class KitchenPortionGuideModal extends StatelessWidget {
                               ),
                             ],
                           ),
-                          child: const Text('⚖️', style: TextStyle(fontSize: 24)),
+                          child: const Icon(
+                            Icons.scale_rounded,
+                            size: 26,
+                            color: AppTheme.primaryNeon,
+                          ),
                         ),
                         const SizedBox(width: 16),
                         Expanded(

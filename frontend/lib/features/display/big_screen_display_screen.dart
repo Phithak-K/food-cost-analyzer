@@ -13,10 +13,12 @@ class BigScreenDisplayScreen extends ConsumerStatefulWidget {
   const BigScreenDisplayScreen({super.key});
 
   @override
-  ConsumerState<BigScreenDisplayScreen> createState() => _BigScreenDisplayScreenState();
+  ConsumerState<BigScreenDisplayScreen> createState() =>
+      _BigScreenDisplayScreenState();
 }
 
-class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen> {
+class _BigScreenDisplayScreenState
+    extends ConsumerState<BigScreenDisplayScreen> {
   // 0 = Customer Queue Board, 1 = Server Runner Board, 2 = Hybrid Split Board
   int _viewMode = 0;
   bool _soundEnabled = true;
@@ -91,7 +93,11 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
       case 1:
         return _buildServerRunnerView(readyTickets, servedTickets);
       case 2:
-        return _buildHybridSplitView(cookingTickets, readyTickets, servedTickets);
+        return _buildHybridSplitView(
+          cookingTickets,
+          readyTickets,
+          servedTickets,
+        );
       case 0:
       default:
         return _buildCustomerQueueView(cookingTickets, readyTickets);
@@ -101,7 +107,11 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
   // ==========================================
   // TOP TV HEADER
   // ==========================================
-  Widget _buildTvHeader(BuildContext context, int cookingCount, int readyCount) {
+  Widget _buildTvHeader(
+    BuildContext context,
+    int cookingCount,
+    int readyCount,
+  ) {
     final timeFormatted =
         '${_currentTime.hour.toString().padLeft(2, '0')}:${_currentTime.minute.toString().padLeft(2, '0')}:${_currentTime.second.toString().padLeft(2, '0')}';
 
@@ -109,7 +119,9 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: const BoxDecoration(
         color: Color(0xFF0D1424),
-        border: Border(bottom: BorderSide(color: Color(0xFF1E293B), width: 1.5)),
+        border: Border(
+          bottom: BorderSide(color: Color(0xFF1E293B), width: 1.5),
+        ),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -128,7 +140,11 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
                   ),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(Icons.tv_rounded, color: Colors.white, size: 20),
+                child: const Icon(
+                  Icons.tv_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
               ),
               const SizedBox(width: 10),
               Column(
@@ -147,7 +163,11 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
                     ),
                   Row(
                     children: [
-                      const Icon(Icons.schedule_rounded, size: 11, color: Color(0xFF38BDF8)),
+                      const Icon(
+                        Icons.schedule_rounded,
+                        size: 11,
+                        color: Color(0xFF38BDF8),
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         timeFormatted,
@@ -179,19 +199,22 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
                 children: [
                   _buildModeTab(
                     0,
-                    '🔔 เรียกคิวลูกค้า ($readyCount)',
+                    Icons.campaign_rounded,
+                    'เรียกคิวลูกค้า ($readyCount)',
                     const Color(0xFF10B981),
                   ),
                   const SizedBox(width: 4),
                   _buildModeTab(
                     1,
-                    '🍽️ จุดเสิร์ฟพนักงาน ($readyCount)',
+                    Icons.soup_kitchen_rounded,
+                    'จุดเสิร์ฟพนักงาน ($readyCount)',
                     const Color(0xFF38BDF8),
                   ),
                   const SizedBox(width: 4),
                   _buildModeTab(
                     2,
-                    '⚡ จอคู่ไฮบริด',
+                    Icons.dashboard_customize_rounded,
+                    'จอคู่ไฮบริด',
                     const Color(0xFFF59E0B),
                   ),
                 ],
@@ -206,14 +229,21 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
               Builder(
                 builder: (context) {
                   final wsState = ref.watch(kdsWebSocketProvider);
-                  final isConnected = wsState.status == WebSocketConnectionStatus.connected;
-                  final isConnecting = wsState.status == WebSocketConnectionStatus.connecting;
+                  final isConnected =
+                      wsState.status == WebSocketConnectionStatus.connected;
+                  final isConnecting =
+                      wsState.status == WebSocketConnectionStatus.connecting;
                   final color = isConnected
                       ? const Color(0xFF10B981)
-                      : (isConnecting ? const Color(0xFFF59E0B) : const Color(0xFFEF4444));
+                      : (isConnecting
+                            ? const Color(0xFFF59E0B)
+                            : const Color(0xFFEF4444));
 
                   return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 5,
+                    ),
                     decoration: BoxDecoration(
                       color: color.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(8),
@@ -225,13 +255,22 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
                         Container(
                           width: 7,
                           height: 7,
-                          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                          decoration: BoxDecoration(
+                            color: color,
+                            shape: BoxShape.circle,
+                          ),
                         ),
                         if (!showCompactControls) ...[
                           const SizedBox(width: 5),
                           Text(
-                            isConnected ? 'LIVE' : (isConnecting ? 'CONNECTING' : 'OFFLINE'),
-                            style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: color),
+                            isConnected
+                                ? 'LIVE'
+                                : (isConnecting ? 'CONNECTING' : 'OFFLINE'),
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w800,
+                              color: color,
+                            ),
                           ),
                         ],
                       ],
@@ -245,9 +284,13 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
               IconButton(
                 padding: const EdgeInsets.all(6),
                 constraints: const BoxConstraints(),
-                tooltip: _soundEnabled ? 'ปิดเสียงแจ้งเตือน' : 'เปิดเสียงแจ้งเตือน',
+                tooltip: _soundEnabled
+                    ? 'ปิดเสียงแจ้งเตือน'
+                    : 'เปิดเสียงแจ้งเตือน',
                 icon: Icon(
-                  _soundEnabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
+                  _soundEnabled
+                      ? Icons.volume_up_rounded
+                      : Icons.volume_off_rounded,
                   color: _soundEnabled ? const Color(0xFF10B981) : Colors.grey,
                   size: 19,
                 ),
@@ -255,7 +298,9 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
                   setState(() => _soundEnabled = !_soundEnabled);
                   CapsuleToast.showInfo(
                     context,
-                    _soundEnabled ? '🔔 เปิดเสียงเตือนกระดิ่งแล้ว' : '🔕 ปิดเสียงเตือนแล้ว',
+                    _soundEnabled
+                        ? 'เปิดเสียงเตือนกระดิ่งแล้ว'
+                        : 'ปิดเสียงเตือนแล้ว',
                   );
                 },
               ),
@@ -265,10 +310,17 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
                 padding: const EdgeInsets.all(6),
                 constraints: const BoxConstraints(),
                 tooltip: 'ทดสอบเสียงกระดิ่ง (Ding!)',
-                icon: const Icon(Icons.notifications_active_rounded, color: Color(0xFFF59E0B), size: 19),
+                icon: const Icon(
+                  Icons.notifications_active_rounded,
+                  color: Color(0xFFF59E0B),
+                  size: 19,
+                ),
                 onPressed: () {
                   AudioChime.play();
-                  CapsuleToast.showSuccess(context, '🔔 ทดสอบเสียงกระดิ่ง (Ding!)');
+                  CapsuleToast.showSuccess(
+                    context,
+                    'ทดสอบเสียงกระดิ่ง (Ding!)',
+                  );
                 },
               ),
 
@@ -289,14 +341,22 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1E293B),
                   foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(horizontal: showCompactControls ? 8 : 12, vertical: 8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: showCompactControls ? 8 : 12,
+                    vertical: 8,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   minimumSize: Size.zero,
                 ),
                 icon: const Icon(Icons.fullscreen_exit_rounded, size: 16),
                 label: Text(
                   showCompactControls ? 'ออก' : 'ปิดจอใหญ่',
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
@@ -335,7 +395,12 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
     );
   }
 
-  Widget _buildModeTab(int mode, String label, Color accentColor) {
+  Widget _buildModeTab(
+    int mode,
+    IconData icon,
+    String label,
+    Color accentColor,
+  ) {
     final isSelected = _viewMode == mode;
     return InkWell(
       onTap: () => setState(() => _viewMode = mode),
@@ -343,20 +408,33 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
-          color: isSelected ? accentColor.withValues(alpha: 0.2) : Colors.transparent,
+          color: isSelected
+              ? accentColor.withValues(alpha: 0.2)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isSelected ? accentColor : Colors.transparent,
             width: 1.5,
           ),
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 12.5,
-            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-            color: isSelected ? Colors.white : const Color(0xFF94A3B8),
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 14,
+              color: isSelected ? accentColor : const Color(0xFF94A3B8),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                color: isSelected ? Colors.white : const Color(0xFF94A3B8),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -379,7 +457,8 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
               Expanded(
                 flex: 40,
                 child: _buildQueueColumn(
-                  title: '⏳ กำลังปรุงอาหาร (PREPARING)',
+                  icon: Icons.hourglass_top_rounded,
+                  title: 'กำลังปรุงอาหาร (PREPARING)',
                   count: cookingTickets.length,
                   accentColor: const Color(0xFFF59E0B),
                   tickets: cookingTickets,
@@ -390,7 +469,8 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
               Expanded(
                 flex: 60,
                 child: _buildQueueColumn(
-                  title: '🔔 เชิญรับอาหาร (READY FOR PICKUP)',
+                  icon: Icons.notifications_active_rounded,
+                  title: 'เชิญรับอาหาร (READY FOR PICKUP)',
                   count: readyTickets.length,
                   accentColor: const Color(0xFF10B981),
                   tickets: readyTickets,
@@ -408,7 +488,8 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
             Expanded(
               flex: 45,
               child: _buildQueueColumn(
-                title: '⏳ กำลังปรุงอาหาร (PREPARING)',
+                icon: Icons.hourglass_top_rounded,
+                title: 'กำลังปรุงอาหาร (PREPARING)',
                 count: cookingTickets.length,
                 accentColor: const Color(0xFFF59E0B),
                 tickets: cookingTickets,
@@ -423,7 +504,8 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
             Expanded(
               flex: 55,
               child: _buildQueueColumn(
-                title: '🔔 เชิญรับอาหาร (READY FOR PICKUP)',
+                icon: Icons.notifications_active_rounded,
+                title: 'เชิญรับอาหาร (READY FOR PICKUP)',
                 count: readyTickets.length,
                 accentColor: const Color(0xFF10B981),
                 tickets: readyTickets,
@@ -437,6 +519,7 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
   }
 
   Widget _buildQueueColumn({
+    required IconData icon,
     required String title,
     required int count,
     required Color accentColor,
@@ -451,25 +534,42 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           decoration: BoxDecoration(
             color: accentColor.withValues(alpha: 0.12),
-            border: Border(bottom: BorderSide(color: accentColor.withValues(alpha: 0.3), width: 2)),
+            border: Border(
+              bottom: BorderSide(
+                color: accentColor.withValues(alpha: 0.3),
+                width: 2,
+              ),
+            ),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
-                    color: accentColor,
-                    letterSpacing: 0.5,
-                  ),
-                  overflow: TextOverflow.ellipsis,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(icon, color: accentColor, size: 22),
+                    const SizedBox(width: 10),
+                    Flexible(
+                      child: Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          color: accentColor,
+                          letterSpacing: 0.5,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 5,
+                ),
                 decoration: BoxDecoration(
                   color: accentColor,
                   borderRadius: BorderRadius.circular(20),
@@ -495,13 +595,17 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
-                        isReadyState ? Icons.check_circle_outline_rounded : Icons.soup_kitchen_outlined,
+                        isReadyState
+                            ? Icons.check_circle_outline_rounded
+                            : Icons.soup_kitchen_outlined,
                         size: 56,
                         color: Colors.white.withValues(alpha: 0.15),
                       ),
                       const SizedBox(height: 14),
                       Text(
-                        isReadyState ? 'ยังไม่มีอาหารที่พร้อมรับ' : 'ไม่มีรายการกำลังปรุง',
+                        isReadyState
+                            ? 'ยังไม่มีอาหารที่พร้อมรับ'
+                            : 'ไม่มีรายการกำลังปรุง',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -513,7 +617,9 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
                 )
               : LayoutBuilder(
                   builder: (context, colConstraints) {
-                    final crossAxisCount = colConstraints.maxWidth < 360 ? 1 : 2;
+                    final crossAxisCount = colConstraints.maxWidth < 360
+                        ? 1
+                        : 2;
                     return GridView.builder(
                       padding: const EdgeInsets.all(16),
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -525,7 +631,11 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
                       itemCount: tickets.length,
                       itemBuilder: (context, index) {
                         final ticket = tickets[index];
-                        return _buildCustomerQueueCard(ticket, isReadyState, accentColor);
+                        return _buildCustomerQueueCard(
+                          ticket,
+                          isReadyState,
+                          accentColor,
+                        );
                       },
                     );
                   },
@@ -535,7 +645,11 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
     );
   }
 
-  Widget _buildCustomerQueueCard(KitchenTicket ticket, bool isReady, Color accentColor) {
+  Widget _buildCustomerQueueCard(
+    KitchenTicket ticket,
+    bool isReady,
+    Color accentColor,
+  ) {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF0F172A),
@@ -591,14 +705,26 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(ticket.isTakeaway ? '🛍️' : '🍽️', style: const TextStyle(fontSize: 12)),
+                  Icon(
+                    ticket.isTakeaway
+                        ? Icons.shopping_bag_outlined
+                        : Icons.table_restaurant_rounded,
+                    size: 13,
+                    color: ticket.isTakeaway
+                        ? const Color(0xFF38BDF8)
+                        : const Color(0xFF34D399),
+                  ),
                   const SizedBox(width: 4),
                   Text(
-                    ticket.isTakeaway ? 'กลับบ้าน (Takeaway)' : ticket.tableNumber,
+                    ticket.isTakeaway
+                        ? 'กลับบ้าน (Takeaway)'
+                        : ticket.tableNumber,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
-                      color: ticket.isTakeaway ? const Color(0xFF38BDF8) : const Color(0xFF34D399),
+                      color: ticket.isTakeaway
+                          ? const Color(0xFF38BDF8)
+                          : const Color(0xFF34D399),
                     ),
                   ),
                 ],
@@ -625,7 +751,9 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           decoration: BoxDecoration(
             color: const Color(0xFF38BDF8).withValues(alpha: 0.12),
-            border: const Border(bottom: BorderSide(color: Color(0xFF0284C7), width: 2)),
+            border: const Border(
+              bottom: BorderSide(color: Color(0xFF0284C7), width: 2),
+            ),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -633,7 +761,11 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
               const Expanded(
                 child: Row(
                   children: [
-                    Text('🍽️', style: TextStyle(fontSize: 22)),
+                    Icon(
+                      Icons.soup_kitchen_rounded,
+                      size: 22,
+                      color: Color(0xFF38BDF8),
+                    ),
                     SizedBox(width: 10),
                     Expanded(
                       child: Text(
@@ -677,17 +809,28 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
                           color: Colors.white.withValues(alpha: 0.05),
                           shape: BoxShape.circle,
                         ),
-                        child: const Text('✨', style: TextStyle(fontSize: 38)),
+                        child: const Icon(
+                          Icons.auto_awesome_rounded,
+                          size: 38,
+                          color: Color(0xFF10B981),
+                        ),
                       ),
                       const SizedBox(height: 16),
                       const Text(
                         'เสิร์ฟครบทุกโต๊ะแล้ว!',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white),
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
                       ),
                       const SizedBox(height: 6),
                       const Text(
                         'ไม่มีอาหารที่ค้างเสิร์ฟในช่องวางอาหารหน้าร้าน',
-                        style: TextStyle(fontSize: 14, color: Color(0xFF94A3B8)),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF94A3B8),
+                        ),
                       ),
                     ],
                   ),
@@ -739,7 +882,9 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
         ),
         boxShadow: [
           BoxShadow(
-            color: (isUrgent ? const Color(0xFFEF4444) : const Color(0xFF10B981)).withValues(alpha: 0.15),
+            color:
+                (isUrgent ? const Color(0xFFEF4444) : const Color(0xFF10B981))
+                    .withValues(alpha: 0.15),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -752,8 +897,12 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: (isUrgent ? const Color(0xFFEF4444) : const Color(0xFF10B981)).withValues(alpha: 0.15),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+              color:
+                  (isUrgent ? const Color(0xFFEF4444) : const Color(0xFF10B981))
+                      .withValues(alpha: 0.15),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(15),
+              ),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -761,11 +910,21 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
                 Expanded(
                   child: Row(
                     children: [
-                      Text(ticket.isTakeaway ? '🛍️' : '🍽️', style: const TextStyle(fontSize: 20)),
+                      Icon(
+                        ticket.isTakeaway
+                            ? Icons.shopping_bag_outlined
+                            : Icons.table_restaurant_rounded,
+                        size: 20,
+                        color: ticket.isTakeaway
+                            ? const Color(0xFF38BDF8)
+                            : const Color(0xFF34D399),
+                      ),
                       const SizedBox(width: 8),
                       Flexible(
                         child: Text(
-                          ticket.isTakeaway ? 'กลับบ้าน (Takeaway)' : ticket.tableNumber,
+                          ticket.isTakeaway
+                              ? 'กลับบ้าน (Takeaway)'
+                              : ticket.tableNumber,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w900,
@@ -778,22 +937,35 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color: isUrgent ? const Color(0xFFEF4444) : const Color(0xFF1E293B),
+                    color: isUrgent
+                        ? const Color(0xFFEF4444)
+                        : const Color(0xFF1E293B),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.timer_outlined, size: 14, color: isUrgent ? Colors.white : const Color(0xFF38BDF8)),
+                      Icon(
+                        Icons.timer_outlined,
+                        size: 14,
+                        color: isUrgent
+                            ? Colors.white
+                            : const Color(0xFF38BDF8),
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         '$minutesElapsed นาที',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
-                          color: isUrgent ? Colors.white : const Color(0xFF38BDF8),
+                          color: isUrgent
+                              ? Colors.white
+                              : const Color(0xFF38BDF8),
                         ),
                       ),
                     ],
@@ -811,11 +983,19 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
               children: [
                 Text(
                   'คิวออเดอร์ #${ticket.orderNumber}',
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF94A3B8)),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF94A3B8),
+                  ),
                 ),
                 const Text(
                   'พร้อมเสิร์ฟ',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF10B981)),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF10B981),
+                  ),
                 ),
               ],
             ),
@@ -843,14 +1023,22 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
                       ),
                       child: Text(
                         '${item.quantity}x',
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFF34D399)),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF34D399),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         item.recipe.name,
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -872,18 +1060,20 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
                   AudioChime.play();
                   CapsuleToast.showSuccess(
                     context,
-                    '✔ เสิร์ฟ ${ticket.isTakeaway ? "ออเดอร์กลับบ้าน" : ticket.tableNumber} เรียบร้อยแล้ว!',
+                    'เสิร์ฟ ${ticket.isTakeaway ? "ออเดอร์กลับบ้าน" : ticket.tableNumber} เรียบร้อยแล้ว!',
                   );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF10B981),
                   foregroundColor: const Color(0xFF070B14),
                   elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
-                icon: const Icon(Icons.room_service_rounded, size: 20),
+                icon: const Icon(Icons.check_circle_outline_rounded, size: 20),
                 label: const Text(
-                  '✔ เสิร์ฟแล้ว (Mark as Served)',
+                  'เสิร์ฟแล้ว (Mark as Served)',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
                 ),
               ),
@@ -907,7 +1097,11 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
           const SizedBox(width: 8),
           const Text(
             'เสิร์ฟแล้วล่าสุด:',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF94A3B8)),
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF94A3B8),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -917,14 +1111,20 @@ class _BigScreenDisplayScreenState extends ConsumerState<BigScreenDisplayScreen>
                 children: servedTickets.take(5).map((t) {
                   return Container(
                     margin: const EdgeInsets.only(right: 8),
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFF1E293B),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
                       '${t.isTakeaway ? "กลับบ้าน" : t.tableNumber} (#${t.orderNumber})',
-                      style: const TextStyle(fontSize: 11, color: Color(0xFF38BDF8)),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: Color(0xFF38BDF8),
+                      ),
                     ),
                   );
                 }).toList(),

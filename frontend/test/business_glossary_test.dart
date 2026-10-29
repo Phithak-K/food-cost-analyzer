@@ -70,8 +70,8 @@ void main() {
       await tester.enterText(find.byType(TextField), 'ม้าศึก');
       await tester.pumpAndSettle();
 
-      expect(find.text('🐎 Plowhorses (ม้าศึก / ขายดีมาก + แต่กำไรต่ำ)'), findsOneWidget);
-      expect(find.text('⭐ Stars (ดาวเด่น / ขายดีมาก + กำไรสูงมาก)'), findsNothing);
+      expect(find.textContaining('Plowhorses (ม้าศึก'), findsOneWidget);
+      expect(find.textContaining('Stars (ดาวเด่น'), findsNothing);
 
       // Clear search
       await tester.tap(find.byIcon(Icons.clear_rounded));

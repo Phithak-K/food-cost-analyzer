@@ -232,7 +232,7 @@ void main() {
       // Check RoleSwitcherPill is present
       final switcherFinder = find.byKey(const Key('role_switcher_button'));
       expect(switcherFinder, findsOneWidget);
-      expect(find.textContaining('👔'), findsWidgets);
+      expect(find.byIcon(Icons.admin_panel_settings_rounded), findsWidgets);
       expect(find.textContaining('ผู้จัดการ'), findsWidgets);
 
       // Tap to open role popup menu

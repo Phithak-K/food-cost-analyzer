@@ -63,9 +63,10 @@ class RoleSwitcherPill extends ConsumerWidget {
                       width: 1,
                     ),
                   ),
-                  child: Text(
-                    role.emoji,
-                    style: const TextStyle(fontSize: 18),
+                  child: Icon(
+                    role.icon,
+                    size: 20,
+                    color: role.color,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -177,9 +178,10 @@ class RoleSwitcherPill extends ConsumerWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  currentRole.emoji,
-                  style: const TextStyle(fontSize: 15),
+                Icon(
+                  currentRole.icon,
+                  size: 15,
+                  color: currentRole.color,
                 ),
                 const SizedBox(width: 6),
                 Text(
