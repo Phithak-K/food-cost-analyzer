@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/services/kds_websocket_service.dart';
 import '../../../core/utils/audio_chime.dart';
 import '../../recipes/providers/recipes_provider.dart';
 import '../models/cart_item.dart';
@@ -90,14 +91,8 @@ class KdsNotifier extends Notifier<List<KitchenTicket>> {
     addTicket(newTicket);
   }
 
-  void markAsServed(String ticketId) {
-    state = [
-      for (final ticket in state)
-        if (ticket.id == ticketId)
-          ticket.copyWith(status: KitchenOrderStatus.served)
-        else
-          ticket,
-    ];
+  void markAsServed(String ticketId, {bool broadcast = true}) {
+    updateTicketStatus(ticketId, KitchenOrderStatus.served, broadcast: broadcast);
   }
 
   void addTicket(KitchenTicket ticket) {
@@ -115,24 +110,43 @@ class KdsNotifier extends Notifier<List<KitchenTicket>> {
   }
 
   void toggleStatus(String ticketId) {
+    for (final ticket in state) {
+      if (ticket.id == ticketId || ticket.orderNumber == ticketId) {
+        final nextStatus = ticket.status == KitchenOrderStatus.cooking
+            ? KitchenOrderStatus.ready
+            : KitchenOrderStatus.served;
+        updateTicketStatus(ticketId, nextStatus);
+        return;
+      }
+    }
+  }
+
+  void updateTicketStatus(
+    String ticketId,
+    KitchenOrderStatus status, {
+    bool broadcast = true,
+  }) {
+    String? orderNumber;
     state = [
       for (final ticket in state)
-        if (ticket.id == ticketId)
-          ticket.copyWith(
-            status: ticket.status == KitchenOrderStatus.cooking
-                ? KitchenOrderStatus.ready
-                : KitchenOrderStatus.served,
-          )
+        if (ticket.id == ticketId || ticket.orderNumber == ticketId)
+          () {
+            orderNumber = ticket.orderNumber;
+            return ticket.copyWith(status: status);
+          }()
         else
           ticket,
     ];
-  }
 
-  void updateTicketStatus(String ticketId, KitchenOrderStatus status) {
-    state = [
-      for (final ticket in state)
-        if (ticket.id == ticketId) ticket.copyWith(status: status) else ticket,
-    ];
+    if (broadcast) {
+      try {
+        ref.read(kdsWebSocketProvider.notifier).broadcastStatusChange(
+          ticketId,
+          status,
+          orderNumber: orderNumber,
+        );
+      } catch (_) {}
+    }
   }
 
   void removeTicket(String ticketId) {

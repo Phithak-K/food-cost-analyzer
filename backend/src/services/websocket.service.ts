@@ -26,6 +26,13 @@ export class WebSocketService {
           const parsed = JSON.parse(raw.toString());
           if (parsed.type === 'PING' || parsed.event === 'PING') {
             ws.send(JSON.stringify({ event: 'PONG', timestamp: new Date().toISOString() }));
+          } else if (
+            parsed.event === 'UPDATE_ORDER_STATUS' ||
+            parsed.event === 'ORDER_STATUS_CHANGED' ||
+            parsed.type === 'UPDATE_ORDER_STATUS'
+          ) {
+            console.log('[WebSocket] Client status change broadcast:', parsed.data);
+            WebSocketService.broadcast('ORDER_STATUS_CHANGED', parsed.data);
           }
         } catch {
           // Ignore malformed message

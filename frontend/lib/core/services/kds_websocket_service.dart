@@ -238,6 +238,7 @@ class KdsWebSocketNotifier extends Notifier<KdsWebSocketState> {
 
   void _processOrderStatusChange(Map<String, dynamic> orderData) {
     final orderId = (orderData['id'] ?? '').toString();
+    final orderNumber = (orderData['orderNumber'] ?? '').toString();
     final statusStr = (orderData['status'] ?? '').toString();
 
     KitchenOrderStatus status = KitchenOrderStatus.cooking;
@@ -247,7 +248,34 @@ class KdsWebSocketNotifier extends Notifier<KdsWebSocketState> {
       status = KitchenOrderStatus.served;
     }
 
-    ref.read(kdsProvider.notifier).updateTicketStatus(orderId, status);
+    final target = orderId.isNotEmpty ? orderId : orderNumber;
+    if (target.isNotEmpty) {
+      ref.read(kdsProvider.notifier).updateTicketStatus(target, status, broadcast: false);
+      if (status == KitchenOrderStatus.ready) {
+        AudioChime.play();
+      }
+    }
+  }
+
+  /// Broadcasts an order status update to other tabs/displays via WebSocket Gateway
+  void broadcastStatusChange(String ticketId, KitchenOrderStatus status, {String? orderNumber}) {
+    if (_channel != null && state.status == WebSocketConnectionStatus.connected) {
+      final statusStr = status == KitchenOrderStatus.ready
+          ? 'READY'
+          : (status == KitchenOrderStatus.served ? 'SERVED' : 'COOKING');
+      try {
+        _channel?.sink.add(jsonEncode({
+          'event': 'UPDATE_ORDER_STATUS',
+          'data': {
+            'id': ticketId,
+            'orderNumber': orderNumber ?? ticketId,
+            'status': statusStr,
+          },
+        }));
+      } catch (e) {
+        debugPrint('[WebSocket] Broadcast status error: $e');
+      }
+    }
   }
 
   /// Triggers a manual test chime for kitchen staff
