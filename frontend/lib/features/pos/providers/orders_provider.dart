@@ -16,11 +16,15 @@ class OrderState {
   final List<CartItem> items;
   final bool isSubmitting;
   final String? lastOrderNumber;
+  final String orderType; // 'ทานที่ร้าน (Dine-In)' or 'กลับบ้าน (Takeaway)'
+  final String tableNumber; // e.g. 'โต๊ะ 01'
 
   const OrderState({
     this.items = const [],
     this.isSubmitting = false,
     this.lastOrderNumber,
+    this.orderType = 'ทานที่ร้าน (Dine-In)',
+    this.tableNumber = 'โต๊ะ 01',
   });
 
   double get totalAmount => items.fold(0.0, (sum, i) => sum + i.subtotal);
@@ -40,11 +44,15 @@ class OrderState {
     List<CartItem>? items,
     bool? isSubmitting,
     String? lastOrderNumber,
+    String? orderType,
+    String? tableNumber,
   }) {
     return OrderState(
       items: items ?? this.items,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       lastOrderNumber: lastOrderNumber ?? this.lastOrderNumber,
+      orderType: orderType ?? this.orderType,
+      tableNumber: tableNumber ?? this.tableNumber,
     );
   }
 }
@@ -114,6 +122,16 @@ class OrdersNotifier extends Notifier<OrderState> {
     state = state.copyWith(
       items: state.items.where((i) => i.recipe.id != recipeId).toList(),
     );
+  }
+
+  /// Sets the order type (Dine-In vs Takeaway).
+  void setOrderType(String type) {
+    state = state.copyWith(orderType: type);
+  }
+
+  /// Sets the table number for dine-in orders.
+  void setTableNumber(String table) {
+    state = state.copyWith(tableNumber: table);
   }
 
   /// Clears all cart items.
@@ -212,7 +230,15 @@ class OrdersNotifier extends Notifier<OrderState> {
 
     // 6. Generate order code, push ticket to Kitchen KDS queue, push to history, and notify
     final orderNum = 'ORD-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}';
-    ref.read(kdsProvider.notifier).addTicketFromCart(orderNum, state.items);
+    final selectedTable = state.orderType.contains('กลับบ้าน')
+        ? 'รับกลับบ้าน (Takeaway)'
+        : state.tableNumber;
+    ref.read(kdsProvider.notifier).addTicketFromCart(
+      orderNum,
+      state.items,
+      table: selectedTable,
+      orderType: state.orderType,
+    );
 
     ref.read(ordersHistoryProvider.notifier).addCompletedOrder(
       OrderHistoryRecord(

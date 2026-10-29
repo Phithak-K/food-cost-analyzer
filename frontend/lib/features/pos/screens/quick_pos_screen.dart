@@ -498,6 +498,9 @@ class _QuickPosScreenState extends ConsumerState<QuickPosScreen> {
 
         const Divider(color: AppTheme.border, height: 1),
 
+        // Order Type & Table Selector (Dine-in Tables vs Takeaway Queue)
+        _buildOrderTypeAndTableSelector(orderState),
+
         // Cart Items List
         Expanded(
           child: orderState.items.isEmpty
@@ -545,6 +548,185 @@ class _QuickPosScreenState extends ConsumerState<QuickPosScreen> {
         // Checkout Summary
         _buildCheckoutFooter(orderState),
       ],
+    );
+  }
+
+  Widget _buildOrderTypeAndTableSelector(OrderState orderState) {
+    final ordersNotifier = ref.read(ordersProvider.notifier);
+    final isDineIn = !orderState.orderType.contains('กลับบ้าน');
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppTheme.backgroundElevated.withValues(alpha: 0.5),
+        border: const Border(bottom: BorderSide(color: AppTheme.border, width: 1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Order Type Toggle: Dine-In vs Takeaway
+          Row(
+            children: [
+              Expanded(
+                child: InkWell(
+                  onTap: () => ordersNotifier.setOrderType('ทานที่ร้าน (Dine-In)'),
+                  borderRadius: BorderRadius.circular(8),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    decoration: BoxDecoration(
+                      color: isDineIn ? AppTheme.primary.withValues(alpha: 0.15) : Colors.transparent,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: isDineIn ? AppTheme.primary : AppTheme.border,
+                        width: isDineIn ? 1.5 : 1,
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.restaurant_rounded,
+                            size: 16,
+                            color: isDineIn ? AppTheme.primaryNeon : AppTheme.textMuted,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'ทานที่ร้าน (Dine-in)',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: isDineIn ? FontWeight.w700 : FontWeight.w500,
+                              color: isDineIn ? AppTheme.primaryNeon : AppTheme.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: InkWell(
+                  onTap: () => ordersNotifier.setOrderType('กลับบ้าน (Takeaway)'),
+                  borderRadius: BorderRadius.circular(8),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                    decoration: BoxDecoration(
+                      color: !isDineIn ? const Color(0xFF38BDF8).withValues(alpha: 0.15) : Colors.transparent,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: !isDineIn ? const Color(0xFF38BDF8) : AppTheme.border,
+                        width: !isDineIn ? 1.5 : 1,
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.shopping_bag_outlined,
+                            size: 16,
+                            color: !isDineIn ? const Color(0xFF38BDF8) : AppTheme.textMuted,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'กลับบ้าน (Takeaway)',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: !isDineIn ? FontWeight.w700 : FontWeight.w500,
+                              color: !isDineIn ? const Color(0xFF38BDF8) : AppTheme.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 10),
+
+          // Sub-selector: Table Chips (if Dine-In) or Queue Info (if Takeaway)
+          if (isDineIn) ...[
+            Row(
+              children: [
+                const Icon(Icons.table_restaurant_rounded, size: 14, color: AppTheme.textMuted),
+                const SizedBox(width: 6),
+                const Text(
+                  'เลือกโต๊ะที่นั่ง:',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.textSecondary),
+                ),
+                const Spacer(),
+                Text(
+                  orderState.tableNumber,
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppTheme.primaryNeon),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            SizedBox(
+              height: 32,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: 12,
+                separatorBuilder: (_, _) => const SizedBox(width: 6),
+                itemBuilder: (context, index) {
+                  final tableNum = 'โต๊ะ ${(index + 1).toString().padLeft(2, '0')}';
+                  final isSelected = orderState.tableNumber == tableNum;
+                  return ChoiceChip(
+                    label: Text(tableNum, style: TextStyle(fontSize: 11, fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500)),
+                    selected: isSelected,
+                    onSelected: (_) => ordersNotifier.setTableNumber(tableNum),
+                    selectedColor: AppTheme.primary.withValues(alpha: 0.25),
+                    backgroundColor: Colors.white.withValues(alpha: 0.04),
+                    side: BorderSide(
+                      color: isSelected ? AppTheme.primary : AppTheme.border,
+                      width: isSelected ? 1.5 : 1,
+                    ),
+                    labelStyle: TextStyle(
+                      color: isSelected ? AppTheme.primaryNeon : AppTheme.textSecondary,
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    visualDensity: VisualDensity.compact,
+                  );
+                },
+              ),
+            ),
+          ] else ...[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFF38BDF8).withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: const Color(0xFF38BDF8).withValues(alpha: 0.2)),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.info_outline_rounded, size: 15, color: Color(0xFF38BDF8)),
+                  SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      'ออกบัตรคิวอัตโนมัติ แสดงบนหน้าจอ TV รับอาหารหน้าร้าน',
+                      style: TextStyle(fontSize: 11, color: Color(0xFF38BDF8)),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 

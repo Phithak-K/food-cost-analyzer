@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/screens/role_selection_screen.dart';
 import '../../features/dashboard/screens/dashboard_screen.dart';
+import '../../features/display/big_screen_display_screen.dart';
 import '../../features/forecast/screens/forecast_screen.dart';
 import '../../features/ingredients/screens/ingredients_screen.dart';
 import '../../features/kitchen/kitchen_screen.dart';
@@ -26,6 +27,12 @@ final GoRouter appRouter = GoRouter(
       path: '/role-select',
       pageBuilder: (context, state) => const NoTransitionPage(
         child: RoleSelectionScreen(),
+      ),
+    ),
+    GoRoute(
+      path: '/display',
+      pageBuilder: (context, state) => const NoTransitionPage(
+        child: BigScreenDisplayScreen(),
       ),
     ),
     ShellRoute(

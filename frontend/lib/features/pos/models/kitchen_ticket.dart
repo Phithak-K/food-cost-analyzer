@@ -51,6 +51,11 @@ class KitchenTicket {
   int get minutesElapsed => DateTime.now().difference(createdAt).inMinutes;
   DateTime get orderedAt => createdAt;
 
+  bool get isTakeaway => orderType.contains('กลับบ้าน') || tableNumber.contains('กลับบ้าน');
+  bool get isCooking => status == KitchenOrderStatus.cooking;
+  bool get isReady => status == KitchenOrderStatus.ready;
+  bool get isServed => status == KitchenOrderStatus.served;
+
   KitchenTicket copyWith({
     String? id,
     String? orderNumber,

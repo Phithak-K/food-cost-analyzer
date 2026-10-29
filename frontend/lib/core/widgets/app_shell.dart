@@ -182,9 +182,12 @@ class AppShell extends ConsumerWidget {
 
           // Navigation Links
           Expanded(
-            child: ListView(
+            child: SingleChildScrollView(
               padding: EdgeInsets.zero,
-              children: menuItems,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: menuItems,
+              ),
             ),
           ),
 
@@ -342,6 +345,12 @@ class AppShell extends ConsumerWidget {
         icon: Icons.restaurant_rounded,
         title: 'จอคิวอาหาร (KDS)',
         targetRoute: '/kds',
+      ),
+      buildItem(
+        key: const Key('sidebar_display'),
+        icon: Icons.tv_rounded,
+        title: 'จอใหญ่ & จุดเสิร์ฟ (TV Display)',
+        targetRoute: '/display',
       ),
       buildItem(
         key: const Key('sidebar_orders'),

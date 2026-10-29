@@ -373,6 +373,36 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
                           ),
                         ),
                         const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
+                          decoration: BoxDecoration(
+                            color: ticket.isTakeaway
+                                ? const Color(0xFF38BDF8).withValues(alpha: 0.15)
+                                : const Color(0xFF10B981).withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: ticket.isTakeaway
+                                  ? const Color(0xFF38BDF8).withValues(alpha: 0.4)
+                                  : const Color(0xFF10B981).withValues(alpha: 0.4),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(ticket.isTakeaway ? '🛍️' : '🍽️', style: const TextStyle(fontSize: 11)),
+                              const SizedBox(width: 4),
+                              Text(
+                                ticket.isTakeaway ? 'กลับบ้าน' : ticket.tableNumber,
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w800,
+                                  color: ticket.isTakeaway ? const Color(0xFF38BDF8) : const Color(0xFF10B981),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
                         Text(
                           timeStr,
                           style: const TextStyle(fontSize: 12, color: AppTheme.textMuted),
@@ -573,6 +603,38 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
                     ),
                   ),
                 ),
+
+                // 'เสิร์ฟแล้ว (Served)' Button (Active when ticket is ready)
+                if (ticket.status == KitchenOrderStatus.ready) ...[
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ElevatedButton(
+                      key: Key('status_served_${ticket.id}'),
+                      onPressed: () {
+                        ref.read(kdsProvider.notifier).markAsServed(ticket.id);
+                        CapsuleToast.showSuccess(context, 'ออเดอร์ #${ticket.orderNumber} เสิร์ฟเรียบร้อยแล้ว!');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF38BDF8),
+                        foregroundColor: const Color(0xFF0B0F19),
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        elevation: 0,
+                      ),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: const [
+                            Icon(Icons.room_service_rounded, size: 14),
+                            SizedBox(width: 4),
+                            Text('เสิร์ฟแล้ว', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

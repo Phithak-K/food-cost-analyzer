@@ -53,11 +53,17 @@ class KdsNotifier extends Notifier<List<KitchenTicket>> {
     ];
   }
 
-  void addTicketFromCart(String orderNumber, List<CartItem> cartItems, {String table = 'โต๊ะ 02'}) {
+  void addTicketFromCart(
+    String orderNumber,
+    List<CartItem> cartItems, {
+    String table = 'โต๊ะ 01',
+    String orderType = 'ทานที่ร้าน (Dine-In)',
+  }) {
     final newTicket = KitchenTicket(
       id: 'kds_${DateTime.now().millisecondsSinceEpoch}',
       orderNumber: orderNumber,
       tableNumber: table,
+      orderType: orderType,
       createdAt: DateTime.now(),
       items: cartItems
           .map((c) => KitchenOrderItem(recipe: c.recipe, quantity: c.quantity))
@@ -66,6 +72,16 @@ class KdsNotifier extends Notifier<List<KitchenTicket>> {
     );
 
     addTicket(newTicket);
+  }
+
+  void markAsServed(String ticketId) {
+    state = [
+      for (final ticket in state)
+        if (ticket.id == ticketId)
+          ticket.copyWith(status: KitchenOrderStatus.served)
+        else
+          ticket,
+    ];
   }
 
   void addTicket(KitchenTicket ticket) {

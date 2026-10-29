@@ -95,6 +95,7 @@ enum UserRole {
   }
 
   bool canAccessRoute(String route) {
+    if (route.startsWith('/display')) return true;
     if (this == UserRole.manager) return true;
     if (this == UserRole.cashier) {
       return route.startsWith('/pos') || route.startsWith('/orders');

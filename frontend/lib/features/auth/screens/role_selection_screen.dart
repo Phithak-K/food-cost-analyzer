@@ -499,6 +499,59 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen>
           routeLabel: '/pos',
           features: ['Quick POS หน้าร้าน', 'ตัดสต็อกอัตโนมัติ', 'ประวัติบิล 60 วัน'],
         ),
+        const SizedBox(height: 12),
+        // Big Screen TV Display launcher card
+        InkWell(
+          onTap: () => context.go('/display'),
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0D1424),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.5)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF38BDF8).withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFF38BDF8).withValues(alpha: 0.3)),
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.tv_rounded, color: Color(0xFF38BDF8), size: 22),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Text(
+                        'เปิดโหมดจอใหญ่หน้าร้าน & จุดเสิร์ฟ (TV Display Mode)',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF38BDF8),
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'สำหรับต่อจอทีวีติดผนัง: แสดงคิวรับอาหารลูกค้า & รายการโต๊ะรอเสิร์ฟ ไม่ต้องล็อกอิน',
+                        style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Color(0xFF38BDF8)),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
