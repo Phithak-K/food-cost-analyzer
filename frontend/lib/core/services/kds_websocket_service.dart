@@ -9,11 +9,7 @@ import '../../features/recipes/models/recipe.dart';
 import '../../features/recipes/providers/recipes_provider.dart';
 import '../utils/audio_chime.dart';
 
-enum WebSocketConnectionStatus {
-  connecting,
-  connected,
-  disconnected,
-}
+enum WebSocketConnectionStatus { connecting, connected, disconnected }
 
 class KdsWebSocketState {
   final WebSocketConnectionStatus status;
@@ -52,7 +48,12 @@ class KdsWebSocketNotifier extends Notifier<KdsWebSocketState> {
   Timer? _pingTimer;
   bool _isDisposed = false;
 
-  final String _wsUrl = 'ws://localhost:5000/ws';
+  String get _wsUrl {
+    final host = (Uri.base.host.isNotEmpty && Uri.base.host != '')
+        ? Uri.base.host
+        : 'localhost';
+    return 'ws://$host:5000/ws';
+  }
 
   KdsWebSocketNotifier({this.autoConnect = true});
 
@@ -78,7 +79,9 @@ class KdsWebSocketNotifier extends Notifier<KdsWebSocketState> {
       });
     }
 
-    return const KdsWebSocketState(status: WebSocketConnectionStatus.disconnected);
+    return const KdsWebSocketState(
+      status: WebSocketConnectionStatus.disconnected,
+    );
   }
 
   void connect() {
@@ -101,7 +104,9 @@ class KdsWebSocketNotifier extends Notifier<KdsWebSocketState> {
       channel.ready.catchError((err) {
         // Expected when backend server is offline; handle gracefully
         if (!_isDisposed) {
-          state = state.copyWith(status: WebSocketConnectionStatus.disconnected);
+          state = state.copyWith(
+            status: WebSocketConnectionStatus.disconnected,
+          );
           _scheduleReconnect();
         }
       });
@@ -112,13 +117,17 @@ class KdsWebSocketNotifier extends Notifier<KdsWebSocketState> {
         },
         onDone: () {
           if (!_isDisposed) {
-            state = state.copyWith(status: WebSocketConnectionStatus.disconnected);
+            state = state.copyWith(
+              status: WebSocketConnectionStatus.disconnected,
+            );
             _scheduleReconnect();
           }
         },
         onError: (err) {
           if (!_isDisposed) {
-            state = state.copyWith(status: WebSocketConnectionStatus.disconnected);
+            state = state.copyWith(
+              status: WebSocketConnectionStatus.disconnected,
+            );
             _scheduleReconnect();
           }
         },
@@ -216,7 +225,9 @@ class KdsWebSocketNotifier extends Notifier<KdsWebSocketState> {
 
     if (ticketItems.isNotEmpty) {
       final newTicket = KitchenTicket(
-        id: orderId.isNotEmpty ? orderId : 'kds_${DateTime.now().millisecondsSinceEpoch}',
+        id: orderId.isNotEmpty
+            ? orderId
+            : 'kds_${DateTime.now().millisecondsSinceEpoch}',
         orderNumber: rawOrderNumber,
         tableNumber: 'โต๊ะ ${(state.orderReceivedCount % 8) + 1}',
         orderType: 'ทานที่ร้าน (Dine-In)',
@@ -250,7 +261,14 @@ class KdsWebSocketNotifier extends Notifier<KdsWebSocketState> {
 
     final target = orderId.isNotEmpty ? orderId : orderNumber;
     if (target.isNotEmpty) {
-      ref.read(kdsProvider.notifier).updateTicketStatus(target, status, broadcast: false);
+      ref
+          .read(kdsProvider.notifier)
+          .updateTicketStatus(
+            target,
+            status,
+            orderNumber: orderNumber.isNotEmpty ? orderNumber : null,
+            broadcast: false,
+          );
       if (status == KitchenOrderStatus.ready) {
         AudioChime.play();
       }
@@ -258,20 +276,27 @@ class KdsWebSocketNotifier extends Notifier<KdsWebSocketState> {
   }
 
   /// Broadcasts an order status update to other tabs/displays via WebSocket Gateway
-  void broadcastStatusChange(String ticketId, KitchenOrderStatus status, {String? orderNumber}) {
-    if (_channel != null && state.status == WebSocketConnectionStatus.connected) {
+  void broadcastStatusChange(
+    String ticketId,
+    KitchenOrderStatus status, {
+    String? orderNumber,
+  }) {
+    if (_channel != null &&
+        state.status == WebSocketConnectionStatus.connected) {
       final statusStr = status == KitchenOrderStatus.ready
           ? 'READY'
           : (status == KitchenOrderStatus.served ? 'SERVED' : 'COOKING');
       try {
-        _channel?.sink.add(jsonEncode({
-          'event': 'UPDATE_ORDER_STATUS',
-          'data': {
-            'id': ticketId,
-            'orderNumber': orderNumber ?? ticketId,
-            'status': statusStr,
-          },
-        }));
+        _channel?.sink.add(
+          jsonEncode({
+            'event': 'UPDATE_ORDER_STATUS',
+            'data': {
+              'id': ticketId,
+              'orderNumber': orderNumber ?? ticketId,
+              'status': statusStr,
+            },
+          }),
+        );
       } catch (e) {
         debugPrint('[WebSocket] Broadcast status error: $e');
       }
@@ -286,5 +311,5 @@ class KdsWebSocketNotifier extends Notifier<KdsWebSocketState> {
 
 final kdsWebSocketProvider =
     NotifierProvider<KdsWebSocketNotifier, KdsWebSocketState>(
-  KdsWebSocketNotifier.new,
-);
+      KdsWebSocketNotifier.new,
+    );

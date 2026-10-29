@@ -92,7 +92,11 @@ class KdsNotifier extends Notifier<List<KitchenTicket>> {
   }
 
   void markAsServed(String ticketId, {bool broadcast = true}) {
-    updateTicketStatus(ticketId, KitchenOrderStatus.served, broadcast: broadcast);
+    updateTicketStatus(
+      ticketId,
+      KitchenOrderStatus.served,
+      broadcast: broadcast,
+    );
   }
 
   void addTicket(KitchenTicket ticket) {
@@ -124,27 +128,37 @@ class KdsNotifier extends Notifier<List<KitchenTicket>> {
   void updateTicketStatus(
     String ticketId,
     KitchenOrderStatus status, {
+    String? orderNumber,
     bool broadcast = true,
   }) {
-    String? orderNumber;
+    String? matchedOrderNumber = orderNumber;
     state = [
       for (final ticket in state)
-        if (ticket.id == ticketId || ticket.orderNumber == ticketId)
-          () {
-            orderNumber = ticket.orderNumber;
-            return ticket.copyWith(status: status);
-          }()
-        else
-          ticket,
+          if (ticket.id == ticketId ||
+              ticket.orderNumber == ticketId ||
+              (orderNumber != null && ticket.orderNumber == orderNumber) ||
+              ticket.orderNumber.replaceAll('#', '').trim().toLowerCase() ==
+                  ticketId.replaceAll('#', '').trim().toLowerCase() ||
+              (orderNumber != null &&
+                  ticket.orderNumber.replaceAll('#', '').trim().toLowerCase() ==
+                      orderNumber.replaceAll('#', '').trim().toLowerCase()))
+            () {
+              matchedOrderNumber = ticket.orderNumber;
+              return ticket.copyWith(status: status);
+            }()
+          else
+            ticket,
     ];
 
     if (broadcast) {
       try {
-        ref.read(kdsWebSocketProvider.notifier).broadcastStatusChange(
-          ticketId,
-          status,
-          orderNumber: orderNumber,
-        );
+        ref
+            .read(kdsWebSocketProvider.notifier)
+            .broadcastStatusChange(
+              ticketId,
+              status,
+              orderNumber: matchedOrderNumber ?? orderNumber,
+            );
       } catch (_) {}
     }
   }
