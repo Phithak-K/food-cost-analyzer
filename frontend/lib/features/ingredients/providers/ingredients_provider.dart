@@ -393,7 +393,7 @@ class IngredientsNotifier extends Notifier<List<Ingredient>> {
       purchaseCost: 35.0,
       purchaseQuantity: 1.0,
       yieldPercentage: 100.0,
-      currentStock: 120.0,
+      currentStock: 3.0, // Low Stock for Live Demo (เหลือ 3 ชิ้น)
       supplier: 'Bridor Gourmet France',
     ),
     Ingredient(
@@ -470,7 +470,7 @@ class IngredientsNotifier extends Notifier<List<Ingredient>> {
       purchaseCost: 2400.0,
       purchaseQuantity: 1.0,
       yieldPercentage: 90.0,
-      currentStock: 30.0,
+      currentStock: 0.1, // Critical Low Stock for Live Demo (เหลือ 100g = สั่งได้แค่ 1 จาน)
       supplier: 'Rougié Gourmet France',
     ),
     Ingredient(
@@ -481,7 +481,7 @@ class IngredientsNotifier extends Notifier<List<Ingredient>> {
       purchaseCost: 160.0,
       purchaseQuantity: 1.0,
       yieldPercentage: 100.0,
-      currentStock: 100.0,
+      currentStock: 2.0, // Critical Low Stock for Live Demo (เหลือ 2 ลูก = สั่งได้แค่ 2 จาน)
       supplier: 'Caseificio Italiano',
     ),
     Ingredient(
@@ -505,6 +505,61 @@ class IngredientsNotifier extends Notifier<List<Ingredient>> {
       yieldPercentage: 100.0,
       currentStock: 250.0,
       supplier: 'Kochi Citrus Direct',
+    ),
+    Ingredient(
+      id: 'ing_36',
+      name: 'Fresh Atlantic Black Mussels (หอยแมลงภู่ดำแอตแลนติกสด)',
+      category: 'Seafood',
+      purchaseUnit: 'kg',
+      purchaseCost: 350.0,
+      purchaseQuantity: 1.0,
+      yieldPercentage: 80.0,
+      currentStock: 40.0,
+      supplier: 'Ocean Fresh Co.',
+    ),
+    Ingredient(
+      id: 'ing_37',
+      name: 'White Wine Pinot Grigio for Cooking (ไวน์ขาวสำหรับปรุงอาหาร)',
+      category: 'Oil & Condiments',
+      purchaseUnit: 'L',
+      purchaseCost: 280.0,
+      purchaseQuantity: 1.0,
+      yieldPercentage: 100.0,
+      currentStock: 35.0,
+      supplier: 'Euro Imports Co.',
+    ),
+    Ingredient(
+      id: 'ing_38',
+      name: 'Japanese A5 Miyazaki Wagyu Striploin (เนื้อวากิวมิยาซากิ A5 คัดพิเศษ)',
+      category: 'Meat',
+      purchaseUnit: 'kg',
+      purchaseCost: 3200.0,
+      purchaseQuantity: 1.0,
+      yieldPercentage: 98.0,
+      currentStock: 20.0,
+      supplier: 'Miyazaki Wagyu Guild Japan',
+    ),
+    Ingredient(
+      id: 'ing_39',
+      name: 'Matcha Green Tea Espuma & Whipped Cream (เอสพูม่าชาเขียวมัทฉะเข้มข้น)',
+      category: 'Dairy',
+      purchaseUnit: 'L',
+      purchaseCost: 260.0,
+      purchaseQuantity: 1.0,
+      yieldPercentage: 100.0,
+      currentStock: 35.0,
+      supplier: 'Uji Tea Master Farm',
+    ),
+    Ingredient(
+      id: 'ing_40',
+      name: 'Italian Ladyfingers Savoiardi (บิสกิตเลดี้ฟิงเกอร์แท้)',
+      category: 'Bakery',
+      purchaseUnit: 'pack',
+      purchaseCost: 85.0,
+      purchaseQuantity: 1.0,
+      yieldPercentage: 100.0,
+      currentStock: 80.0,
+      supplier: 'Vicenzi Bakery Italy',
     ),
   ];
 }

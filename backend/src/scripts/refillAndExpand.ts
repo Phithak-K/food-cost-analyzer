@@ -10,7 +10,15 @@ async function main() {
   for (const ing of allIngredients) {
     let newStock = 100.0;
     const unit = ing.purchaseUnit.toLowerCase();
-    if (unit === 'g') {
+
+    // Check for specific demo low-stock test items
+    if (ing.name.includes('Foie Gras') || ing.name.includes('ฟัวกราส์')) {
+      newStock = 0.1; // 100g (สเต๊ก 1 จานใช้ 80g -> สั่งได้แค่ 1 จาน พอสั่งจานที่ 2 จะแจ้งเตือนบล็อกทันที)
+    } else if (ing.name.includes('Burrata') || ing.name.includes('บูร์ราตา')) {
+      newStock = 2.0; // 2 ชิ้น (สั่งได้แค่ 2 จาน)
+    } else if (ing.name.includes('Croissant') || ing.name.includes('ครัวซองต์')) {
+      newStock = 3.0; // 3 ชิ้น (สั่งได้แค่ 3 ชิ้น)
+    } else if (unit === 'g') {
       newStock = 5000.0;
     } else if (unit === 'pcs' || unit === 'can' || unit === 'pack') {
       newStock = 250.0;
@@ -25,9 +33,9 @@ async function main() {
       data: { currentStock: new Prisma.Decimal(newStock.toFixed(2)) },
     });
   }
-  console.log(`✅ Refilled ${allIngredients.length} existing ingredients stock to healthy levels.`);
+  console.log(`✅ Refilled ${allIngredients.length} existing ingredients stock.`);
 
-  // 2. Add 6 New Specialty Ingredients if not already present
+  // 2. Add New Specialty Ingredients if not already present
   const newIngredientsData = [
     {
       name: 'Hokkaido Scallops Sashimi Grade (หอยเชลล์ฮอกไกโดเกรดซาชิมิ)',
@@ -59,8 +67,8 @@ async function main() {
       purchaseUnit: 'kg',
       costPerBaseUnit: 2.666, // 2.40 / 0.90
       yieldPercent: 90.0,
-      currentStock: 40.0,
-      minStockAlert: 8.0,
+      currentStock: 0.1, // Demo Critical Low Stock (เหลือ 100g)
+      minStockAlert: 5.0,
     },
     {
       name: 'Artisan Burrata Cheese (ชีสบูร์ราตาอิตาเลียนสด)',
@@ -70,8 +78,8 @@ async function main() {
       purchaseUnit: 'pcs',
       costPerBaseUnit: 160.0,
       yieldPercent: 100.0,
-      currentStock: 120.0,
-      minStockAlert: 20.0,
+      currentStock: 2.0, // Demo Critical Low Stock (เหลือ 2 ลูก)
+      minStockAlert: 10.0,
     },
     {
       name: 'Fuji Apple & Cinnamon Compote (แอปเปิ้ลฟูจิและซินนามอน)',
@@ -94,6 +102,62 @@ async function main() {
       yieldPercent: 100.0,
       currentStock: 250.0,
       minStockAlert: 30.0,
+    },
+    // Added in expand phase 2
+    {
+      name: 'Fresh Atlantic Black Mussels (หอยแมลงภู่ดำแอตแลนติกสด)',
+      category: 'seafood',
+      purchasePrice: 350.0,
+      purchaseQuantity: 1000.0,
+      purchaseUnit: 'kg',
+      costPerBaseUnit: 0.4375, // 0.35 / 0.80
+      yieldPercent: 80.0,
+      currentStock: 40.0,
+      minStockAlert: 8.0,
+    },
+    {
+      name: 'White Wine Pinot Grigio for Cooking (ไวน์ขาวสำหรับปรุงอาหาร)',
+      category: 'condiment',
+      purchasePrice: 280.0,
+      purchaseQuantity: 1000.0,
+      purchaseUnit: 'L',
+      costPerBaseUnit: 0.28,
+      yieldPercent: 100.0,
+      currentStock: 35.0,
+      minStockAlert: 5.0,
+    },
+    {
+      name: 'Japanese A5 Miyazaki Wagyu Striploin (เนื้อวากิวมิยาซากิ A5 คัดพิเศษ)',
+      category: 'meat',
+      purchasePrice: 3200.0,
+      purchaseQuantity: 1000.0,
+      purchaseUnit: 'kg',
+      costPerBaseUnit: 3.265, // 3.20 / 0.98
+      yieldPercent: 98.0,
+      currentStock: 20.0,
+      minStockAlert: 5.0,
+    },
+    {
+      name: 'Matcha Green Tea Espuma & Whipped Cream (เอสพูม่าชาเขียวมัทฉะเข้มข้น)',
+      category: 'dairy',
+      purchasePrice: 260.0,
+      purchaseQuantity: 1000.0,
+      purchaseUnit: 'L',
+      costPerBaseUnit: 0.26,
+      yieldPercent: 100.0,
+      currentStock: 35.0,
+      minStockAlert: 5.0,
+    },
+    {
+      name: 'Italian Ladyfingers Savoiardi (บิสกิตเลดี้ฟิงเกอร์แท้)',
+      category: 'bakery',
+      purchasePrice: 85.0,
+      purchaseQuantity: 1.0,
+      purchaseUnit: 'pack',
+      costPerBaseUnit: 85.0,
+      yieldPercent: 100.0,
+      currentStock: 80.0,
+      minStockAlert: 15.0,
     },
   ];
 
@@ -136,7 +200,7 @@ async function main() {
     return null;
   };
 
-  // 3. Add 6 New Signature Recipes
+  // 3. Add Signature Recipes (rec_20 to rec_30)
   const newRecipesData = [
     {
       id: 'rec_20',
@@ -209,6 +273,70 @@ async function main() {
         { ing: getIng('Butter'), qty: 15, unit: 'g' },
       ],
     },
+    {
+      id: 'rec_26',
+      name: 'Steamed Atlantic Black Mussels in White Wine (หอยแมลงภู่ดำแอตแลนติกอบไวน์ขาว)',
+      category: 'food',
+      sellingPrice: 420.0,
+      targetCostPercent: 30.0,
+      ingredients: [
+        { ing: getIng('Black Mussels'), qty: 250, unit: 'g' },
+        { ing: getIng('White Wine'), qty: 50, unit: 'ml' },
+        { ing: getIng('Butter'), qty: 20, unit: 'g' },
+        { ing: getIng('Garlic'), qty: 15, unit: 'g' },
+      ],
+    },
+    {
+      id: 'rec_27',
+      name: 'Miyazaki Wagyu A5 Striploin Steak (สเต๊กเนื้อวากิวมิยาซากิ A5 ย่างเตาถ่าน)',
+      category: 'food',
+      sellingPrice: 1850.0,
+      targetCostPercent: 38.0,
+      ingredients: [
+        { ing: getIng('Miyazaki Wagyu'), qty: 200, unit: 'g' },
+        { ing: getIng('Butter'), qty: 20, unit: 'g' },
+        { ing: getIng('Olive Oil'), qty: 15, unit: 'ml' },
+      ],
+    },
+    {
+      id: 'rec_28',
+      name: 'Classic Venetian Tiramisu (ทีรามิสุสไตล์เวนิสดั้งเดิม)',
+      category: 'dessert',
+      sellingPrice: 220.0,
+      targetCostPercent: 26.0,
+      ingredients: [
+        { ing: getIng('Ladyfingers'), qty: 1, unit: 'pack' },
+        { ing: getIng('Heavy Cream'), qty: 60, unit: 'ml' },
+        { ing: getIng('Chocolate'), qty: 15, unit: 'g' },
+        { ing: getIng('Coffee'), qty: 20, unit: 'g' },
+      ],
+    },
+    {
+      id: 'rec_29',
+      name: 'Matcha Espuma Cloud Latte (มัทฉะเอสพูม่าคลาวด์ลาเต้เย็น)',
+      category: 'drink',
+      sellingPrice: 165.0,
+      targetCostPercent: 24.0,
+      ingredients: [
+        { ing: getIng('Matcha Powder'), qty: 10, unit: 'g' },
+        { ing: getIng('Matcha Green Tea Espuma'), qty: 40, unit: 'ml' },
+        { ing: getIng('Milk'), qty: 120, unit: 'ml' },
+      ],
+    },
+    {
+      id: 'rec_30',
+      name: 'Crispy Bacon & Truffle Carbonara (สปาเก็ตตี้คาโบนาร่าเบคอนกรอบทรัฟเฟิล)',
+      category: 'food',
+      sellingPrice: 320.0,
+      targetCostPercent: 28.0,
+      ingredients: [
+        { ing: getIng('Spaghetti'), qty: 120, unit: 'g' },
+        { ing: getIng('Bacon'), qty: 60, unit: 'g' },
+        { ing: getIng('Egg'), qty: 2, unit: 'pcs' },
+        { ing: getIng('Parmigiano'), qty: 30, unit: 'g' },
+        { ing: getIng('Truffle Oil'), qty: 15, unit: 'ml' },
+      ],
+    },
   ];
 
   for (const r of newRecipesData) {
@@ -247,7 +375,7 @@ async function main() {
     }
   }
 
-  console.log('🎉 Refill & Expansion Completed Successfully!');
+  console.log('🎉 Refill & Expansion (rec_20 - rec_30) Completed Successfully!');
 }
 
 main()
@@ -258,4 +386,3 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
-

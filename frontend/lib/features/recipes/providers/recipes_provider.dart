@@ -389,6 +389,89 @@ class RecipesNotifier extends Notifier<List<Recipe>> {
             RecipeItem(ingredient: ingMap['ing_14']!, quantityUsed: 15, unitUsed: 'g'),
         ],
       ),
+      Recipe(
+        id: 'rec_26',
+        name: 'Steamed Atlantic Black Mussels in White Wine (หอยแมลงภู่ดำแอตแลนติกอบไวน์ขาว)',
+        category: 'Appetizer',
+        sellingPrice: 420.0,
+        unitsSoldMonthly: 240, // Star
+        items: [
+          if (ingMap.containsKey('ing_36'))
+            RecipeItem(ingredient: ingMap['ing_36']!, quantityUsed: 250, unitUsed: 'g'),
+          if (ingMap.containsKey('ing_37'))
+            RecipeItem(ingredient: ingMap['ing_37']!, quantityUsed: 50, unitUsed: 'ml'),
+          if (ingMap.containsKey('ing_14'))
+            RecipeItem(ingredient: ingMap['ing_14']!, quantityUsed: 20, unitUsed: 'g'),
+          if (ingMap.containsKey('ing_16'))
+            RecipeItem(ingredient: ingMap['ing_16']!, quantityUsed: 15, unitUsed: 'g'),
+        ],
+      ),
+      Recipe(
+        id: 'rec_27',
+        name: 'Miyazaki Wagyu A5 Striploin Steak (สเต๊กเนื้อวากิวมิยาซากิ A5 ย่างเตาถ่าน)',
+        category: 'Main Course',
+        sellingPrice: 1850.0,
+        unitsSoldMonthly: 95, // High Margin Premium Puzzle
+        items: [
+          if (ingMap.containsKey('ing_38'))
+            RecipeItem(ingredient: ingMap['ing_38']!, quantityUsed: 200, unitUsed: 'g'),
+          if (ingMap.containsKey('ing_14'))
+            RecipeItem(ingredient: ingMap['ing_14']!, quantityUsed: 20, unitUsed: 'g'),
+          if (ingMap.containsKey('ing_4'))
+            RecipeItem(ingredient: ingMap['ing_4']!, quantityUsed: 15, unitUsed: 'ml'),
+        ],
+      ),
+      Recipe(
+        id: 'rec_28',
+        name: 'Classic Venetian Tiramisu (ทีรามิสุสไตล์เวนิสดั้งเดิม)',
+        category: 'Dessert',
+        sellingPrice: 220.0,
+        unitsSoldMonthly: 380, // Star
+        items: [
+          if (ingMap.containsKey('ing_40'))
+            RecipeItem(ingredient: ingMap['ing_40']!, quantityUsed: 1, unitUsed: 'pack'),
+          if (ingMap.containsKey('ing_6'))
+            RecipeItem(ingredient: ingMap['ing_6']!, quantityUsed: 60, unitUsed: 'ml'),
+          if (ingMap.containsKey('ing_23'))
+            RecipeItem(ingredient: ingMap['ing_23']!, quantityUsed: 15, unitUsed: 'g'),
+          if (ingMap.containsKey('ing_24'))
+            RecipeItem(ingredient: ingMap['ing_24']!, quantityUsed: 20, unitUsed: 'g'),
+        ],
+      ),
+      Recipe(
+        id: 'rec_29',
+        name: 'Matcha Espuma Cloud Latte (มัทฉะเอสพูม่าคลาวด์ลาเต้เย็น)',
+        category: 'Beverage',
+        sellingPrice: 165.0,
+        unitsSoldMonthly: 490, // High Volume Star
+        items: [
+          if (ingMap.containsKey('ing_21'))
+            RecipeItem(ingredient: ingMap['ing_21']!, quantityUsed: 10, unitUsed: 'g'),
+          if (ingMap.containsKey('ing_39'))
+            RecipeItem(ingredient: ingMap['ing_39']!, quantityUsed: 40, unitUsed: 'ml'),
+          if (ingMap.containsKey('ing_15'))
+            RecipeItem(ingredient: ingMap['ing_15']!, quantityUsed: 120, unitUsed: 'ml'),
+        ],
+      ),
+      Recipe(
+        id: 'rec_30',
+        name: 'Crispy Bacon & Truffle Carbonara (สปาเก็ตตี้คาโบนาร่าเบคอนกรอบทรัฟเฟิล)',
+        category: 'Main Course',
+        sellingPrice: 320.0,
+        unitsSoldMonthly: 520, // High Volume Star
+        items: [
+          if (ingMap.containsKey('ing_20'))
+            RecipeItem(ingredient: ingMap['ing_20']!, quantityUsed: 120, unitUsed: 'g'),
+          if (ingMap.containsKey('ing_12'))
+            RecipeItem(ingredient: ingMap['ing_12']!, quantityUsed: 60, unitUsed: 'g'),
+          if (ingMap.containsKey('ing_13'))
+            RecipeItem(ingredient: ingMap['ing_13']!, quantityUsed: 2, unitUsed: 'pcs'),
+          if (ingMap.containsKey('ing_7'))
+            RecipeItem(ingredient: ingMap['ing_7']!, quantityUsed: 30, unitUsed: 'g'),
+          if (ingMap.containsKey('ing_29'))
+            RecipeItem(ingredient: ingMap['ing_29']!, quantityUsed: 15, unitUsed: 'ml'),
+        ],
+      ),
     ];
   }
 
