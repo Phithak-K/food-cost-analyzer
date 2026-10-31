@@ -299,6 +299,96 @@ class RecipesNotifier extends Notifier<List<Recipe>> {
             RecipeItem(ingredient: ingMap['ing_4']!, quantityUsed: 15, unitUsed: 'ml'),
         ],
       ),
+      Recipe(
+        id: 'rec_20',
+        name: 'Pan-Seared Hokkaido Scallops with Truffle Cream (สเต๊กหอยเชลล์ฮอกไกโดซอสครีมทรัฟเฟิล)',
+        category: 'Main Course',
+        sellingPrice: 650.0,
+        unitsSoldMonthly: 280, // High Margin, High Volume (Star)
+        items: [
+          if (ingMap.containsKey('ing_30'))
+            RecipeItem(ingredient: ingMap['ing_30']!, quantityUsed: 160, unitUsed: 'g'),
+          if (ingMap.containsKey('ing_6'))
+            RecipeItem(ingredient: ingMap['ing_6']!, quantityUsed: 80, unitUsed: 'ml'),
+          if (ingMap.containsKey('ing_5'))
+            RecipeItem(ingredient: ingMap['ing_5']!, quantityUsed: 15, unitUsed: 'g'),
+          if (ingMap.containsKey('ing_4'))
+            RecipeItem(ingredient: ingMap['ing_4']!, quantityUsed: 15, unitUsed: 'ml'),
+        ],
+      ),
+      Recipe(
+        id: 'rec_21',
+        name: 'Squid Ink Pasta with Tiger Prawns (สปาเก็ตตี้หมึกดำผัดกุ้งลายเสือ)',
+        category: 'Main Course',
+        sellingPrice: 390.0,
+        unitsSoldMonthly: 420, // High Volume (Plowhorse)
+        items: [
+          if (ingMap.containsKey('ing_31'))
+            RecipeItem(ingredient: ingMap['ing_31']!, quantityUsed: 120, unitUsed: 'g'),
+          if (ingMap.containsKey('ing_8'))
+            RecipeItem(ingredient: ingMap['ing_8']!, quantityUsed: 120, unitUsed: 'g'),
+          if (ingMap.containsKey('ing_4'))
+            RecipeItem(ingredient: ingMap['ing_4']!, quantityUsed: 20, unitUsed: 'ml'),
+          if (ingMap.containsKey('ing_19'))
+            RecipeItem(ingredient: ingMap['ing_19']!, quantityUsed: 10, unitUsed: 'g'),
+        ],
+      ),
+      Recipe(
+        id: 'rec_22',
+        name: 'Burrata Cheese Garden Salad (สลัดชีสบูร์ราตาสดมะเขือเทศเชอร์รี่)',
+        category: 'Appetizer',
+        sellingPrice: 340.0,
+        unitsSoldMonthly: 190, // Puzzle
+        items: [
+          if (ingMap.containsKey('ing_33'))
+            RecipeItem(ingredient: ingMap['ing_33']!, quantityUsed: 1, unitUsed: 'pcs'),
+          if (ingMap.containsKey('ing_17'))
+            RecipeItem(ingredient: ingMap['ing_17']!, quantityUsed: 100, unitUsed: 'g'),
+          if (ingMap.containsKey('ing_4'))
+            RecipeItem(ingredient: ingMap['ing_4']!, quantityUsed: 20, unitUsed: 'ml'),
+        ],
+      ),
+      Recipe(
+        id: 'rec_23',
+        name: 'Seared French Foie Gras on Toast (ฟัวกราส์ย่างกระทะเสิร์ฟพร้อมซอสผลไม้)',
+        category: 'Appetizer',
+        sellingPrice: 790.0,
+        unitsSoldMonthly: 110, // Premium Puzzle
+        items: [
+          if (ingMap.containsKey('ing_32'))
+            RecipeItem(ingredient: ingMap['ing_32']!, quantityUsed: 80, unitUsed: 'g'),
+          if (ingMap.containsKey('ing_14'))
+            RecipeItem(ingredient: ingMap['ing_14']!, quantityUsed: 15, unitUsed: 'g'),
+        ],
+      ),
+      Recipe(
+        id: 'rec_24',
+        name: 'Craft Japanese Yuzu Tonic Cooler (ยูซุโทนิกโซดาเย็นคราฟต์)',
+        category: 'Beverage',
+        sellingPrice: 135.0,
+        unitsSoldMonthly: 620, // Star
+        items: [
+          if (ingMap.containsKey('ing_35'))
+            RecipeItem(ingredient: ingMap['ing_35']!, quantityUsed: 1, unitUsed: 'can'),
+          if (ingMap.containsKey('ing_22'))
+            RecipeItem(ingredient: ingMap['ing_22']!, quantityUsed: 20, unitUsed: 'ml'),
+        ],
+      ),
+      Recipe(
+        id: 'rec_25',
+        name: 'Warm Apple Cinnamon Croissant Tart (ทาร์ตครัวซองต์เนยสดแอปเปิ้ลซินนามอน)',
+        category: 'Dessert',
+        sellingPrice: 185.0,
+        unitsSoldMonthly: 310, // Star
+        items: [
+          if (ingMap.containsKey('ing_25'))
+            RecipeItem(ingredient: ingMap['ing_25']!, quantityUsed: 1, unitUsed: 'pcs'),
+          if (ingMap.containsKey('ing_34'))
+            RecipeItem(ingredient: ingMap['ing_34']!, quantityUsed: 80, unitUsed: 'g'),
+          if (ingMap.containsKey('ing_14'))
+            RecipeItem(ingredient: ingMap['ing_14']!, quantityUsed: 15, unitUsed: 'g'),
+        ],
+      ),
     ];
   }
 
