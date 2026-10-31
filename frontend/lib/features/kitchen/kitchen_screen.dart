@@ -24,14 +24,17 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
 
     final cookingTickets = tickets.where((t) => t.status == KitchenOrderStatus.cooking).toList();
     final doneTickets = tickets.where((t) => t.status == KitchenOrderStatus.ready).toList();
+    final servedTickets = tickets.where((t) => t.status == KitchenOrderStatus.served).toList();
 
     List<KitchenTicket> displayTickets;
     if (_selectedTab == 1) {
       displayTickets = cookingTickets;
     } else if (_selectedTab == 2) {
       displayTickets = doneTickets;
+    } else if (_selectedTab == 3) {
+      displayTickets = servedTickets;
     } else {
-      displayTickets = tickets;
+      displayTickets = tickets.where((t) => t.status != KitchenOrderStatus.served).toList();
     }
 
     return Scaffold(
@@ -40,7 +43,12 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
         child: Column(
           children: [
             // Top Bar
-            _buildHeader(context, cookingCount: cookingTickets.length, doneCount: doneTickets.length),
+            _buildHeader(
+              context,
+              cookingCount: cookingTickets.length,
+              doneCount: doneTickets.length,
+              servedCount: servedTickets.length,
+            ),
 
             // Content Area
             Expanded(
@@ -81,6 +89,7 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
     BuildContext context, {
     required int cookingCount,
     required int doneCount,
+    required int servedCount,
   }) {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -159,6 +168,8 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
                 _buildFilterTab(1, 'กำลังทำ ($cookingCount)', const Color(0xFFF59E0B)),
                 const SizedBox(width: 4),
                 _buildFilterTab(2, 'เสร็จแล้ว ($doneCount)', const Color(0xFF10B981)),
+                const SizedBox(width: 4),
+                _buildFilterTab(3, 'เสิร์ฟแล้ว ($servedCount)', const Color(0xFF38BDF8)),
               ],
             ),
           ),
@@ -288,6 +299,7 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
   }
 
   Widget _buildEmptyState() {
+    final isServedTab = _selectedTab == 3;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -297,24 +309,28 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
             height: 76,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.04),
+              color: isServedTab
+                  ? const Color(0xFF38BDF8).withValues(alpha: 0.08)
+                  : const Color(0xFF10B981).withValues(alpha: 0.08),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
-              Icons.soup_kitchen_outlined,
+            child: Icon(
+              isServedTab ? Icons.room_service_outlined : Icons.check_circle_outline_rounded,
               size: 38,
-              color: Color(0xFFF59E0B),
+              color: isServedTab ? const Color(0xFF38BDF8) : const Color(0xFF10B981),
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
-            'ไม่มีออเดอร์ในหมวดหมู่นี้',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary),
+          Text(
+            isServedTab ? 'ยังไม่มีออเดอร์ที่เสิร์ฟแล้ว' : 'เคลียร์ออเดอร์ในครัวครบแล้ว!',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary),
           ),
           const SizedBox(height: 6),
-          const Text(
-            'เมื่อแคชเชียร์รับออเดอร์ที่หน้า Quick POS บิลจะเด้งเข้าสู่จอครัวทันที',
-            style: TextStyle(fontSize: 13, color: AppTheme.textMuted),
+          Text(
+            isServedTab
+                ? 'เมื่อพนักงานยกอาหารไปเสิร์ฟ รายการประวัติจะมาแสดงที่นี่'
+                : 'ไม่มีออเดอร์ค้างในครัว เมื่อแคชเชียร์รับออเดอร์ที่หน้า Quick POS บิลจะเด้งเข้าสู่จอครัวทันที',
+            style: const TextStyle(fontSize: 13, color: AppTheme.textMuted),
           ),
         ],
       ),
@@ -323,7 +339,10 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
 
   Widget _buildOrderTicketCard(BuildContext context, KitchenTicket ticket) {
     final isCooking = ticket.status == KitchenOrderStatus.cooking;
-    final accentColor = isCooking ? const Color(0xFFF59E0B) : const Color(0xFF10B981);
+    final isServed = ticket.status == KitchenOrderStatus.served;
+    final accentColor = isCooking
+        ? const Color(0xFFF59E0B)
+        : (isServed ? const Color(0xFF38BDF8) : const Color(0xFF10B981));
 
     final timeStr =
         '${ticket.orderedAt.hour.toString().padLeft(2, '0')}:${ticket.orderedAt.minute.toString().padLeft(2, '0')} น.';
@@ -438,20 +457,24 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
                   decoration: BoxDecoration(
                     color: isCooking
                         ? (minutesAgo > 15 ? AppTheme.danger.withValues(alpha: 0.15) : const Color(0xFFF59E0B).withValues(alpha: 0.15))
-                        : const Color(0xFF10B981).withValues(alpha: 0.15),
+                        : (isServed ? const Color(0xFF38BDF8).withValues(alpha: 0.15) : const Color(0xFF10B981).withValues(alpha: 0.15)),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        isCooking ? Icons.timer_outlined : Icons.check_circle_outline_rounded,
+                        isCooking
+                            ? Icons.timer_outlined
+                            : (isServed ? Icons.room_service_rounded : Icons.check_circle_outline_rounded),
                         size: 13,
                         color: accentColor,
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        isCooking ? '$minutesAgo นาทีที่แล้ว' : 'ปรุงเสร็จแล้ว',
+                        isCooking
+                            ? '$minutesAgo นาทีที่แล้ว'
+                            : (isServed ? 'เสิร์ฟเรียบร้อยแล้ว' : 'ปรุงเสร็จแล้ว'),
                         style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: accentColor),
                       ),
                     ],
@@ -558,109 +581,153 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
           // Status Action Buttons: 'กำลังทำ (Cooking)' vs 'เสร็จแล้ว (Done)'
           Padding(
             padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                // 'กำลังทำ (Cooking)' Button
-                Expanded(
-                  child: OutlinedButton(
-                    key: Key('status_cooking_${ticket.id}'),
-                    onPressed: isCooking
-                        ? null
-                        : () {
-                            ref.read(kdsProvider.notifier).updateTicketStatus(ticket.id, KitchenOrderStatus.cooking);
-                            CapsuleToast.showInfo(context, 'ออเดอร์ #${ticket.orderNumber} กำลังปรุงอาหาร');
-                          },
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFFF59E0B),
-                      backgroundColor: isCooking ? const Color(0xFFF59E0B).withValues(alpha: 0.15) : Colors.transparent,
-                      side: BorderSide(
-                        color: isCooking ? const Color(0xFFF59E0B) : AppTheme.border,
-                        width: isCooking ? 1.5 : 1,
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: const [
-                          Icon(Icons.soup_kitchen_rounded, size: 14, color: Color(0xFFF59E0B)),
-                          SizedBox(width: 4),
-                          Text('กำลังทำ (Cooking)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-
-                // 'เสร็จแล้ว (Done)' Button
-                Expanded(
-                  child: ElevatedButton(
-                    key: Key('status_done_${ticket.id}'),
-                    onPressed: !isCooking
-                        ? null
-                        : () {
-                            ref.read(kdsProvider.notifier).updateTicketStatus(ticket.id, KitchenOrderStatus.ready);
-                            CapsuleToast.showSuccess(context, 'ออเดอร์ #${ticket.orderNumber} ปรุงเสร็จพร้อมเสิร์ฟแล้ว!');
-                          },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF10B981),
-                      foregroundColor: const Color(0xFF0B0F19),
-                      disabledBackgroundColor: const Color(0xFF10B981).withValues(alpha: 0.15),
-                      disabledForegroundColor: const Color(0xFF10B981),
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      elevation: 0,
-                    ),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: const [
-                          Icon(Icons.check_circle_rounded, size: 14),
-                          SizedBox(width: 4),
-                          Text('เสร็จแล้ว (Done)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-
-                // 'เสิร์ฟแล้ว (Served)' Button (Active when ticket is ready)
-                if (ticket.status == KitchenOrderStatus.ready) ...[
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ElevatedButton(
-                      key: Key('status_served_${ticket.id}'),
-                      onPressed: () {
-                        ref.read(kdsProvider.notifier).markAsServed(ticket.id);
-                        CapsuleToast.showSuccess(context, 'ออเดอร์ #${ticket.orderNumber} เสิร์ฟเรียบร้อยแล้ว!');
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF38BDF8),
-                        foregroundColor: const Color(0xFF0B0F19),
-                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        elevation: 0,
-                      ),
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            Icon(Icons.room_service_rounded, size: 14),
-                            SizedBox(width: 4),
-                            Text('เสิร์ฟแล้ว', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                          ],
+            child: isServed
+                ? Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 9),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF38BDF8).withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: const Color(0xFF38BDF8).withValues(alpha: 0.3)),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.check_circle_rounded, size: 14, color: Color(0xFF38BDF8)),
+                              SizedBox(width: 6),
+                              Text(
+                                'เสิร์ฟถึงโต๊ะแล้ว (Completed)',
+                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF38BDF8)),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
+                      const SizedBox(width: 8),
+                      Tooltip(
+                        message: 'ย้ายกลับไปทำครัวใหม่',
+                        child: OutlinedButton(
+                          onPressed: () {
+                            ref.read(kdsProvider.notifier).updateTicketStatus(ticket.id, KitchenOrderStatus.cooking);
+                            CapsuleToast.showInfo(context, 'ย้ายออเดอร์ #${ticket.orderNumber} กลับไปทำครัว');
+                          },
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: const Color(0xFFF59E0B),
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                            side: const BorderSide(color: Color(0xFFF59E0B)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          child: const Icon(Icons.replay_rounded, size: 14),
+                        ),
+                      ),
+                    ],
+                  )
+                : Row(
+                    children: [
+                      // 'กำลังทำ (Cooking)' Button
+                      Expanded(
+                        child: OutlinedButton(
+                          key: Key('status_cooking_${ticket.id}'),
+                          onPressed: isCooking
+                              ? null
+                              : () {
+                                  ref.read(kdsProvider.notifier).updateTicketStatus(ticket.id, KitchenOrderStatus.cooking);
+                                  CapsuleToast.showInfo(context, 'ออเดอร์ #${ticket.orderNumber} กำลังปรุงอาหาร');
+                                },
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: const Color(0xFFF59E0B),
+                            backgroundColor: isCooking ? const Color(0xFFF59E0B).withValues(alpha: 0.15) : Colors.transparent,
+                            side: BorderSide(
+                              color: isCooking ? const Color(0xFFF59E0B) : AppTheme.border,
+                              width: isCooking ? 1.5 : 1,
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: const [
+                                Icon(Icons.soup_kitchen_rounded, size: 14, color: Color(0xFFF59E0B)),
+                                SizedBox(width: 4),
+                                Text('กำลังทำ (Cooking)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+
+                      // 'เสร็จแล้ว (Done)' Button
+                      Expanded(
+                        child: ElevatedButton(
+                          key: Key('status_done_${ticket.id}'),
+                          onPressed: !isCooking
+                              ? null
+                              : () {
+                                  ref.read(kdsProvider.notifier).updateTicketStatus(ticket.id, KitchenOrderStatus.ready);
+                                  CapsuleToast.showSuccess(context, 'ออเดอร์ #${ticket.orderNumber} ปรุงเสร็จพร้อมเสิร์ฟแล้ว!');
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF10B981),
+                            foregroundColor: const Color(0xFF0B0F19),
+                            disabledBackgroundColor: const Color(0xFF10B981).withValues(alpha: 0.15),
+                            disabledForegroundColor: const Color(0xFF10B981),
+                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            elevation: 0,
+                          ),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: const [
+                                Icon(Icons.check_circle_rounded, size: 14),
+                                SizedBox(width: 4),
+                                Text('เสร็จแล้ว (Done)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // 'เสิร์ฟแล้ว (Served)' Button (Active when ticket is ready)
+                      if (ticket.status == KitchenOrderStatus.ready) ...[
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ElevatedButton(
+                            key: Key('status_served_${ticket.id}'),
+                            onPressed: () {
+                              ref.read(kdsProvider.notifier).markAsServed(ticket.id);
+                              CapsuleToast.showSuccess(context, 'ออเดอร์ #${ticket.orderNumber} เสิร์ฟเรียบร้อยแล้ว!');
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF38BDF8),
+                              foregroundColor: const Color(0xFF0B0F19),
+                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              elevation: 0,
+                            ),
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: const [
+                                  Icon(Icons.room_service_rounded, size: 14),
+                                  SizedBox(width: 4),
+                                  Text('เสิร์ฟแล้ว', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
-                ],
-              ],
-            ),
           ),
         ],
       ),
