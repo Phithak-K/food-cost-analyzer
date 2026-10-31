@@ -50,7 +50,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 // POST /api/orders - Create new order and deduct stock atomically
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { items } = req.body;
+    const { items, orderNumber, tableNumber, orderType } = req.body;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({
@@ -59,11 +59,31 @@ router.post('/', async (req: Request, res: Response) => {
       });
     }
 
-    const createdOrder = await OrdersService.createOrder({ items });
+    const createdOrder = await OrdersService.createOrder({
+      items,
+      orderNumber,
+      tableNumber,
+      orderType,
+    });
+
+    const broadcastPayload = {
+      id: createdOrder.id,
+      orderNumber: orderNumber || `ORD-${createdOrder.id.substring(0, 6).toUpperCase()}`,
+      tableNumber: tableNumber || 'โต๊ะ 01',
+      orderType: orderType || 'ทานที่ร้าน (Dine-In)',
+      status: 'COOKING',
+      items: (createdOrder.items || []).map((i: any) => ({
+        recipeId: i.recipeId,
+        recipeName: i.recipe?.name || '',
+        category: i.recipe?.category || 'Main Course',
+        quantity: i.quantity,
+        pricePerUnit: Number(i.pricePerUnit),
+      })),
+    };
 
     // Real-Time broadcast to Kitchen Display System (KDS) & other listeners
     try {
-      WebSocketService.broadcast('NEW_ORDER', createdOrder);
+      WebSocketService.broadcast('NEW_ORDER', broadcastPayload);
     } catch (wsErr) {
       console.error('Failed to broadcast NEW_ORDER via WebSocket:', wsErr);
     }

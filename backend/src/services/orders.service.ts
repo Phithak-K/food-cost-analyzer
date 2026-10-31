@@ -5,10 +5,15 @@ import { OrderStatus, Prisma } from '@prisma/client';
 export interface CreateOrderItemInput {
   recipeId: string;
   quantity: number;
+  recipeName?: string;
+  pricePerUnit?: number;
 }
 
 export interface CreateOrderInput {
   items: CreateOrderItemInput[];
+  orderNumber?: string;
+  tableNumber?: string;
+  orderType?: string;
 }
 
 export interface InsufficientIngredientDetail {
@@ -63,7 +68,41 @@ export class OrdersService {
         },
       });
 
-      const recipeMap = new Map(recipes.map((r) => [r.id, r]));
+      const recipeMap = new Map<string, any>(recipes.map((r) => [r.id, r]));
+
+      // Fallback matching: If mock client IDs like 'rec_1' are used, map to seeded recipes
+      let allDbRecipes: any[] | null = null;
+      for (const item of input.items) {
+        if (!recipeMap.has(item.recipeId)) {
+          if (!allDbRecipes) {
+            allDbRecipes = await tx.recipe.findMany({
+              orderBy: { createdAt: 'asc' },
+              include: {
+                ingredients: {
+                  include: {
+                    ingredient: true,
+                  },
+                },
+              },
+            });
+          }
+          let matched: any = null;
+          if (item.recipeId.startsWith('rec_')) {
+            const index = parseInt(item.recipeId.replace('rec_', ''), 10) - 1;
+            if (index >= 0 && index < allDbRecipes.length) {
+              matched = allDbRecipes[index];
+            }
+          }
+          if (!matched && item.recipeName) {
+            matched = allDbRecipes.find(
+              (r) => r.name.trim().toLowerCase() === item.recipeName!.trim().toLowerCase()
+            );
+          }
+          if (matched) {
+            recipeMap.set(item.recipeId, matched);
+          }
+        }
+      }
 
       for (const recipeId of recipeIds) {
         if (!recipeMap.has(recipeId)) {
@@ -208,9 +247,10 @@ export class OrdersService {
 
       // 6. Record in SalesLog for real-time analytics sync
       for (const item of input.items) {
+        const recipe = recipeMap.get(item.recipeId)!;
         await tx.salesLog.create({
           data: {
-            recipeId: item.recipeId,
+            recipeId: recipe.id,
             quantitySold: item.quantity,
             period: new Date(),
           },

@@ -33,6 +33,13 @@ export class WebSocketService {
           ) {
             console.log('[WebSocket] Client status change broadcast:', parsed.data);
             WebSocketService.broadcast('ORDER_STATUS_CHANGED', parsed.data);
+          } else if (
+            parsed.event === 'NEW_ORDER' ||
+            parsed.event === 'CREATE_ORDER' ||
+            parsed.type === 'NEW_ORDER'
+          ) {
+            console.log('[WebSocket] Client new order broadcast:', parsed.data);
+            WebSocketService.broadcast('NEW_ORDER', parsed.data);
           }
         } catch {
           // Ignore malformed message

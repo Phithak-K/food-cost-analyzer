@@ -192,9 +192,26 @@ class KdsWebSocketNotifier extends Notifier<KdsWebSocketState> {
 
   void _processNewOrder(Map<String, dynamic> orderData) {
     final orderId = (orderData['id'] ?? '').toString();
-    final rawOrderNumber = orderId.length >= 6
-        ? 'ORD-${orderId.substring(0, 6).toUpperCase()}'
-        : 'ORD-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}';
+    final providedOrderNumber =
+        (orderData['orderNumber'] ?? '').toString().trim();
+    final rawOrderNumber = providedOrderNumber.isNotEmpty
+        ? providedOrderNumber
+        : (orderId.length >= 6
+            ? 'ORD-${orderId.substring(0, 6).toUpperCase()}'
+            : 'ORD-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}');
+
+    final providedTableNumber =
+        (orderData['tableNumber'] ?? '').toString().trim();
+    final tableNumber = providedTableNumber.isNotEmpty
+        ? providedTableNumber
+        : 'โต๊ะ ${(state.orderReceivedCount % 8) + 1}';
+
+    final providedOrderType = (orderData['orderType'] ?? '').toString().trim();
+    final orderType = providedOrderType.isNotEmpty
+        ? providedOrderType
+        : (tableNumber.contains('กลับบ้าน')
+            ? 'กลับบ้าน (Takeaway)'
+            : 'ทานที่ร้าน (Dine-In)');
 
     final recipes = ref.read(recipesProvider);
     final rawItems = orderData['items'] as List<dynamic>? ?? [];
@@ -203,24 +220,45 @@ class KdsWebSocketNotifier extends Notifier<KdsWebSocketState> {
 
     for (final rawItem in rawItems) {
       final recipeId = (rawItem['recipeId'] ?? '').toString();
+      final recipeName = (rawItem['recipeName'] ??
+              rawItem['recipe']?['name'] ??
+              '')
+          .toString();
+      final category = (rawItem['category'] ??
+              rawItem['recipe']?['category'] ??
+              'Main Course')
+          .toString();
+      final note = (rawItem['note'] ?? '').toString();
       final qty = (rawItem['quantity'] as num?)?.toInt() ?? 1;
+      final price = (rawItem['pricePerUnit'] as num?)?.toDouble() ?? 0.0;
 
       // Find recipe in repository or fallback
       Recipe? recipe;
       try {
-        recipe = recipes.firstWhere((r) => r.id == recipeId);
+        recipe = recipes.firstWhere(
+          (r) =>
+              r.id == recipeId ||
+              (recipeName.isNotEmpty &&
+                  r.name.trim().toLowerCase() ==
+                      recipeName.trim().toLowerCase()),
+        );
       } catch (_) {
-        final rawRecipe = rawItem['recipe'] as Map<String, dynamic>?;
         recipe = Recipe(
-          id: recipeId,
-          name: rawRecipe?['name']?.toString() ?? 'เมนูสั่งด่วน',
-          category: rawRecipe?['category']?.toString() ?? 'Main Course',
-          sellingPrice: (rawItem['pricePerUnit'] as num?)?.toDouble() ?? 0.0,
+          id: recipeId.isNotEmpty ? recipeId : 'rec_custom',
+          name: recipeName.isNotEmpty ? recipeName : 'เมนูสั่งด่วน',
+          category: category,
+          sellingPrice: price,
           items: const [],
         );
       }
 
-      ticketItems.add(KitchenOrderItem(recipe: recipe, quantity: qty));
+      ticketItems.add(
+        KitchenOrderItem(
+          recipe: recipe,
+          quantity: qty,
+          note: note.isNotEmpty ? note : null,
+        ),
+      );
     }
 
     if (ticketItems.isNotEmpty) {
@@ -229,8 +267,8 @@ class KdsWebSocketNotifier extends Notifier<KdsWebSocketState> {
             ? orderId
             : 'kds_${DateTime.now().millisecondsSinceEpoch}',
         orderNumber: rawOrderNumber,
-        tableNumber: 'โต๊ะ ${(state.orderReceivedCount % 8) + 1}',
-        orderType: 'ทานที่ร้าน (Dine-In)',
+        tableNumber: tableNumber,
+        orderType: orderType,
         createdAt: DateTime.now(),
         items: ticketItems,
         status: KitchenOrderStatus.cooking,
@@ -271,6 +309,40 @@ class KdsWebSocketNotifier extends Notifier<KdsWebSocketState> {
           );
       if (status == KitchenOrderStatus.ready) {
         AudioChime.play();
+      }
+    }
+  }
+
+  /// Broadcasts a newly created kitchen ticket to other tabs/displays via WebSocket Gateway
+  void broadcastNewTicket(KitchenTicket ticket) {
+    if (_channel != null &&
+        state.status == WebSocketConnectionStatus.connected) {
+      try {
+        final payload = {
+          'event': 'NEW_ORDER',
+          'data': {
+            'id': ticket.id,
+            'orderNumber': ticket.orderNumber,
+            'tableNumber': ticket.tableNumber,
+            'orderType': ticket.orderType,
+            'status': 'COOKING',
+            'items': ticket.items
+                .map(
+                  (i) => {
+                    'recipeId': i.recipe.id,
+                    'recipeName': i.recipe.name,
+                    'category': i.recipe.category,
+                    'quantity': i.quantity,
+                    'note': i.note,
+                    'pricePerUnit': i.recipe.sellingPrice,
+                  },
+                )
+                .toList(),
+          },
+        };
+        _channel?.sink.add(jsonEncode(payload));
+      } catch (e) {
+        debugPrint('[WebSocket] Broadcast new order error: $e');
       }
     }
   }

@@ -189,23 +189,43 @@ class OrdersNotifier extends Notifier<OrderState> {
 
     state = state.copyWith(isSubmitting: true);
 
-    // 2. Attempt Backend POST /api/orders (Gracefully falls back to reactive local state if offline)
+    // 2. Generate order code & table identification
+    final orderNum =
+        'ORD-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}';
+    final selectedTable = state.orderType.contains('กลับบ้าน')
+        ? 'รับกลับบ้าน (Takeaway)'
+        : state.tableNumber;
+
+    // 3. Attempt Backend POST /api/orders (Gracefully falls back to reactive local state if offline)
     try {
       final payload = {
-        'items': state.items.map((i) => {
-          'recipeId': i.recipe.id,
-          'quantity': i.quantity,
-        }).toList(),
+        'orderNumber': orderNum,
+        'tableNumber': selectedTable,
+        'orderType': state.orderType,
+        'items': state.items
+            .map(
+              (i) => {
+                'recipeId': i.recipe.id,
+                'recipeName': i.recipe.name,
+                'quantity': i.quantity,
+                'pricePerUnit': i.recipe.sellingPrice,
+              },
+            )
+            .toList(),
       };
 
       await _dio.post('/api/orders', data: payload);
     } catch (e) {
       if (e is DioException && e.response?.data != null) {
         final data = e.response?.data;
-        if (data['code'] == 'INSUFFICIENT_STOCK' && data['insufficientItems'] != null) {
+        if (data['code'] == 'INSUFFICIENT_STOCK' &&
+            data['insufficientItems'] != null) {
           state = state.copyWith(isSubmitting: false);
           final list = (data['insufficientItems'] as List)
-              .map((i) => '${i['name']} (คงเหลือ ${i['availableStock']} ${i['unit']}, ต้องการ ${i['requiredStock']} ${i['unit']})')
+              .map(
+                (i) =>
+                    '${i['name']} (คงเหลือ ${i['availableStock']} ${i['unit']}, ต้องการ ${i['requiredStock']} ${i['unit']})',
+              )
               .toList();
           if (context.mounted) {
             await showInsufficientStockDialog(context, insufficientItems: list);
@@ -216,28 +236,25 @@ class OrdersNotifier extends Notifier<OrderState> {
       // Note: If backend is offline during client-only demo, continue to update local state smoothly
     }
 
-    // 3. Deduct stock atomically in state
+    // 4. Deduct stock atomically in state
     ingredientsNotifier.deductStockForOrder(orderItems);
 
-    // 4. Record sales volume in recipesProvider
+    // 5. Record sales volume in recipesProvider
     final recipesNotifier = ref.read(recipesProvider.notifier);
     for (final item in state.items) {
       recipesNotifier.recordSale(item.recipe.id, item.quantity);
     }
 
-    // 5. Invalidate / Trigger Refresh
+    // 6. Invalidate / Trigger Refresh
     ref.invalidate(dashboardProvider);
 
-    // 6. Generate order code, push ticket to Kitchen KDS queue, push to history, and notify
-    final orderNum = 'ORD-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}';
-    final selectedTable = state.orderType.contains('กลับบ้าน')
-        ? 'รับกลับบ้าน (Takeaway)'
-        : state.tableNumber;
+    // 7. Push ticket to Kitchen KDS queue and TV Display (broadcasts via WebSocket to all tabs), push to history
     ref.read(kdsProvider.notifier).addTicketFromCart(
       orderNum,
       state.items,
       table: selectedTable,
       orderType: state.orderType,
+      broadcast: true,
     );
 
     ref.read(ordersHistoryProvider.notifier).addCompletedOrder(

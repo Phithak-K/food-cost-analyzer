@@ -75,6 +75,7 @@ class KdsNotifier extends Notifier<List<KitchenTicket>> {
     List<CartItem> cartItems, {
     String table = 'โต๊ะ 01',
     String orderType = 'ทานที่ร้าน (Dine-In)',
+    bool broadcast = true,
   }) {
     final newTicket = KitchenTicket(
       id: 'kds_${DateTime.now().millisecondsSinceEpoch}',
@@ -88,7 +89,7 @@ class KdsNotifier extends Notifier<List<KitchenTicket>> {
       status: KitchenOrderStatus.cooking,
     );
 
-    addTicket(newTicket);
+    addTicket(newTicket, broadcast: broadcast);
   }
 
   void markAsServed(String ticketId, {bool broadcast = true}) {
@@ -99,18 +100,31 @@ class KdsNotifier extends Notifier<List<KitchenTicket>> {
     );
   }
 
-  void addTicket(KitchenTicket ticket) {
+  bool addTicket(KitchenTicket ticket, {bool broadcast = false}) {
     if (state.any(
-      (t) => t.id == ticket.id || t.orderNumber == ticket.orderNumber,
+      (t) =>
+          t.id == ticket.id ||
+          t.orderNumber == ticket.orderNumber ||
+          t.orderNumber.replaceAll('#', '').trim().toLowerCase() ==
+              ticket.orderNumber.replaceAll('#', '').trim().toLowerCase(),
     )) {
-      return;
+      return false;
     }
     state = [ticket, ...state];
+
+    if (broadcast) {
+      try {
+        ref.read(kdsWebSocketProvider.notifier).broadcastNewTicket(ticket);
+      } catch (_) {}
+    }
+    return true;
   }
 
   void addTicketFromWebSocket(KitchenTicket ticket) {
-    addTicket(ticket);
-    AudioChime.play();
+    final added = addTicket(ticket);
+    if (added) {
+      AudioChime.play();
+    }
   }
 
   void toggleStatus(String ticketId) {
