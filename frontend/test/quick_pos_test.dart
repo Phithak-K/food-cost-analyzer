@@ -75,6 +75,22 @@ void main() {
       expect(state.isEmpty, isFalse);
     });
 
+    test('IngredientsNotifier calculates maxPortionsAvailable accurately', () {
+      final container = ProviderContainer(
+        overrides: [
+          ingredientsProvider.overrideWith(() => _MockIngredientsNotifier([salmon, wagyu])),
+        ],
+      );
+
+      final notifier = container.read(ingredientsProvider.notifier);
+
+      // Salmon has 2kg, needs 200g per portion -> 10 portions
+      expect(notifier.maxPortionsAvailable(salmonRecipe), 10);
+
+      // Wagyu has 100g, needs 250g per portion -> 0 portions
+      expect(notifier.maxPortionsAvailable(wagyuRecipe), 0);
+    });
+
     test('IngredientsNotifier detects stock sufficiency and shortages accurately', () {
       final container = ProviderContainer(
         overrides: [

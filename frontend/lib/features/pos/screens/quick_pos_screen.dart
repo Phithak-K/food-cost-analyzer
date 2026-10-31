@@ -292,12 +292,13 @@ class _QuickPosScreenState extends ConsumerState<QuickPosScreen> {
   Widget _buildRecipeCard(Recipe recipe, OrderState orderState) {
     final ingredientsNotifier = ref.read(ingredientsProvider.notifier);
     final canCook = ingredientsNotifier.canCookRecipe(recipe);
-    final missingList = !canCook ? ingredientsNotifier.getMissingIngredients(recipe) : <String>[];
+    final maxPortions = ingredientsNotifier.maxPortionsAvailable(recipe);
     final cartQty = orderState.getQuantityForRecipe(recipe.id);
 
     return InkWell(
       onTap: () {
-        if (!canCook) {
+        if (!ingredientsNotifier.canCookRecipe(recipe, quantity: cartQty + 1)) {
+          final missingList = ingredientsNotifier.getMissingIngredients(recipe, quantity: cartQty + 1);
           showInsufficientStockDialog(context, insufficientItems: missingList);
         } else {
           ref.read(ordersProvider.notifier).addToCart(recipe);
@@ -329,7 +330,7 @@ class _QuickPosScreenState extends ConsumerState<QuickPosScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top Row: Category + Stock / Cart Badge
+            // Top Row: Category + Low Stock Badge + Stock / Cart Badge
             Row(
               children: [
                 Container(
@@ -344,6 +345,28 @@ class _QuickPosScreenState extends ConsumerState<QuickPosScreen> {
                     style: const TextStyle(fontSize: 10, color: AppTheme.textSecondary, fontWeight: FontWeight.w600),
                   ),
                 ),
+                if (canCook && maxPortions <= 3) ...[
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: AppTheme.warning.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: AppTheme.warning.withValues(alpha: 0.5)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.bolt_rounded, size: 11, color: AppTheme.warning),
+                        const SizedBox(width: 2),
+                        Text(
+                          'เหลือ $maxPortions ที่',
+                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppTheme.warning),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 const Spacer(),
                 if (!canCook)
                   Container(
@@ -732,6 +755,7 @@ class _QuickPosScreenState extends ConsumerState<QuickPosScreen> {
 
   Widget _buildCartItemRow(CartItem item) {
     final ordersNotifier = ref.read(ordersProvider.notifier);
+    final ingredientsNotifier = ref.read(ingredientsProvider.notifier);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -784,7 +808,15 @@ class _QuickPosScreenState extends ConsumerState<QuickPosScreen> {
                   ),
                 ),
                 InkWell(
-                  onTap: () => ordersNotifier.incrementQuantity(item.recipe.id),
+                  onTap: () {
+                    final nextQty = item.quantity + 1;
+                    if (!ingredientsNotifier.canCookRecipe(item.recipe, quantity: nextQty)) {
+                      final missing = ingredientsNotifier.getMissingIngredients(item.recipe, quantity: nextQty);
+                      showInsufficientStockDialog(context, insufficientItems: missing);
+                    } else {
+                      ordersNotifier.incrementQuantity(item.recipe.id);
+                    }
+                  },
                   borderRadius: BorderRadius.circular(8),
                   child: const Padding(
                     padding: EdgeInsets.all(6),

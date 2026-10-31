@@ -41,6 +41,27 @@ class IngredientsNotifier extends Notifier<List<Ingredient>> {
     return true;
   }
 
+  /// Calculate maximum portions of a recipe that can currently be prepared based on ingredient stocks
+  int maxPortionsAvailable(Recipe recipe) {
+    if (recipe.items.isEmpty) return 0;
+    int maxPortions = 999999;
+    for (final item in recipe.items) {
+      final currentIng = state.firstWhere(
+        (i) => i.id == item.ingredient.id,
+        orElse: () => item.ingredient,
+      );
+      final singleBaseNeeded = UnitConverter.toBaseUnit(item.quantityUsed, item.unitUsed);
+      final basePerStockUnit = UnitConverter.toBaseUnit(1.0, currentIng.purchaseUnit);
+      final singleStockNeeded = basePerStockUnit > 0 ? (singleBaseNeeded / basePerStockUnit) : 0.0;
+      if (singleStockNeeded <= 0) continue;
+      final portions = (currentIng.currentStock / singleStockNeeded).floor();
+      if (portions < maxPortions) {
+        maxPortions = portions;
+      }
+    }
+    return maxPortions == 999999 ? 0 : maxPortions;
+  }
+
   /// Get list of missing ingredient descriptions if stock is not sufficient
   List<String> getMissingIngredients(Recipe recipe, {int quantity = 1}) {
     final List<String> missing = [];
