@@ -178,6 +178,8 @@ class KdsWebSocketNotifier extends Notifier<KdsWebSocketState> {
           lastHeartbeat: DateTime.now(),
         );
         debugPrint('[WebSocket] Gateway Connected');
+      } else if (event == 'INITIAL_STATE' || event == 'SYNC_STATE') {
+        _processInitialState(payload['data'] as List<dynamic>? ?? []);
       } else if (event == 'PONG') {
         state = state.copyWith(lastHeartbeat: DateTime.now());
       } else if (event == 'NEW_ORDER') {
@@ -190,7 +192,10 @@ class KdsWebSocketNotifier extends Notifier<KdsWebSocketState> {
     }
   }
 
-  void _processNewOrder(Map<String, dynamic> orderData) {
+  KitchenTicket? _parseTicketFromMap(
+    Map<String, dynamic> orderData,
+    List<Recipe> recipes,
+  ) {
     final orderId = (orderData['id'] ?? '').toString();
     final providedOrderNumber =
         (orderData['orderNumber'] ?? '').toString().trim();
@@ -204,7 +209,7 @@ class KdsWebSocketNotifier extends Notifier<KdsWebSocketState> {
         (orderData['tableNumber'] ?? '').toString().trim();
     final tableNumber = providedTableNumber.isNotEmpty
         ? providedTableNumber
-        : 'โต๊ะ ${(state.orderReceivedCount % 8) + 1}';
+        : 'โต๊ะ 01';
 
     final providedOrderType = (orderData['orderType'] ?? '').toString().trim();
     final orderType = providedOrderType.isNotEmpty
@@ -213,9 +218,23 @@ class KdsWebSocketNotifier extends Notifier<KdsWebSocketState> {
             ? 'กลับบ้าน (Takeaway)'
             : 'ทานที่ร้าน (Dine-In)');
 
-    final recipes = ref.read(recipesProvider);
-    final rawItems = orderData['items'] as List<dynamic>? ?? [];
+    final rawStatus =
+        (orderData['status'] ?? 'COOKING').toString().toUpperCase();
+    KitchenOrderStatus status = KitchenOrderStatus.cooking;
+    if (rawStatus == 'READY') {
+      status = KitchenOrderStatus.ready;
+    } else if (rawStatus == 'SERVED' || rawStatus == 'COMPLETED') {
+      status = KitchenOrderStatus.served;
+    }
 
+    DateTime createdAt = DateTime.now();
+    if (orderData['createdAt'] != null) {
+      try {
+        createdAt = DateTime.parse(orderData['createdAt'].toString());
+      } catch (_) {}
+    }
+
+    final rawItems = orderData['items'] as List<dynamic>? ?? [];
     final List<KitchenOrderItem> ticketItems = [];
 
     for (final rawItem in rawItems) {
@@ -261,25 +280,47 @@ class KdsWebSocketNotifier extends Notifier<KdsWebSocketState> {
       );
     }
 
-    if (ticketItems.isNotEmpty) {
-      final newTicket = KitchenTicket(
-        id: orderId.isNotEmpty
-            ? orderId
-            : 'kds_${DateTime.now().millisecondsSinceEpoch}',
-        orderNumber: rawOrderNumber,
-        tableNumber: tableNumber,
-        orderType: orderType,
-        createdAt: DateTime.now(),
-        items: ticketItems,
-        status: KitchenOrderStatus.cooking,
-      );
+    return KitchenTicket(
+      id: orderId.isNotEmpty
+          ? orderId
+          : 'kds_${DateTime.now().millisecondsSinceEpoch}',
+      orderNumber: rawOrderNumber,
+      tableNumber: tableNumber,
+      orderType: orderType,
+      createdAt: createdAt,
+      items: ticketItems,
+      status: status,
+    );
+  }
 
-      // Add to KDS and sound the bell chime
+  void _processInitialState(List<dynamic> rawTicketList) {
+    final recipes = ref.read(recipesProvider);
+    final List<KitchenTicket> parsedTickets = [];
+
+    for (final item in rawTicketList) {
+      if (item is Map<String, dynamic>) {
+        final ticket = _parseTicketFromMap(item, recipes);
+        if (ticket != null) {
+          parsedTickets.add(ticket);
+        }
+      }
+    }
+
+    if (parsedTickets.isNotEmpty) {
+      ref.read(kdsProvider.notifier).syncAllTickets(parsedTickets);
+    }
+  }
+
+  void _processNewOrder(Map<String, dynamic> orderData) {
+    final recipes = ref.read(recipesProvider);
+    final newTicket = _parseTicketFromMap(orderData, recipes);
+
+    if (newTicket != null) {
       ref.read(kdsProvider.notifier).addTicketFromWebSocket(newTicket);
 
       state = state.copyWith(
         orderReceivedCount: state.orderReceivedCount + 1,
-        lastMessage: 'ออเดอร์ใหม่ #$rawOrderNumber เข้ามาแล้ว',
+        lastMessage: 'ออเดอร์ใหม่ #${newTicket.orderNumber} เข้ามาแล้ว',
         lastHeartbeat: DateTime.now(),
       );
     }

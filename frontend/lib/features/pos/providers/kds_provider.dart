@@ -127,6 +127,34 @@ class KdsNotifier extends Notifier<List<KitchenTicket>> {
     }
   }
 
+  void syncAllTickets(List<KitchenTicket> remoteTickets) {
+    final Map<String, KitchenTicket> merged = {};
+
+    // 1. Put current local tickets in map
+    for (final t in state) {
+      merged[t.orderNumber] = t;
+    }
+
+    // 2. Overlay remote authoritative tickets
+    for (final remote in remoteTickets) {
+      final key = remote.orderNumber;
+      if (merged.containsKey(key)) {
+        final existing = merged[key]!;
+        merged[key] = remote.copyWith(
+          items: remote.items.isNotEmpty ? remote.items : existing.items,
+        );
+      } else {
+        merged[key] = remote;
+      }
+    }
+
+    // 3. Keep stable ordering by createdAt descending
+    final sorted = merged.values.toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+    state = sorted;
+  }
+
   void toggleStatus(String ticketId) {
     for (final ticket in state) {
       if (ticket.id == ticketId || ticket.orderNumber == ticketId) {
